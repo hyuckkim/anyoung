@@ -22,6 +22,7 @@
     <ClCompile Include="anyoung.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="annyCore.c" />
     <ClInclude Include="kinput.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

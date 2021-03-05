@@ -23,5 +23,8 @@
     <ClInclude Include="kinput.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="annyCore.c">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -104,9 +104,12 @@ void getSO(char* writeAt)
 				nooNow[0] = '\0';
 				break;
 			case BackSpace:
-				printf("\b \b");
-				nooNow = noo[iAge - 1];
-				iAge -= 1;
+				if (iAge > 0)
+				{
+					printf("\b \b");
+					nooNow = noo[iAge - 1];
+					iAge -= 1;
+				}
 				break;
 			case sol:
 				printf("%c", utf8[0]);

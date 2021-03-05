@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "kinput.h"
+#include "annyCore.c"
+
 int main()
 {
     char chars[80] = "hello 안녕";
@@ -53,8 +55,11 @@ int main()
             i += 1;
             printf("\n");
         }
-        printf("\n>>> ");
+        printf("\n");
+
+        printf(">>> ");
         getSO(chars);
+        anyFunction(chars);
     }
 
 }
