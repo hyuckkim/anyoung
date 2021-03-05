@@ -32,6 +32,67 @@ breakBySecond:
 	if (word1[i] == '\0' || word1[i] == ' ') return 1;
 	else return 0;
 }
+void function_analysis(char* line, char* lastW)
+{
+    unsigned char a;
+    int i = 0;
+    while(line + i != lastW - 1)
+    {
+        a = line[i];
+        printBit(a);
+        if (a == '\n')
+        {
+            printf(" \\n");
+            break;
+        }
+        else if (a == '\0')
+        {
+            printf(" \\0");
+            break;
+        }
+        else if ((a >> 7) % 2 == 0)
+        {
+            printf(" 1byte %c", line[i]);
+        }
+        else if (
+            ((a >> 7) % 2 == 1)
+            && ((a >> 6) % 2 == 1)
+            && ((a >> 5) % 2 == 0))
+        {
+            printf(" 2byte %c%c", line[i], line[i + 1]);
+        }
+        else if (
+            ((a >> 7) % 2 == 1)
+            && ((a >> 6) % 2 == 1)
+            && ((a >> 5) % 2 == 1)
+            && ((a >> 4) % 2 == 0))
+        {
+            printf(" 3byte %c%c%c", line[i], line[i + 1], line[i + 2]);
+        }
+        else if (
+            ((a >> 7) % 2 == 1)
+            && ((a >> 6) % 2 == 1)
+            && ((a >> 5) % 2 == 1)
+            && ((a >> 4) % 2 == 1)
+            && ((a >> 3) % 2 == 0))
+        {
+            printf(" 4byte %c%c%c%c", line[i], line[i + 1], line[i + 2], line[i + 3]);
+        }
+        i += 1;
+        printf("\n");
+    }
+    printf("\n");
+}
+void function_say(char* line, char* lastW)
+{
+    int i = 0;
+    while (line + i != lastW - 1)
+    {
+        printf("%c", line[i]);
+        i++;
+    }
+    printf("\n");
+}
 void anyFunction(char* line)
 {
 	char* robs[20];
@@ -47,11 +108,9 @@ void anyFunction(char* line)
 			break;
 		}
 	}
-	if (isMatch(robs[0], "안녕 "))
-		printf("안녕 단어로 시작하는 말을 했구나!\n");
-	if (isMatch(robs[1], "친구 "))
-		printf("친구 단어가 두 번째 단어로 오는 말을 했구나!\n");
-	if (isMatch(robs[robCount - 1], "반갑네 "))
-		printf("반갑네로 끝나는 말을 했구나!\n");
+	if (isMatch(robs[robCount - 1], "분석 "))
+		function_analysis(robs[0], robs[robCount - 1]);
+    if (isMatch(robs[robCount - 1], "말하기 "))
+        function_say(robs[0], robs[robCount - 1]);
 	lNow = line;
 }

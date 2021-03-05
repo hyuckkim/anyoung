@@ -106,7 +106,7 @@ void getSO(char* writeAt)
 			case BackSpace:
 				if (iAge > 0)
 				{
-					printf("\b \b");
+					printf("\b \b"); // TODO : 긴문자 제거 안됨. 되게 할 방법을 찾아야됨.
 					nooNow = noo[iAge - 1];
 					iAge -= 1;
 				}
