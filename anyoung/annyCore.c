@@ -42,15 +42,18 @@ void operate(variable a, variable b, char op, variable *result)
             case '+':
                 free(result->sValue);
                 result->sValue = malloc(sizeof(char) * (stringLength(b.sValue) + logSize(a.iValue)) + 1);
-                for (int i = logSize(a.iValue) - 1; i >= 0; i--, tmp++)
+                if (result->sValue != NULL)
                 {
-                    result->sValue[tmp] = logScale(a.iValue, i) + '0';
+                    for (int i = logSize(a.iValue) - 1; i >= 0; i--, tmp++)
+                    {
+                        result->sValue[tmp] = logScale(a.iValue, i) + '0';
+                    }
+                    for (int i = 0; b.sValue[i] != 0; i++, tmp++)
+                    {
+                        result->sValue[tmp] = b.sValue[i];
+                    }
+                    result->sValue[tmp] = '\0';
                 }
-                for (int i = 0; b.sValue[i] != 0; i++, tmp++)
-                {
-                    result->sValue[tmp] = b.sValue[i];
-                }
-                result->sValue[tmp] = '\0';
                 result->type = 1;
                 break;
             case '-':
@@ -75,15 +78,18 @@ void operate(variable a, variable b, char op, variable *result)
             case '+':
                 free(result->sValue);
                 result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
-                for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                if (result->sValue != NULL)
                 {
-                    result->sValue[tmp] = a.sValue[i];
+                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                    {
+                        result->sValue[tmp] = a.sValue[i];
+                    }
+                    for (int i = logSize(b.iValue) - 1; i >= 0; i--, tmp++)
+                    {
+                        result->sValue[tmp] = logScale(b.iValue, i) + '0';
+                    }
+                    result->sValue[tmp] = '\0';
                 }
-                for (int i = logSize(b.iValue) - 1; i >= 0; i--, tmp++)
-                {
-                    result->sValue[tmp] = logScale(b.iValue, i) + '0';
-                }
-                result->sValue[tmp] = '\0';
                 result->type = 1;
                 break;
             case '-':
@@ -92,14 +98,17 @@ void operate(variable a, variable b, char op, variable *result)
             case '*':
                 free(result->sValue);
                 result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) * b.iValue) + 1);
-                for (int j = 0; j < b.iValue; j++)
+                if (result->sValue != NULL)
                 {
-                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                    for (int j = 0; j < b.iValue; j++)
                     {
-                        result->sValue[tmp] = a.sValue[i];
+                        for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                        {
+                            result->sValue[tmp] = a.sValue[i];
+                        }
                     }
+                    result->sValue[tmp] = '\0';
                 }
-                result->sValue[tmp] = '\0';
                 result->type = 1;
                 break;
             case '/':
@@ -115,15 +124,18 @@ void operate(variable a, variable b, char op, variable *result)
             case '+':
                 free(result->sValue);
                 result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
-                for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                if (result->sValue != NULL)
                 {
-                    result->sValue[tmp] = a.sValue[i];
+                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                    {
+                        result->sValue[tmp] = a.sValue[i];
+                    }
+                    for (int i = 0; b.sValue[i] != 0; i++, tmp++)
+                    {
+                        result->sValue[tmp] = b.sValue[i];
+                    }
+                    result->sValue[tmp] = '\0';
                 }
-                for (int i = 0; b.sValue[i] != 0; i++, tmp++)
-                {
-                    result->sValue[tmp] = b.sValue[i];
-                }
-                result->sValue[tmp] = '\0';
                 result->type = 1;
                 break;
             case '-':
@@ -164,6 +176,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 sts++;
                 newStack[sts].type = 2;
                 newStack[sts].sValue = malloc(stringLengthQ(&result->startF[i]) + 1);
+                if (newStack[sts].sValue == NULL) return;
                 temp = 0;
             }
             else if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
@@ -212,7 +225,7 @@ void getValueinFactor(factor* result) //배열 아님!!
     }
     variable varStack[20];
     int varLast = 0;
-    char operatorStack[20];
+    char operatorStack[20] = "\0";
     int operatorLast = 0;
     int prio;
     //https://penglog.tistory.com/99 센세 감사합니다
@@ -241,7 +254,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 operatorLast++;
                 break;
             case ')': // 문자열 반복하면서 '(' 나올 때까지 연산
-                while (operatorStack[operatorLast - 1] != '(')
+                while (operatorLast > 0 && operatorStack[operatorLast - 1] != '(')
                 {
                     varLast--;
                     operatorLast--;
@@ -256,6 +269,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 {
                     varLast--;
                     operatorLast--;
+                    if (varLast <= 0 || operatorLast <= 0) break;
                     operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
                 }
                 operatorStack[operatorLast] = newStack[q].oValue;
@@ -265,7 +279,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             break;
         }
     }
-    while (operatorLast != 0) //남은 문자 계산
+    while (operatorLast != 0 && varLast > 0 && operatorLast > 0) //남은 문자 계산
     {
         varLast--;
         operatorLast--;
@@ -294,30 +308,45 @@ void annyCore_init()
     printf("어순에 상관없는 한글 프로그래밍 언어 안녕\nv0.1 실행중\n'도움'으로 명령어 확인(아직 안됨)\n");
     defines[defineCount].name = setString("말하기");
     defines[defineCount].argsCount = 1;
-    defines[defineCount].argNameCount = malloc(sizeof(int) * 1);
     defines[defineCount].args = malloc(sizeof(char**) * 1);
-    defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
-    defines[defineCount].argNameCount[0] = 2;
-    defines[defineCount].args[0][0] = setString("을");
-    defines[defineCount].args[0][1] = setString("를");
+    defines[defineCount].argNameCount = malloc(sizeof(int) * 1);
+    if (defines[defineCount].args != NULL && defines[defineCount].argNameCount != NULL)
+    {
+        defines[defineCount].argNameCount[0] = 2;
+        defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
+        if (defines[defineCount].args[0] != NULL)
+        {
+            defines[defineCount].args[0][0] = setString("을");
+            defines[defineCount].args[0][1] = setString("를");
+        }
+    }
     defineCount++;
     defines[defineCount].name = setString("표시하기");
     defines[defineCount].argsCount = 2;
-    defines[defineCount].argNameCount = malloc(sizeof(int) * 1);
     defines[defineCount].args = malloc(sizeof(char**) * 2);
-    defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
-    defines[defineCount].argNameCount[0] = 2;
-    defines[defineCount].args[0][0] = setString("을");
-    defines[defineCount].args[0][1] = setString("를");
-    defines[defineCount].args[1] = malloc(sizeof(char*) * 2);
-    defines[defineCount].argNameCount[1] = 1;
-    defines[defineCount].args[1][0] = setString("번");
+    defines[defineCount].argNameCount = malloc(sizeof(int) * 2);
+    if (defines[defineCount].args != NULL && defines[defineCount].argNameCount != NULL)
+    {
+        defines[defineCount].argNameCount[0] = 2;
+        defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
+        if (defines[defineCount].args[0] != NULL)
+        {
+            defines[defineCount].args[0][0] = setString("을");
+            defines[defineCount].args[0][1] = setString("를");
+        }
+        defines[defineCount].argNameCount[1] = 1;
+        defines[defineCount].args[1] = malloc(sizeof(char*) * 1);
+        if (defines[defineCount].args[1] != NULL)
+        {
+            defines[defineCount].args[1][0] = setString("번");
+        }
+    }
     defineCount++;
 }
 void useFunction(function* funNow)
 {
     if (isMatch(funNow->name, "말하기")) Function_Say(funNow->factors[0].value);
-    if (isMatch(funNow->name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
+    else if (isMatch(funNow->name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
 }
 function funNow;
 void anyFunction(char* line)

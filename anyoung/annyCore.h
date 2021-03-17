@@ -90,12 +90,14 @@ int logScale(int v, int is)
 }
 char* setString(char* item) //문자열을 새로 할당해 복사함.
 {
-    char* str = malloc(stringLength(item));
-    for (int i = 0; item[i] != 0; i++)
+    int strlen = stringLength(item);
+    char* str = malloc(strlen + 1);
+    if (str == NULL) return NULL;
+    for (int i = 0; i < strlen; i++)
     {
         str[i] = item[i];
     }
-    str[stringLength(item) - 1] = '\0';
+    str[strlen - 1] = '\0';
     return str;
 }
 typedef struct struct_def //함수의 정의.
@@ -169,12 +171,12 @@ void getfunbyDef(def define, char* str, function* result) // 함수로 변수를
     free(result->factors);
     result->factors = malloc(sizeof(factor)
         * define.argsCount); //sizeof(포인터)는 동적할당 관계없이 무조건 4라서 Count를 따로만듦
-    for (int i = 0; i < define.argsCount; i++)
-    {
-        result->factors[i].name = define.args[i];
-        result->factors[i].nameCount = define.argNameCount[i];
-        result->factors[i].isMatched = 0;
-    }
+    if(result->factors != NULL) for (int i = 0; i < define.argsCount; i++)
+        {
+            result->factors[i].name = define.args[i];
+            result->factors[i].nameCount = define.argNameCount[i];
+            result->factors[i].isMatched = 0;
+        }
 }
 void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
 {
