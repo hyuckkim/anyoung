@@ -1,209 +1,153 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
+#include "annyCore.h"
 
-typedef struct struct_variable
+void operate(variable a, variable b, char op, variable *result)
 {
-    int iValue;
-    char* sValue;
-} variable;
-typedef struct struct_factor
-{
-    char** name; // 조사 처리 여기서. 조사가 여러개가 같이 있을 수 있음.
-    int nameCount;
-    char* startF;
-    char* endF; //문장에서의 함수 시작점과 끝점.
-    variable value;
-    char isMatched; // 기본 0, 매치되고 나면 1.
-} factor;
-typedef struct struct_function
-{
-    char* name;
-    factor* factors;
-} function;
-typedef struct struct_def
-{
-    char* name;
-    char*** args; //여러개의 인수, 여러개의 얻는 방법, 여러개의 문자
-    int argsCount; //args 개수
-    int* argNameCount; //arg별 인수 개수
-    char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
-} def;
-typedef struct struct_stack
-{
-    int iValue;
-    char* sValue;
-    char* vValue;
-    char oValue;
-    char type; // 0 : none 1 : num 2 : string 3 : variable 4 : operator
-} stack;
-int stringSize(char* item)
-{
-    int i;
-    for (i = 0; item[i] != 0; i++) { }
-    return i + 1;
-}
-int stringSizespace(char* item)
-{
-    int i;
-    for (i = 0; item[i] != 0 && item[i] != ' '; i++) {}
-    return i + 1;
-}
-char* setString(char* item)
-{
-    char* str = malloc(stringSize(item));
-    for (int i = 0; item[i] != 0; i++)
+    int tmp = 0;
+    result->iValue = 0;
+    result->sValue = 0;
+    result->type = 0;
+    if (a.type == 0)
     {
-        str[i] = item[i];
-    }
-    str[stringSize(item) - 1] = '\0';
-    return str;
-}
-int isMatch(char* word1, char* word2)
-{
-	int i = 0;
-	while (1)
-	{
-		if (word1[i] != word2[i]) return 0;
-		i++;
-		if (word1[i] == '\0' || word1[i] == ' ') goto breakByFirst;
-		if (word2[i] == '\0' || word2[i] == ' ') goto breakBySecond;
-	}
-breakByFirst:
-	if (word2[i] == '\0' || word2[i] == ' ') return 1;
-	else return 0;
-breakBySecond:
-	if (word1[i] == '\0' || word1[i] == ' ') return 1;
-	else return 0;
-}
-int next_is_opperator(char* po)
-{
-    int i = 0;
-    while (1)
-    {
-        i += 1;
-        switch (po[i])
+        if (b.type == 0)
         {
-        case ' ':
-            break;
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-            return 1;
-        case '\0':
-            return 0;
-        default:
-            return 0;
-        }
-    }
-}
-def defines[80];
-char defineCount = 0;
-def getdefbyStr(char* str) // 이름으로 함수 이름만 만들기
-{
-    // printf("str 실행중...");
-    //문자열마다 있는지 보기.
-    for (int i = 0; str[i] != 0; i++)
-    {
-        for (int j = 0; j < defineCount; j++)
-        {
-            // printf("%d : %s / %s\n", i, &str[i], defines[j].name);
-            if (isMatch(&str[i], defines[j].name))
+            //int and int
+            switch (op)
             {
-                // printf("찾았다!");
-                return defines[j];
-            }
-        }
-    }
-    printf("오류 발생. 문장에 맞는 함수를 찾지 못했습니다.");
-    return defines[0];
-}
-function getfunbyDef(def define, char* str) // 함수로 객체만 만들기
-{
-    function *fp = malloc(sizeof(function));
-    function f = *fp;
-    f.name = define.name;
-    f.factors = malloc(sizeof(factor)
-        * define.argsCount); //일단 argument의 개수만큼 받으려고 한건데... Todo : 수 다시받기
-    return f;
-}
-int isFair(char* word, factor it, int* ret) //int로 사용한 위치 반환함.
-{
-    for (int i = 0; i < it.nameCount; i++)
-    {
-        //printf("%s / %s\n", word, it.name[i]);
-        if (isMatch(word, it.name[i]))
-        {
-            *ret = stringSizespace(word);
-            return 1;
-        }
-    }
-    return 0;
-}
-void sayAtoB(char* A, char* B)
-{
-    for (char* i = A; i < B; i++)
-    {
-        printf("%c", *i);
-    }
-    printf("\n");
-}
-factor* getFactors(def define, function fun, char* str) // 문장 factor별로 잘라주기
-{
-    factor* fac = malloc(define.argsCount);
-    for(int i = 0; i < define.argsCount; i++)
-    {
-        fac[i].name = define.args[i];
-        fac[i].nameCount = define.argNameCount[i];
-        fac[i].isMatched = 0;
-    }
-    int starti = 0;
-    int ss = 0;
-    for (int i = 0; str[i] != 0; i++)
-    {
-        for (int j = 0; j < define.argsCount; j++)
-        {
-            //printf("루프 사용...%d : %d\n", j, fac[j].isMatched);
-            if (fac[j].isMatched) continue;
-            int nameIndex;
-            if (isFair(&str[i], fac[j], &nameIndex))
-            {
-                //printf("if 조건!\n");
-                fac[j].startF = str + starti;
-                fac[j].endF = str + i;
-                fac[j].isMatched = 1;
-                //sayAtoB(fac[j].startF, fac[j].endF);
-                ss++;
-                starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringSizeSpace로 잘라서 스페이스바는 알아서 걸러짐)
+            case '+':
+                result->type = 0;
+                result->iValue = a.iValue + b.iValue;
+                break;
+            case '-':
+                result->type = 0;
+                result->iValue = a.iValue - b.iValue;
+                break;
+            case '*':
+                result->type = 0;
+                result->iValue = a.iValue * b.iValue;
+                break;
+            case '/':
+                result->type = 0;
+                result->iValue = a.iValue / b.iValue;
                 break;
             }
-            else if (isMatch(define.name, &str[i]))
+        }
+        else
+        {
+            //int and string
+            switch (op)
             {
-                starti = i + stringSizespace(define.name);
+            case '+':
+                free(result->sValue);
+                result->sValue = malloc(sizeof(char) * (stringLength(b.sValue) + logSize(a.iValue)) + 1);
+                for (int i = logSize(a.iValue) - 1; i >= 0; i--, tmp++)
+                {
+                    result->sValue[tmp] = logScale(a.iValue, i) + '0';
+                }
+                for (int i = 0; b.sValue[i] != 0; i++, tmp++)
+                {
+                    result->sValue[tmp] = b.sValue[i];
+                }
+                result->sValue[tmp] = '\0';
+                result->type = 1;
+                break;
+            case '-':
+                //except error
+                break;
+            case '*':
+                //except error
+                break;
+            case '/':
+                //except error
+                break;
             }
         }
     }
-    if (ss == 0) printf("오류 발생. 인수 개수와 형식이 맞지 않습니다.\n");
-    return fac;
-}
-int searchToQ(char* po)
-{
-    for (int i = 1; po[i] != '\0'; i++) // 시작하는 따옴표를 반환하는 것을 막기 위해 1부터.
+    else
     {
-        if (po[i] == '"') return i;
+        if (b.type == 0)
+        {
+            //string and int
+            switch (op)
+            {
+            case '+':
+                free(result->sValue);
+                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
+                for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                {
+                    result->sValue[tmp] = a.sValue[i];
+                }
+                for (int i = logSize(b.iValue) - 1; i >= 0; i--, tmp++)
+                {
+                    result->sValue[tmp] = logScale(b.iValue, i) + '0';
+                }
+                result->sValue[tmp] = '\0';
+                result->type = 1;
+                break;
+            case '-':
+                //except error
+                break;
+            case '*':
+                free(result->sValue);
+                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) * b.iValue) + 1);
+                for (int j = 0; j < b.iValue; j++)
+                {
+                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                    {
+                        result->sValue[tmp] = a.sValue[i];
+                    }
+                }
+                result->sValue[tmp] = '\0';
+                result->type = 1;
+                break;
+            case '/':
+                //except error
+                break;
+            }
+        }
+        else
+        {
+            //string and string
+            switch (op)
+            {
+            case '+':
+                free(result->sValue);
+                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
+                for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                {
+                    result->sValue[tmp] = a.sValue[i];
+                }
+                for (int i = 0; b.sValue[i] != 0; i++, tmp++)
+                {
+                    result->sValue[tmp] = b.sValue[i];
+                }
+                result->sValue[tmp] = '\0';
+                result->type = 1;
+                break;
+            case '-':
+                //except error
+                break;
+            case '*':
+                //except error
+                break;
+            case '/':
+                //except error
+                break;
+            }
+        }
     }
-    return -1;
 }
-void getValueinFactor(factor* fac)
+void getValueinFactor(factor* result) //배열 아님!!
 {
     stack newStack[20];
     int sts = -1, temp = 0;
     char inputMod = 0; //0 : 기본 1 : numbericValue 2 : stringValue 3 : variable
-    for (int i = 0; i < fac->endF - fac->startF; i++)
+    for (int i = 0; i < result->endF - result->startF; i++)
     {
-        char iv = fac->startF[i];
-        printf("%d ", i);
+        char iv = result->startF[i];
+        //printf("%d ", i);
         switch (inputMod)
         {
         case 0:
@@ -219,17 +163,17 @@ void getValueinFactor(factor* fac)
                 inputMod = 2;
                 sts++;
                 newStack[sts].type = 2;
-                newStack[sts].sValue = malloc(searchToQ(&fac->startF[i]));
+                newStack[sts].sValue = malloc(stringLengthQ(&result->startF[i]) + 1);
                 temp = 0;
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '/')
+            else if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
                 newStack[sts].type = 4;
                 newStack[sts].oValue = iv;
             }
             else if (iv == ' ') { } //아무 특정 입력도 없을 때 띄어쓰기는 딱히 상관 없음.
-            else { } //아무 지정 문자열도 아님. 문제 있음.
+            else { } // Todo : 변수 시스템 만들기
             break;
         case 1:
             if (iv >= '0' && iv <= '9')
@@ -237,7 +181,7 @@ void getValueinFactor(factor* fac)
                 newStack[sts].iValue *= 10;
                 newStack[sts].iValue += iv - '0';
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '/')
+            else if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
                 newStack[sts].type = 4;
@@ -248,11 +192,12 @@ void getValueinFactor(factor* fac)
             {
                 inputMod = 0;
             }
-            else {} //아무 지정 문자열도 아님. 문제 있음.
+            else { } //Todo : 변수 체크
             break;
         case 2:
             if (iv == '"')
             {
+                newStack[sts].sValue[temp] = '\0';
                 inputMod = 0;
             }
             else
@@ -261,20 +206,88 @@ void getValueinFactor(factor* fac)
                 temp++;
             }
             break;
+        case 3: //Todo : 변수 체크
+            break;
         }
     }
-    for (int i = 0; i < sts + 1; i++)
+    variable varStack[20];
+    int varLast = 0;
+    char operatorStack[20];
+    int operatorLast = 0;
+    int prio;
+    //https://penglog.tistory.com/99 센세 감사합니다
+    for (int q = 0; q < sts + 1; q++)
     {
-        printf("%d\t", newStack[i].type);
+        switch (newStack[q].type)
+        {
+        case 1: //numberic
+            varStack[varLast].type = 0;
+            varStack[varLast].iValue = newStack[q].iValue;
+            varLast++;
+            break;
+        case 2: //string 
+            varStack[varLast].type = 1;
+            varStack[varLast].sValue = newStack[q].sValue;
+            varLast++;
+            break;
+        case 3: //variable 
+            //Todo : 변수 시스템 만들기
+            break;
+        case 4: //operator
+            switch (newStack[q].oValue)
+            {
+            case '(': // 일단 써놓고 ')' 나온 뒤에 사용
+                operatorStack[operatorLast] = '(';
+                operatorLast++;
+                break;
+            case ')': // 문자열 반복하면서 '(' 나올 때까지 연산
+                while (operatorStack[operatorLast - 1] != '(')
+                {
+                    varLast--;
+                    operatorLast--;
+                    operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+                }
+                operatorLast--; // 다 뺐으니까 '(' 없앰.
+                break;
+            default:
+                prio = getPriority(newStack[q].oValue);
+                //지금 들어가는 거보다 우선순위 높은거 다 계산하고 들어감.
+                while (operatorLast != 0 && prio <= getPriority(operatorStack[operatorLast - 1]))
+                {
+                    varLast--;
+                    operatorLast--;
+                    operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+                }
+                operatorStack[operatorLast] = newStack[q].oValue;
+                operatorLast++;
+                break;
+            }
+            break;
+        }
+    }
+    while (operatorLast != 0) //남은 문자 계산
+    {
+        varLast--;
+        operatorLast--;
+        operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+    }
+    result->value = varStack[0];
+    //printf("\n");
+}
+void Function_Say(variable value)
+{
+    if (value.type == 0)
+        printf("%d\n", value.iValue);
+    else if (value.type == 1)
+        printf("%s\n", value.sValue);
+}
+void Function_Print(variable value1, variable value2)
+{
+    for (int i = 0; i < value2.iValue; i++)
+    {
+        printf("%s", value1.sValue);
     }
     printf("\n");
-    //Todo : 스택 반복 돌리며 합쳐야됨. \
-    핸드폰에 티스토리 블로그 찾아놓은거 보면서 최대한 합쳐보자. \
-    변수 타입 구분 잘 하고. 
-}
-void Function_Say(char* text)
-{
-    printf("%s\n", text);
 }
 void annyCore_init()
 {
@@ -294,24 +307,29 @@ void annyCore_init()
     defines[defineCount].args = malloc(sizeof(char**) * 2);
     defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
     defines[defineCount].argNameCount[0] = 2;
-    defines[defineCount].args[0][0] = setString("과");
-    defines[defineCount].args[0][1] = setString("와");
+    defines[defineCount].args[0][0] = setString("을");
+    defines[defineCount].args[0][1] = setString("를");
     defines[defineCount].args[1] = malloc(sizeof(char*) * 2);
-    defines[defineCount].argNameCount[1] = 2;
-    defines[defineCount].args[1][0] = setString("을");
-    defines[defineCount].args[1][1] = setString("를");
+    defines[defineCount].argNameCount[1] = 1;
+    defines[defineCount].args[1][0] = setString("번");
     defineCount++;
 }
+void useFunction(function* funNow)
+{
+    if (isMatch(funNow->name, "말하기")) Function_Say(funNow->factors[0].value);
+    if (isMatch(funNow->name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
+}
+function funNow;
 void anyFunction(char* line)
 {
     def defNow = getdefbyStr(line);
-    function funNow = getfunbyDef(defNow, line);
-    funNow.factors = getFactors(defNow, funNow, line);
+    getfunbyDef(defNow, line, &funNow);
+    splitFactors(funNow, line);
     for (int i = 0; i < defNow.argsCount; i++)
     {
-        sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
+        //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
         getValueinFactor(&funNow.factors[i]);
     }
-    //printf("%s", funNow.factors[0].startF);
-    //if (isMatch(funNow.name, "말하기")) Function_Say(funNow.factors->value.sValue);
+    useFunction(&funNow);
 }
+///Todo : 파일 실행 / 변수 / 예제 만들기 / 스파게티 정리

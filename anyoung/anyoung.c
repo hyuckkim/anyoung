@@ -6,7 +6,7 @@
 #include "kinput.h"
 #include "annyCore.c"
 
-int main()
+int main(int argc, char** argv)
 {
     annyCore_init();
     char chars[80] = "default";
@@ -17,5 +17,4 @@ int main()
         getSO(chars); //TODO : 운영체제별로 입력 다르게 받기 (리눅스에선 그냥 gets 써도될듯)
         anyFunction(chars);
     }
-
 }
