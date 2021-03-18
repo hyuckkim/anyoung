@@ -152,23 +152,23 @@ int isFair(char* word, factor it, int* ret) //factor의 인수 형식 중 맞는
     return 0;
 }
 
-def defines[80];
-char defineCount = 0;
+def defs[80];
+char defC = 0;
 def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
 {
     for (int i = 0; str[i] != 0; i++) { //문자열의 문자마다
-        for (int j = 0; j < defineCount; j++) { //함수들마다
-            if (isMatch(&str[i], defines[j].name)) return defines[j]; //함수 이름이 맞으면 반환.
+        if (str[i] == '"') i += stringLengthQ(&str[i]); //따옴표 있으면 문자열 영역이니까 넘어감.
+        for (int j = 0; j < defC; j++) { //함수들마다
+            if (isMatch(&str[i], defs[j].name)) return defs[j]; //함수 이름이 맞으면 반환.
         }
     }
     printf("오류 발생. 문장에 맞는 함수를 찾지 못했습니다.");
-    return defines[0];
+    return defs[0];
 }
 void getfunbyDef(def define, char* str, function* result) // 함수로 변수를 만들어 result 포인터를 바꾼다.
 {
     result->define = define;
     result->name = define.name;
-    free(result->factors);
     result->factors = malloc(sizeof(factor)
         * define.argsCount); //sizeof(포인터)는 동적할당 관계없이 무조건 4라서 Count를 따로만듦
     if(result->factors != NULL) for (int i = 0; i < define.argsCount; i++)

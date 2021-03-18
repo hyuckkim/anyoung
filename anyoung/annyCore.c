@@ -40,7 +40,7 @@ void operate(variable a, variable b, char op, variable *result)
             switch (op)
             {
             case '+':
-                free(result->sValue);
+                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
                 result->sValue = malloc(sizeof(char) * (stringLength(b.sValue) + logSize(a.iValue)) + 1);
                 if (result->sValue != NULL)
                 {
@@ -76,7 +76,7 @@ void operate(variable a, variable b, char op, variable *result)
             switch (op)
             {
             case '+':
-                free(result->sValue);
+                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
                 result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
                 if (result->sValue != NULL)
                 {
@@ -96,7 +96,7 @@ void operate(variable a, variable b, char op, variable *result)
                 //except error
                 break;
             case '*':
-                free(result->sValue);
+                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
                 result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) * b.iValue) + 1);
                 if (result->sValue != NULL)
                 {
@@ -122,7 +122,7 @@ void operate(variable a, variable b, char op, variable *result)
             switch (op)
             {
             case '+':
-                free(result->sValue);
+                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
                 result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
                 if (result->sValue != NULL)
                 {
@@ -305,60 +305,74 @@ void Function_Print(variable value1, variable value2)
 }
 void annyCore_init()
 {
-    printf("어순에 상관없는 한글 프로그래밍 언어 안녕\nv0.1 실행중\n'도움'으로 명령어 확인(아직 안됨)\n");
-    defines[defineCount].name = setString("말하기");
-    defines[defineCount].argsCount = 1;
-    defines[defineCount].args = malloc(sizeof(char**) * 1);
-    defines[defineCount].argNameCount = malloc(sizeof(int) * 1);
-    if (defines[defineCount].args != NULL && defines[defineCount].argNameCount != NULL)
+    defs[defC].name = setString("말하기");
+    defs[defC].argsCount = 1;
+    defs[defC].args = malloc(sizeof(char**) * 1);
+    defs[defC].argNameCount = malloc(sizeof(int) * 1);
+    if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
     {
-        defines[defineCount].argNameCount[0] = 2;
-        defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
-        if (defines[defineCount].args[0] != NULL)
+        defs[defC].argNameCount[0] = 2;
+        defs[defC].args[0] = malloc(sizeof(char*) * 2);
+        if (defs[defC].args[0] != NULL)
         {
-            defines[defineCount].args[0][0] = setString("을");
-            defines[defineCount].args[0][1] = setString("를");
+            defs[defC].args[0][0] = setString("을");
+            defs[defC].args[0][1] = setString("를");
         }
     }
-    defineCount++;
-    defines[defineCount].name = setString("표시하기");
-    defines[defineCount].argsCount = 2;
-    defines[defineCount].args = malloc(sizeof(char**) * 2);
-    defines[defineCount].argNameCount = malloc(sizeof(int) * 2);
-    if (defines[defineCount].args != NULL && defines[defineCount].argNameCount != NULL)
+    defC++;
+    defs[defC].name = setString("표시하기");
+    defs[defC].argsCount = 2;
+    defs[defC].args = malloc(sizeof(char**) * 2);
+    defs[defC].argNameCount = malloc(sizeof(int) * 2);
+    if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
     {
-        defines[defineCount].argNameCount[0] = 2;
-        defines[defineCount].args[0] = malloc(sizeof(char*) * 2);
-        if (defines[defineCount].args[0] != NULL)
+        defs[defC].argNameCount[0] = 2;
+        defs[defC].args[0] = malloc(sizeof(char*) * 2);
+        if (defs[defC].args[0] != NULL)
         {
-            defines[defineCount].args[0][0] = setString("을");
-            defines[defineCount].args[0][1] = setString("를");
+            defs[defC].args[0][0] = setString("을");
+            defs[defC].args[0][1] = setString("를");
         }
-        defines[defineCount].argNameCount[1] = 1;
-        defines[defineCount].args[1] = malloc(sizeof(char*) * 1);
-        if (defines[defineCount].args[1] != NULL)
+        defs[defC].argNameCount[1] = 1;
+        defs[defC].args[1] = malloc(sizeof(char*) * 1);
+        if (defs[defC].args[1] != NULL)
         {
-            defines[defineCount].args[1][0] = setString("번");
+            defs[defC].args[1][0] = setString("번");
         }
     }
-    defineCount++;
+    defC++;
 }
 void useFunction(function* funNow)
 {
-    if (isMatch(funNow->name, "말하기")) Function_Say(funNow->factors[0].value);
-    else if (isMatch(funNow->name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
+    if (isMatch(funNow->define.name, "말하기")) Function_Say(funNow->factors[0].value);
+    else if (isMatch(funNow->define.name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
 }
-function funNow;
+void freeFunction(function* funNow)
+{
+    for (int i = 0; i < funNow->define.argsCount; i++)
+    {
+        if(funNow->factors[i].value.type == 1)
+            free(funNow->factors[i].value.sValue);
+    }
+    free(funNow->factors);
+    free(funNow);
+}
+function* functions[80];
+int funC = 0;
 void anyFunction(char* line)
 {
     def defNow = getdefbyStr(line);
-    getfunbyDef(defNow, line, &funNow);
-    splitFactors(funNow, line);
+    functions[funC] = malloc(sizeof(function));
+    if (functions[funC] == NULL) return;
+
+    getfunbyDef(defNow, line, functions[funC]);
+    splitFactors(*functions[funC], line);
     for (int i = 0; i < defNow.argsCount; i++)
     {
         //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
-        getValueinFactor(&funNow.factors[i]);
+        getValueinFactor(&functions[funC]->factors[i]);
     }
-    useFunction(&funNow);
+    useFunction(functions[funC]);
+    freeFunction(functions[funC]);
 }
 ///Todo : 파일 실행 / 변수 / 예제 만들기 / 스파게티 정리
