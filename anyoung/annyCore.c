@@ -9,10 +9,24 @@ void operate(variable a, variable b, char op, variable *result)
     result->iValue = 0;
     result->sValue = 0;
     result->type = 0;
-    if (a.type == 0)
+    if (a.type == 2)
     {
-        if (b.type == 0)
+        a.type = a.vValue->type;
+        if (a.type == 0) a.iValue = a.vValue->iValue;
+        else if (a.type == 1) a.sValue = a.vValue->sValue;
+    }
+    if (b.type == 2)
+    {
+        b.type = b.vValue->type;
+        if (b.type == 0) b.iValue = b.vValue->iValue;
+        else if (b.type == 1) b.sValue = b.vValue->sValue;
+    }
+    switch (a.type)
+    {
+    case 0:
+        switch (b.type)
         {
+        case 0:
             //int and int
             switch (op)
             {
@@ -33,9 +47,8 @@ void operate(variable a, variable b, char op, variable *result)
                 result->iValue = a.iValue / b.iValue;
                 break;
             }
-        }
-        else
-        {
+            break;
+        case 1:
             //int and string
             switch (op)
             {
@@ -66,12 +79,13 @@ void operate(variable a, variable b, char op, variable *result)
                 //except error
                 break;
             }
+            break;
         }
-    }
-    else
-    {
-        if (b.type == 0)
+        break;
+    case 1:
+        switch (b.type)
         {
+        case 0:
             //string and int
             switch (op)
             {
@@ -115,9 +129,8 @@ void operate(variable a, variable b, char op, variable *result)
                 //except error
                 break;
             }
-        }
-        else
-        {
+            break;
+        case 1:
             //string and string
             switch (op)
             {
@@ -148,7 +161,9 @@ void operate(variable a, variable b, char op, variable *result)
                 //except error
                 break;
             }
+            break;
         }
+        break;
     }
 }
 void getValueinFactor(factor* result) //배열 아님!!
@@ -186,7 +201,16 @@ void getValueinFactor(factor* result) //배열 아님!!
                 newStack[sts].oValue = iv;
             }
             else if (iv == ' ') { } //아무 특정 입력도 없을 때 띄어쓰기는 딱히 상관 없음.
-            else { } // Todo : 변수 시스템 만들기
+            else //변수.
+            {
+                inputMod = 3;
+                sts++;
+                newStack[sts].type = 3;
+                newStack[sts].sValue = malloc(80);
+                if (newStack[sts].sValue == NULL) return;
+                for (int i = 0; i < 80; i++) newStack[sts].sValue[i] = '\0';
+                temp = 0;
+            } 
             break;
         case 1:
             if (iv >= '0' && iv <= '9')
@@ -205,7 +229,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             {
                 inputMod = 0;
             }
-            else { } //Todo : 변수 체크
+            else { } //구문 오류!
             break;
         case 2:
             if (iv == '"')
@@ -219,7 +243,23 @@ void getValueinFactor(factor* result) //배열 아님!!
                 temp++;
             }
             break;
-        case 3: //Todo : 변수 체크
+        case 3:
+            if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
+            {
+                sts++;
+                newStack[sts].type = 4;
+                newStack[sts].oValue = iv;
+                inputMod = 0;
+            }
+            else if (iv == ' ')
+            {
+                inputMod = 0;
+            }
+            else
+            {
+                newStack[sts].sValue[temp] = iv;
+                temp++;
+            }
             break;
         }
     }
@@ -244,7 +284,10 @@ void getValueinFactor(factor* result) //배열 아님!!
             varLast++;
             break;
         case 3: //variable 
-            //Todo : 변수 시스템 만들기
+            varStack[varLast].type = 2;
+            varStack[varLast].vValue = getVariable(newStack[q].sValue);
+            if (varStack[varLast].vValue == NULL) varStack[varLast].vValue = makeVariable(newStack[q].sValue);
+            varLast++;
             break;
         case 4: //operator
             switch (newStack[q].oValue)
@@ -269,7 +312,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 {
                     varLast--;
                     operatorLast--;
-                    if (varLast <= 0 || operatorLast <= 0) break;
+                    if (varLast <= 0 || operatorLast < 0) break; //오류 : 변수가 2개 이상 없거나 연산자가 1개 이상 없을 때
                     operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
                 }
                 operatorStack[operatorLast] = newStack[q].oValue;
@@ -279,7 +322,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             break;
         }
     }
-    while (operatorLast != 0 && varLast > 0 && operatorLast > 0) //남은 문자 계산
+    while (varLast > 0 && operatorLast > 0) //남은 문자 계산
     {
         varLast--;
         operatorLast--;
@@ -288,64 +331,22 @@ void getValueinFactor(factor* result) //배열 아님!!
     result->value = varStack[0];
     //printf("\n");
 }
-void Function_Say(variable value)
-{
-    if (value.type == 0)
-        printf("%d\n", value.iValue);
-    else if (value.type == 1)
-        printf("%s\n", value.sValue);
-}
-void Function_Print(variable value1, variable value2)
-{
-    for (int i = 0; i < value2.iValue; i++)
-    {
-        printf("%s", value1.sValue);
-    }
-    printf("\n");
-}
+
+#include "functions.h"
 void annyCore_init()
 {
-    defs[defC].name = setString("말하기");
-    defs[defC].argsCount = 1;
-    defs[defC].args = malloc(sizeof(char**) * 1);
-    defs[defC].argNameCount = malloc(sizeof(int) * 1);
-    if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
-    {
-        defs[defC].argNameCount[0] = 2;
-        defs[defC].args[0] = malloc(sizeof(char*) * 2);
-        if (defs[defC].args[0] != NULL)
-        {
-            defs[defC].args[0][0] = setString("을");
-            defs[defC].args[0][1] = setString("를");
-        }
-    }
-    defC++;
-    defs[defC].name = setString("표시하기");
-    defs[defC].argsCount = 2;
-    defs[defC].args = malloc(sizeof(char**) * 2);
-    defs[defC].argNameCount = malloc(sizeof(int) * 2);
-    if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
-    {
-        defs[defC].argNameCount[0] = 2;
-        defs[defC].args[0] = malloc(sizeof(char*) * 2);
-        if (defs[defC].args[0] != NULL)
-        {
-            defs[defC].args[0][0] = setString("을");
-            defs[defC].args[0][1] = setString("를");
-        }
-        defs[defC].argNameCount[1] = 1;
-        defs[defC].args[1] = malloc(sizeof(char*) * 1);
-        if (defs[defC].args[1] != NULL)
-        {
-            defs[defC].args[1][0] = setString("번");
-        }
-    }
-    defC++;
+#include "funS.txt"
 }
 void useFunction(function* funNow)
 {
     if (isMatch(funNow->define.name, "말하기")) Function_Say(funNow->factors[0].value);
     else if (isMatch(funNow->define.name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
+    else if (isMatch(funNow->define.name, "도움")) Function_Help();
+    else if (isMatch(funNow->define.name, "정하기")) Function_Set(funNow->factors[0].value, funNow->factors[1].value);
+    else if (isMatch(funNow->define.name, "더하기")) Function_Add(funNow->factors[0].value, funNow->factors[1].value);
+    else if (isMatch(funNow->define.name, "빼기")) Function_Minus(funNow->factors[0].value, funNow->factors[1].value);
+    else if (isMatch(funNow->define.name, "곱하기")) Function_Multi(funNow->factors[0].value, funNow->factors[1].value);
+    else if (isMatch(funNow->define.name, "나누기")) Function_Devide(funNow->factors[0].value, funNow->factors[1].value);
 }
 void freeFunction(function* funNow)
 {
@@ -359,11 +360,11 @@ void freeFunction(function* funNow)
 }
 function* functions[80];
 int funC = 0;
-void anyFunction(char* line)
+int anyFunction(char* line)
 {
     def defNow = getdefbyStr(line);
     functions[funC] = malloc(sizeof(function));
-    if (functions[funC] == NULL) return;
+    if (functions[funC] == NULL) return 0;
 
     getfunbyDef(defNow, line, functions[funC]);
     splitFactors(*functions[funC], line);
@@ -374,5 +375,6 @@ void anyFunction(char* line)
     }
     useFunction(functions[funC]);
     freeFunction(functions[funC]);
+    return 0;
 }
 ///Todo : 파일 실행 / 변수 / 예제 만들기 / 스파게티 정리

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "types.h"
 
 int isMatch(char* word1, char* word2) //포인터부터 시작해 '\0'이나 ' '까지 같은지 비교함.
 {
@@ -56,6 +56,12 @@ int next_is_opperator(char* po) //띄어쓰기만 무시하며 다음문자가 �
         }
     }
 }
+void changeSpacetoNull(char* item) // 지정 포인터부터 시작해 앞에 있는 개행문자를 널문자로 변환.
+{
+    int i;
+    for (i = 0; item[i] != '\n'; i++) { }
+    item[i] = '\0';
+}
 int stringLength(char* item) //지정 포인터부터 시작해 null문자가 아닌 구간의 길이를 반환함.
 {
     int i;
@@ -100,43 +106,6 @@ char* setString(char* item) //문자열을 새로 할당해 복사함.
     str[strlen - 1] = '\0';
     return str;
 }
-typedef struct struct_def //함수의 정의.
-{
-    char* name;
-    char*** args; //여러개의 인수, 여러개의 얻는 방법, 여러개의 문자
-    int argsCount; //args 개수
-    int* argNameCount; //arg별 인수 개수
-    char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
-} def;
-typedef struct struct_variable //최종적으로 할당되는 변수.
-{
-    int iValue;
-    char* sValue;
-    char type; //0 : int 1 : string
-} variable;
-typedef struct struct_stack //긴 전체 문자열을 계산해 변수 하나가 되는 과정에서 만들어지는 스택.
-{
-    int iValue;
-    char* sValue;
-    char* vValue;
-    char oValue;
-    char type; // 0 : none 1 : num 2 : string 3 : variable 4 : operator
-} stack;
-typedef struct struct_factor //한 인수의 전체 문자열.
-{
-    char** name; // 조사 처리 여기서. 조사가 여러개가 같이 있을 수 있음.
-    int nameCount;
-    char* startF;
-    char* endF;
-    variable value;
-    char isMatched; // 기본 0, 매치되고 나면 1.
-} factor;
-typedef struct struct_function //코드 한 줄.
-{
-    char* name;
-    factor* factors;
-    def define;
-} function;
 
 int isFair(char* word, factor it, int* ret) //factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
 {
@@ -153,6 +122,27 @@ int isFair(char* word, factor it, int* ret) //factor의 인수 형식 중 맞는
 }
 
 def defs[80];
+variable vars[80];
+char* varNames[80];
+int varCounts = 0;
+variable* getVariable(char* name)
+{
+    for (int i = 0; i < varCounts; i++)
+    {
+        if (isMatch(varNames[i], name)) return &vars[i];
+    }
+    return NULL;
+}
+variable* makeVariable(char* name)
+{
+    varNames[varCounts] = setString(name);
+    vars[varCounts].type = 0;
+    vars[varCounts].iValue = 0;
+    vars[varCounts].sValue = NULL;
+    vars[varCounts].vValue = &vars[varCounts];
+    varCounts++;
+    return vars[varCounts - 1].vValue;
+}
 char defC = 0;
 def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
 {
@@ -171,12 +161,12 @@ void getfunbyDef(def define, char* str, function* result) // 함수로 변수를
     result->name = define.name;
     result->factors = malloc(sizeof(factor)
         * define.argsCount); //sizeof(포인터)는 동적할당 관계없이 무조건 4라서 Count를 따로만듦
-    if(result->factors != NULL) for (int i = 0; i < define.argsCount; i++)
-        {
-            result->factors[i].name = define.args[i];
-            result->factors[i].nameCount = define.argNameCount[i];
-            result->factors[i].isMatched = 0;
-        }
+    if (result->factors != NULL) for (int i = 0; i < define.argsCount; i++)
+    {
+        result->factors[i].name = define.args[i];
+        result->factors[i].nameCount = define.argNameCount[i];
+        result->factors[i].isMatched = 0;
+    }
 }
 void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
 {
@@ -201,5 +191,5 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
             }
         }
     }
-    if (ss == 0) printf("오류 발생. 인수 개수와 형식이 맞지 않습니다.\n");
+    if (ss < fun.define.argsCount) printf("오류 발생. 인수 개수와 형식이 맞지 않습니다.\n");
 }

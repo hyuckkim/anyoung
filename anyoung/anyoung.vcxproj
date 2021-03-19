@@ -24,7 +24,10 @@
   <ItemGroup>
     <ClInclude Include="annyCore.c" />
     <ClInclude Include="annyCore.h" />
+    <ClInclude Include="functions.h" />
+    <ClInclude Include="funS.txt" />
     <ClInclude Include="kinput.h" />
+    <ClInclude Include="types.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

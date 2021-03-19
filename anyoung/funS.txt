@@ -1,0 +1,146 @@
+
+defs[defC].name = setString("말하기");
+defs[defC].argsCount = 1;
+defs[defC].args = malloc(sizeof(char**) * 1);
+defs[defC].argNameCount = malloc(sizeof(int) * 1);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+}
+defC++;
+defs[defC].name = setString("표시하기");
+defs[defC].argsCount = 2;
+defs[defC].args = malloc(sizeof(char**) * 2);
+defs[defC].argNameCount = malloc(sizeof(int) * 2);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+    defs[defC].argNameCount[1] = 1;
+    defs[defC].args[1] = malloc(sizeof(char*) * 1);
+    if (defs[defC].args[1] != NULL)
+    {
+        defs[defC].args[1][0] = setString("번");
+    }
+}
+defC++;
+defs[defC].name = setString("도움");
+defs[defC].argsCount = 0;
+defC++;
+defs[defC].name = setString("정하기");
+defs[defC].argsCount = 2;
+defs[defC].args = malloc(sizeof(char**) * 2);
+defs[defC].argNameCount = malloc(sizeof(int) * 2);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+    defs[defC].argNameCount[1] = 2;
+    defs[defC].args[1] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[1] != NULL)
+    {
+        defs[defC].args[1][0] = setString("로");
+        defs[defC].args[1][1] = setString("으로");
+    }
+}
+defC++;
+defs[defC].name = setString("더하기");
+defs[defC].argsCount = 2;
+defs[defC].args = malloc(sizeof(char**) * 2);
+defs[defC].argNameCount = malloc(sizeof(int) * 2);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+    defs[defC].argNameCount[1] = 1;
+    defs[defC].args[1] = malloc(sizeof(char*) * 1);
+    if (defs[defC].args[1] != NULL)
+    {
+        defs[defC].args[1][0] = setString("만큼");
+    }
+}
+defC++;
+defs[defC].name = setString("빼기");
+defs[defC].argsCount = 2;
+defs[defC].args = malloc(sizeof(char**) * 2);
+defs[defC].argNameCount = malloc(sizeof(int) * 2);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+    defs[defC].argNameCount[1] = 1;
+    defs[defC].args[1] = malloc(sizeof(char*) * 1);
+    if (defs[defC].args[1] != NULL)
+    {
+        defs[defC].args[1][0] = setString("만큼");
+    }
+}
+defC++;
+defs[defC].name = setString("곱하기");
+defs[defC].argsCount = 2;
+defs[defC].args = malloc(sizeof(char**) * 2);
+defs[defC].argNameCount = malloc(sizeof(int) * 2);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+    defs[defC].argNameCount[1] = 1;
+    defs[defC].args[1] = malloc(sizeof(char*) * 1);
+    if (defs[defC].args[1] != NULL)
+    {
+        defs[defC].args[1][0] = setString("만큼");
+    }
+}
+defC++;
+defs[defC].name = setString("나누기");
+defs[defC].argsCount = 2;
+defs[defC].args = malloc(sizeof(char**) * 2);
+defs[defC].argNameCount = malloc(sizeof(int) * 2);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 2;
+    defs[defC].args[0] = malloc(sizeof(char*) * 2);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("을");
+        defs[defC].args[0][1] = setString("를");
+    }
+    defs[defC].argNameCount[1] = 1;
+    defs[defC].args[1] = malloc(sizeof(char*) * 1);
+    if (defs[defC].args[1] != NULL)
+    {
+        defs[defC].args[1][0] = setString("만큼");
+    }
+}
+defC++;
