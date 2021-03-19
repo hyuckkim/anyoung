@@ -377,4 +377,4 @@ int anyFunction(char* line)
     freeFunction(functions[funC]);
     return 0;
 }
-///Todo : 파일 실행 / 변수 / 예제 만들기 / 스파게티 정리
+///Todo : 예제 만들기 / 스파게티 정리 / 반복문
