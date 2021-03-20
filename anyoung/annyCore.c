@@ -206,10 +206,12 @@ void getValueinFactor(factor* result) //배열 아님!!
                 inputMod = 3;
                 sts++;
                 newStack[sts].type = 3;
-                newStack[sts].sValue = malloc(80);
+                newStack[sts].sValue = malloc(sizeof(char) * 240);
                 if (newStack[sts].sValue == NULL) return;
-                for (int i = 0; i < 80; i++) newStack[sts].sValue[i] = '\0';
+                for (int i = 0; i < 240; i++) newStack[sts].sValue[i] = '\0';
                 temp = 0;
+                newStack[sts].sValue[temp] = iv;
+                temp++;
             } 
             break;
         case 1:
@@ -337,16 +339,26 @@ void annyCore_init()
 {
 #include "funS.txt"
 }
-void useFunction(function* funNow)
+variable getFV(function* fun, int i)
 {
-    if (isMatch(funNow->define.name, "말하기")) Function_Say(funNow->factors[0].value);
-    else if (isMatch(funNow->define.name, "표시하기")) Function_Print(funNow->factors[0].value, funNow->factors[1].value);
-    else if (isMatch(funNow->define.name, "도움")) Function_Help();
-    else if (isMatch(funNow->define.name, "정하기")) Function_Set(funNow->factors[0].value, funNow->factors[1].value);
-    else if (isMatch(funNow->define.name, "더하기")) Function_Add(funNow->factors[0].value, funNow->factors[1].value);
-    else if (isMatch(funNow->define.name, "빼기")) Function_Minus(funNow->factors[0].value, funNow->factors[1].value);
-    else if (isMatch(funNow->define.name, "곱하기")) Function_Multi(funNow->factors[0].value, funNow->factors[1].value);
-    else if (isMatch(funNow->define.name, "나누기")) Function_Devide(funNow->factors[0].value, funNow->factors[1].value);
+    return fun->factors[i].value;
+}
+int useFunction(function* fn)
+{
+    char* dName = fn->define.name;
+    if (isMatch(dName, "되풀이"))      { Function_Loop     (fn);                         return 1; }
+
+    if (isMatch(dName, "말하기"))      { Function_Say      (getFV(fn, 0));               return 0; }
+    if (isMatch(dName, "표시하기"))    { Function_Print    (getFV(fn, 0), getFV(fn, 1)); return 0; }
+    if (isMatch(dName, "도움"))        { Function_Help     ();                           return 0; }
+
+    if (isMatch(dName, "정하기"))      { Function_Set      (getFV(fn, 0), getFV(fn, 1)); return 0; }
+    if (isMatch(dName, "더하기"))      { Function_Add      (getFV(fn, 0), getFV(fn, 1)); return 0; }
+    if (isMatch(dName, "빼기"))        { Function_Minus    (getFV(fn, 0), getFV(fn, 1)); return 0; }
+    if (isMatch(dName, "곱하기"))      { Function_Multi    (getFV(fn, 0), getFV(fn, 1)); return 0; }
+    if (isMatch(dName, "나누기"))      { Function_Devide   (getFV(fn, 0), getFV(fn, 1)); return 0; }
+
+    return -1;
 }
 void freeFunction(function* funNow)
 {
@@ -358,23 +370,73 @@ void freeFunction(function* funNow)
     free(funNow->factors);
     free(funNow);
 }
-function* functions[80];
+function* functions[20];
 int funC = 0;
+int temp[20] = { 0 };
+int ind = 0;
 int anyFunction(char* line)
 {
     def defNow = getdefbyStr(line);
-    functions[funC] = malloc(sizeof(function));
-    if (functions[funC] == NULL) return 0;
-
-    getfunbyDef(defNow, line, functions[funC]);
-    splitFactors(*functions[funC], line);
-    for (int i = 0; i < defNow.argsCount; i++)
+    if (ind == 0)
     {
-        //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
-        getValueinFactor(&functions[funC]->factors[i]);
+        if (errorExcept != 0) return 0;
+        functions[funC] = malloc(sizeof(function));
+        if (functions[funC] == NULL) return 0;
+
+        getfunbyDef(defNow, line, functions[funC]);
+        splitFactors(*functions[funC], line);
+        for (int i = 0; i < defNow.argsCount; i++)
+        {
+            if (functions[funC]->factors[i].isMatched == 0) continue; // 없는 인수는 그냥 넘어간다.
+            //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
+            getValueinFactor(&functions[funC]->factors[i]);
+            functions[funC]->factors[i].value.isMatched = 1;
+        }
+        ind += useFunction(functions[funC]);
+        if (ind == 0) freeFunction(functions[funC]);
     }
-    useFunction(functions[funC]);
-    freeFunction(functions[funC]);
-    return 0;
+    else
+    {
+        if (isMatch(defNow.name, "여기까지"))
+        {
+            ind--;
+            if (ind == 0)
+            {
+                funC++;
+                //printf("%d %d ", functions[funC]->factors[1].value.iValue, temp);
+                variable* v = functions[funC - 1]->factors[0].value.vValue;
+                v->iValue = 0;
+                for (int i = 0; i < functions[funC - 1]->factors[1].value.iValue; i++)
+                {
+                    for (int j = 0; j < temp[funC - 1]; j++)
+                    {
+                        //printf("%s %d\n", functions[funC]->moon[j], ind);
+                        anyFunction(functions[funC - 1]->moon[j]);
+                    }
+                    v->iValue++;
+                }
+                funC--;
+                for (int i = 0; i < temp[funC]; i++)
+                    free(functions[funC]->moon[i]);
+                free(functions[funC]);
+                temp[funC] = 0;;
+            }
+            else
+            {
+                ind += defNow.useindent;
+                functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * 240);
+                for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
+                temp[funC]++;
+            }
+        }
+        else
+        {
+            ind += defNow.useindent;
+            functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * 240);
+            for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
+            temp[funC]++;
+        }
+    }
+    return ind;
 }
-///Todo : 예제 만들기 / 스파게티 정리 / 반복문
+///Todo : 예제 만들기 / 스파게티 정리 / 조건문

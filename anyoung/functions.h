@@ -12,8 +12,13 @@ void Function_Help()
     printf("ㅁ을/를 ㅇ만큼 나누기\t\t변수 ㅁ의  값에 ㅇ를 나눕니다. ㅁ이 문자열이 아니어야 하고 없다면 새로 만듭니다.\n");
     printf("\n화면 입출력\n");
     printf("ㅁ 을/를 말하기 \t\tㅁ을 개행문자와 함께 출력합니다.\n");
-    printf("ㅁ 을/를 ㅇ 번 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
+    printf("ㅁ 을/를 [ㅇ 번] 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
+    printf("도움\t\t\t함수에 대한 도움말을 봅니다.");
     printf("\n");
+}
+void Function_Loop(function* looping)
+{
+    looping->moon = malloc(sizeof(char* ) * 40);
 }
 void Function_Set(variable value1, variable value2)
 {
@@ -116,7 +121,24 @@ void Function_Say(variable value)
 }
 void Function_Print(variable value1, variable value2)
 {
-    for (int i = 0; i < value2.iValue; i++)
+    if (value2.isMatched == 1)
+    {
+        for (int i = 0; i < value2.iValue; i++)
+        {
+            if (value1.type == 0)
+                printf("%d", value1.iValue);
+            else if (value1.type == 1)
+                printf("%s", value1.sValue);
+            else
+            {
+                if (value1.vValue->type == 0)
+                    printf("%d", value1.vValue->iValue);
+                else if (value1.vValue->type == 1)
+                    printf("%s", value1.vValue->sValue);
+            }
+        }
+    }
+    else
     {
         if (value1.type == 0)
             printf("%d", value1.iValue);

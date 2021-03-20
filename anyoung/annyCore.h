@@ -121,9 +121,9 @@ int isFair(char* word, factor it, int* ret) //factor의 인수 형식 중 맞는
     return 0;
 }
 
-def defs[80];
-variable vars[80];
-char* varNames[80];
+def defs[120];
+variable vars[120];
+char* varNames[120];
 int varCounts = 0;
 variable* getVariable(char* name)
 {
@@ -143,16 +143,25 @@ variable* makeVariable(char* name)
     varCounts++;
     return vars[varCounts - 1].vValue;
 }
+variable* setVariable(variable* var)
+{
+    vars[varCounts] = *var;
+    varCounts++;
+    return &vars[varCounts - 1];
+}
 char defC = 0;
+
+int errorExcept = 0;
 def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
 {
+    errorExcept = 0;
     for (int i = 0; str[i] != 0; i++) { //문자열의 문자마다
         if (str[i] == '"') i += stringLengthQ(&str[i]); //따옴표 있으면 문자열 영역이니까 넘어감.
         for (int j = 0; j < defC; j++) { //함수들마다
             if (isMatch(&str[i], defs[j].name)) return defs[j]; //함수 이름이 맞으면 반환.
         }
     }
-    printf("오류 발생. 문장에 맞는 함수를 찾지 못했습니다.");
+    errorExcept = 1;
     return defs[0];
 }
 void getfunbyDef(def define, char* str, function* result) // 함수로 변수를 만들어 result 포인터를 바꾼다.
@@ -172,6 +181,10 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
 {
     int starti = 0;
     int ss = 0;
+    for (int i = 0; i < fun.define.argsCount; i++)
+    {
+        fun.factors[i].value.isMatched = 0;
+    }
     for (int i = 0; str[i] != 0; i++) {
         for (int j = 0; j < fun.define.argsCount; j++) {
             if (fun.factors[j].isMatched) continue;
@@ -181,6 +194,7 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
                 fun.factors[j].startF = str + starti;
                 fun.factors[j].endF = str + i;
                 fun.factors[j].isMatched = 1;
+                fun.factors[j].value.isMatched = 1;
                 ss++;
                 starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringLengthSpace로 잘라서 스페이스바는 알아서 걸러짐)
                 break;
@@ -191,5 +205,5 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
             }
         }
     }
-    if (ss < fun.define.argsCount) printf("오류 발생. 인수 개수와 형식이 맞지 않습니다.\n");
+    //if (ss < fun.define.argsCount) printf("오류 발생. 인수 개수와 형식이 맞지 않습니다.\n");
 }

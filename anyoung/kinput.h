@@ -4,6 +4,7 @@
 
 typedef enum { false, true } bool;
 typedef enum { sol, duo, tri, qua, funA, funB, LineBreak, BackSpace } textInfo;
+void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow);
 void printBit(unsigned char a)
 {
 	printf("%d %d %d %d %d %d %d %d",
@@ -56,17 +57,18 @@ bool isQuaByte(unsigned char byte)
 		return true;
 	return false;
 }
-void getSO(char* writeAt)
+char* noo[80]; //sentence while \n. 
+int iAge = 0;
+void getSO(char* writeAt, char* various)
 {
 	int key_value = 0; //get solo char data by _getch()
 	char nextValue = 0; //utf8 indexing data
 	char stack = 0; //datas - nextValue.
 	char utf8[4]; //array can utf8 4byte solo text
 
-	char* noo[80]; //sentence while \n. 
 	char* nooNow = writeAt;
-	int iAge = 0;
 	textInfo thisInfo = sol; //how byte to use
+	printf("%s", various);
 	while (key_value != '\n' && key_value != '\r')
 	{
 		key_value = _getch();
@@ -91,35 +93,32 @@ void getSO(char* writeAt)
 		}
 		if (stack == 0)
 		{
+			printMultibyteChar(thisInfo, utf8, nooNow);
 			switch (thisInfo)
 			{
 			case funA:
-				printf("%d %d", utf8[0], utf8[1]);
 				break;
 			case funB:
-				printf("%d %d", utf8[0], utf8[1]);
 				break;
 			case LineBreak:
-				printf("\n");
 				nooNow[0] = '\0';
 				break;
 			case BackSpace:
 				if (iAge > 0)
 				{
-					printf("\b \b"); // todo : 긴문자 제거 안됨. 되게 할 방법을 찾아야됨.
 					nooNow = noo[iAge - 1];
+					noo[iAge - 1][0] = '\0';
 					iAge -= 1;
 				}
+				printf("%s%s", various, writeAt);
 				break;
 			case sol:
-				printf("%c", utf8[0]);
 				nooNow[0] = utf8[0];
 				noo[iAge] = nooNow;
 				nooNow += 1;
 				iAge += 1;
 				break;
 			case duo:
-				printf("%c%c", utf8[0], utf8[1]);
 				nooNow[0] = utf8[0];
 				nooNow[1] = utf8[1];
 				noo[iAge] = nooNow;
@@ -127,7 +126,6 @@ void getSO(char* writeAt)
 				iAge += 1;
 				break;
 			case tri:
-				printf("%c%c%c", utf8[0], utf8[1], utf8[2]);
 				nooNow[0] = utf8[0];
 				nooNow[1] = utf8[1];
 				nooNow[2] = utf8[2];
@@ -136,7 +134,6 @@ void getSO(char* writeAt)
 				iAge += 1;
 				break;
 			case qua:
-				printf("%c%c%c%c", utf8[0], utf8[1], utf8[2], utf8[3]);
 				nooNow[0] = utf8[0];
 				nooNow[1] = utf8[1];
 				nooNow[2] = utf8[2];
@@ -148,5 +145,35 @@ void getSO(char* writeAt)
 			}
 			nextValue = 0;
 		}
+	}
+}
+void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
+{
+	switch (thisInfo)
+	{
+	case funA:
+		printf("%d %d", utf8[0], utf8[1]);
+		break;
+	case funB:
+		printf("%d %d", utf8[0], utf8[1]);
+		break;
+	case LineBreak:
+		printf("\n");
+		break;
+	case BackSpace:
+		printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b                                                                                          \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"); // todo : 긴문자 제거 안됨. 되게 할 방법을 찾아야됨.
+		break;
+	case sol:
+		printf("%c", utf8[0]);
+		break;
+	case duo:
+		printf("%c%c", utf8[0], utf8[1]);
+		break;
+	case tri:
+		printf("%c%c%c", utf8[0], utf8[1], utf8[2]);
+		break;
+	case qua:
+		printf("%c%c%c%c", utf8[0], utf8[1], utf8[2], utf8[3]);
+		break;
 	}
 }

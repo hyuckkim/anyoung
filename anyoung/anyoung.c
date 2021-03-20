@@ -9,7 +9,7 @@
 int main(int argc, char** argv)
 {
     annyCore_init();
-    char chars[80] = "default";
+    char chars[240] = "default";
     int indent = 1;
     if (argc == 1)
     {
@@ -18,12 +18,10 @@ int main(int argc, char** argv)
         anyFunction("말하기 \"'도움'으로 명령어 확인\"을");
         while (1)
         {
-            if (indent == 1) printf(">>> ");
-            else printf("... ");
-            getSO(chars); //TODO : 운영체제별로 입력 다르게 받기 (리눅스에선 그냥 gets 써도될듯)
-            if (chars[0] == '\n' || chars[0] == '\0') indent--;
-            else indent += anyFunction(chars);
-            if (indent == 0) return 0;
+            if (indent == 1) getSO(chars, ">>> "); //todo : 운영체제별로 읽는 방법 다르게.
+            else getSO(chars, "... ");
+            if (chars[0] == 3) return 0;
+            else indent = anyFunction(chars) + 1;
         }
     }
     else
@@ -32,7 +30,7 @@ int main(int argc, char** argv)
         
         if (fopen_s(&stream, argv[1], "r") == 0 && stream != NULL)
         {
-            while (fgets(chars, 80, stream) != NULL)
+            while (fgets(chars, 240, stream) != NULL)
             {
                 changeSpacetoNull(chars);
                 anyFunction(chars);

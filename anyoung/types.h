@@ -5,13 +5,15 @@ typedef struct struct_def //함수의 정의.
     int argsCount; //args 개수
     int* argNameCount; //arg별 인수 개수
     char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
+    char useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1.
 } def;
 typedef struct struct_variable //최종적으로 할당되는 변수.
 {
     int iValue;
     char* sValue;
     struct struct_variable* vValue;
-    char type; //0 : int 1 : string 2 : variable.
+    char type : 4; //0 : int 1 : string 2 : variable.
+    char isMatched : 4; //0이면 Null이라고 생각하면 될듯.
 } variable;
 typedef struct struct_stack //긴 전체 문자열을 계산해 변수 하나가 되는 과정에서 만들어지는 스택.
 {
@@ -34,4 +36,5 @@ typedef struct struct_function //코드 한 줄.
     char* name;
     factor* factors;
     def define;
+    char** moon;
 } function;
