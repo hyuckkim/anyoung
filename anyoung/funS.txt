@@ -40,6 +40,7 @@ defC++;
 
 defs[defC].name = setString("도움");
 defs[defC].argsCount = 0;
+defs[defC].useindent = 0;
 defC++;
 
 defs[defC].name = setString("정하기");
@@ -181,6 +182,28 @@ if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
 defs[defC].useindent = 1;
 defC++;
 
+defs[defC].name = setString("조건");
+defs[defC].argsCount = 1;
+defs[defC].args = malloc(sizeof(char**) * 1);
+defs[defC].argNameCount = malloc(sizeof(int) * 1);
+if (defs[defC].args != NULL && defs[defC].argNameCount != NULL)
+{
+    defs[defC].argNameCount[0] = 1;
+    defs[defC].args[0] = malloc(sizeof(char*) * 1);
+    if (defs[defC].args[0] != NULL)
+    {
+        defs[defC].args[0][0] = setString("면");
+    }
+}
+defs[defC].useindent = 1;
+defC++;
+
 defs[defC].name = setString("여기까지");
 defs[defC].argsCount = 0;
+defs[defC].useindent = -1;
+defC++;
+
+defs[defC].name = setString("아니면");
+defs[defC].argsCount = 0;
+defs[defC].useindent = 0;
 defC++;

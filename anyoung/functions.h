@@ -16,9 +16,50 @@ void Function_Help()
     printf("도움\t\t\t함수에 대한 도움말을 봅니다.");
     printf("\n");
 }
+extern int anyFunction(char* line);
 void Function_Loop(function* looping)
 {
     looping->moon = malloc(sizeof(char* ) * 40);
+    canInsert = 1;
+}
+void Function_If(function* looping)
+{
+    looping->moon = malloc(sizeof(char*) * 40);
+    if (looping->factors[0].value.type == 0 && looping->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
+        canInsert = 1;
+    else
+        canInsert = 0; //조건문 시작할 때 조건 비교해서 틀리면 아예 메모리에 저장 안함.
+}
+void Function_Loop_end(function* fn)
+{
+    funC++; //안에서 쓰이지 않아도 anyFunction에서 쓰므로 변경.
+    variable* v = fn->factors[0].value.vValue;
+    v->iValue = 0;
+    ind = 0;
+    for (int i = 0; i < fn->factors[1].value.iValue; i++) //v번
+    {
+        for (int j = 0; j < temp[funC - 1]; j++) //각 함수 실행
+            anyFunction(fn->moon[j]);
+        v->iValue++;
+    }
+    funC--;
+    for (int i = 0; i < temp[funC]; i++)
+        free(fn->moon[i]);
+    free(fn);
+    temp[funC] = 0;
+}
+void Function_If_end(function* fn)
+{
+    funC++;
+    variable* v = &fn->factors[0].value;
+    ind = 0;
+    for (int j = 0; j < temp[funC - 1]; j++) //각 함수 실행
+        anyFunction(fn->moon[j]);
+    funC--;
+    for (int i = 0; i < temp[funC]; i++)
+        free(fn->moon[i]);
+    free(fn);
+    temp[funC] = 0;
 }
 void Function_Set(variable value1, variable value2)
 {

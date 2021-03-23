@@ -42,6 +42,10 @@ void operate(variable a, variable b, char op, variable *result)
                 result->type = 0;
                 result->iValue = a.iValue * b.iValue;
                 break;
+            case '%':
+                result->type = 0;
+                result->iValue = a.iValue % b.iValue;
+                break;
             case '/':
                 result->type = 0;
                 result->iValue = a.iValue / b.iValue;
@@ -73,6 +77,9 @@ void operate(variable a, variable b, char op, variable *result)
                 //except error
                 break;
             case '*':
+                //except error
+                break;
+            case '%':
                 //except error
                 break;
             case '/':
@@ -125,6 +132,9 @@ void operate(variable a, variable b, char op, variable *result)
                 }
                 result->type = 1;
                 break;
+            case '%':
+                //except error
+                break;
             case '/':
                 //except error
                 break;
@@ -155,6 +165,9 @@ void operate(variable a, variable b, char op, variable *result)
                 //except error
                 break;
             case '*':
+                //except error
+                break;
+            case '%':
                 //except error
                 break;
             case '/':
@@ -194,7 +207,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 if (newStack[sts].sValue == NULL) return;
                 temp = 0;
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
+            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
                 newStack[sts].type = 4;
@@ -220,7 +233,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 newStack[sts].iValue *= 10;
                 newStack[sts].iValue += iv - '0';
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
+            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
                 newStack[sts].type = 4;
@@ -246,7 +259,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             }
             break;
         case 3:
-            if (iv == '+' || iv == '-' || iv == '*' || iv == '/' || iv == '(' || iv == ')')
+            if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
                 newStack[sts].type = 4;
@@ -334,6 +347,11 @@ void getValueinFactor(factor* result) //배열 아님!!
     //printf("\n");
 }
 
+function* functions[20];
+int funC = 0;
+int temp[20] = { 0 };
+int canInsert;
+int ind = 0, igd = 0;
 #include "functions.h"
 void annyCore_init()
 {
@@ -347,6 +365,7 @@ int useFunction(function* fn)
 {
     char* dName = fn->define.name;
     if (isMatch(dName, "되풀이"))      { Function_Loop     (fn);                         return 1; }
+    if (isMatch(dName, "조건"))        { Function_If       (fn);                         return 1; }
 
     if (isMatch(dName, "말하기"))      { Function_Say      (getFV(fn, 0));               return 0; }
     if (isMatch(dName, "표시하기"))    { Function_Print    (getFV(fn, 0), getFV(fn, 1)); return 0; }
@@ -360,6 +379,13 @@ int useFunction(function* fn)
 
     return -1;
 }
+int useFunction_end(function* fn)
+{
+    char* dName = fn->define.name;
+    if (isMatch(dName, "되풀이")) { Function_Loop_end(fn);  return 0; }
+    if (isMatch(dName, "조건"))   { Function_If_end(fn);    return 0; }
+    return -1;
+}
 void freeFunction(function* funNow)
 {
     for (int i = 0; i < funNow->define.argsCount; i++)
@@ -370,10 +396,6 @@ void freeFunction(function* funNow)
     free(funNow->factors);
     free(funNow);
 }
-function* functions[20];
-int funC = 0;
-int temp[20] = { 0 };
-int ind = 0;
 int anyFunction(char* line)
 {
     def defNow = getdefbyStr(line);
@@ -397,37 +419,35 @@ int anyFunction(char* line)
     }
     else
     {
-        if (isMatch(defNow.name, "여기까지"))
+        //printf("%d %s, %d\n", ind, defNow.name, defNow.useindent);
+        ///indent가 0이 아닐 때. 조건문, 반복문의 처리이다.
+        ///여기의 핵심은 ind와 igd이다. ind는 indent의 줄임말로 깊이를 표시하고 igd는 ignored로 얼마만큼의 깊이를 무시할 것인지 표시한다.
+        ///ind가 2이상이면 ind가 1이 될 때까지 다시 사용할 것이므로 모두 저장해야 한다. (맨 아래)
+        ///ind가 1이면 저장해야 될 것만 (if가 사실인 것만) 저장해야 한다. 따라서 canInsert와 비교한다.
+        ///무시된 문 중에도 여기까지를 사용하는 문이 있으므로 if가 거짓인 동안은 igd를 더해준다.
+        if (ind == 1)
         {
-            ind--;
-            if (ind == 0)
+            if (isMatch(defNow.name, "여기까지"))
             {
-                funC++;
-                //printf("%d %d ", functions[funC]->factors[1].value.iValue, temp);
-                variable* v = functions[funC - 1]->factors[0].value.vValue;
-                v->iValue = 0;
-                for (int i = 0; i < functions[funC - 1]->factors[1].value.iValue; i++)
+                if (igd == 0)
                 {
-                    for (int j = 0; j < temp[funC - 1]; j++)
-                    {
-                        //printf("%s %d\n", functions[funC]->moon[j], ind);
-                        anyFunction(functions[funC - 1]->moon[j]);
-                    }
-                    v->iValue++;
+                    ind--;
+                    useFunction_end(functions[funC]);
                 }
-                funC--;
-                for (int i = 0; i < temp[funC]; i++)
-                    free(functions[funC]->moon[i]);
-                free(functions[funC]);
-                temp[funC] = 0;;
+                else igd--;
             }
-            else
+            else if (isMatch(defNow.name, "아니면"))
+            {
+                canInsert = 1 - canInsert;
+            }
+            else if (canInsert == 1)
             {
                 ind += defNow.useindent;
                 functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * 240);
                 for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
                 temp[funC]++;
             }
+            else igd += defNow.useindent;
         }
         else
         {
@@ -439,4 +459,4 @@ int anyFunction(char* line)
     }
     return ind;
 }
-///Todo : 예제 만들기 / 스파게티 정리 / 조건문
+///Todo : 예제 만들기 / 스파게티 정리 / 조건문 / 그냥 숫자로만 있는거 define

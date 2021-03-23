@@ -22,7 +22,7 @@ breakBySecond:
 }
 int getPriority(char op) //연산자 기호 하나를 주고 연산자의 우선순위를 반환함.
 {
-    if (op == '*' || op == '/') return 1;
+    if (op == '*' || op == '/' || op == '%') return 1;
     if (op == '+' || op == '-') return 0;
     return -1;
 }
