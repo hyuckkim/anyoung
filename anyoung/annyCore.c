@@ -353,10 +353,7 @@ int temp[20] = { 0 };
 int canInsert;
 int ind = 0, igd = 0;
 #include "functions.h"
-void annyCore_init()
-{
-#include "funS.txt"
-}
+#include "funS.h"
 variable getFV(function* fun, int i)
 {
     return fun->factors[i].value;

@@ -29,7 +29,7 @@
     <ClInclude Include="annyCore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="funS.txt">
+    <ClInclude Include="funS.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="functions.h">

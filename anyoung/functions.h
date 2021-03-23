@@ -1,9 +1,14 @@
-#pragma once
-#include <stdio.h>
-#include "annyCore.h"
+/// <summary>
+/// 이게 어떻게 가능한지 궁금한 사람을 위해 : 이거 파일 맨 위에 있는거 아님. annyCore.c의 360번줄쯤에 있음.
+/// </summary>
 
 void Function_Help()
 {
+    printf("\n흐름\n");
+    printf("여기까지 \t\t\t흐름 함수를 어디까지 실행할지의 조건이 됩니다.\n\n");
+    printf("[ㅁ 로] ㅇ 번 되풀이 \t\t'여기까지' 까지의 함수를 ㅇ번 실행합니다. ㅁ에 동작 횟수를 0부터 기록합니다.\n");
+    printf("ㅁ 면 조건\t\t\tㅁ가 숫자고 1이라면 '여기까지' 까지의 함수를 실행합니다.\n");
+    printf("아니면\t\t\t\t조건과 여기까지 사이에 넣어 함수를 실행할지를 반전합니다.\n");
     printf("\n데이터\n");
     printf("ㅁ을/를 ㅇ으로/로 정하기\t변수 ㅁ의 값을 ㅇ로 지정합니다. ㅁ이 없다면 새로 만듭니다.\n");
     printf("ㅁ을/를 ㅇ만큼 더하기\t\t변수 ㅁ의 값에 ㅇ를 더합니다. ㅁ이 문자열이 아니어야 하고 없다면 새로 만듭니다.\n");
@@ -13,7 +18,7 @@ void Function_Help()
     printf("\n화면 입출력\n");
     printf("ㅁ 을/를 말하기 \t\tㅁ을 개행문자와 함께 출력합니다.\n");
     printf("ㅁ 을/를 [ㅇ 번] 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
-    printf("도움\t\t\t함수에 대한 도움말을 봅니다.");
+    printf("도움\t\t\t\t함수에 대한 도움말을 봅니다.");
     printf("\n");
 }
 extern int anyFunction(char* line);
