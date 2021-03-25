@@ -365,6 +365,7 @@ int useFunction(function* fn)
     if (isMatch(dName, "조건"))        { Function_If       (fn);                         return 1; }
 
     if (isMatch(dName, "말하기"))      { Function_Say      (getFV(fn, 0));               return 0; }
+    if (isMatch(dName, "듣기"))        { Function_Listen   (getFV(fn, 0));               return 0; }
     if (isMatch(dName, "표시하기"))    { Function_Print    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "도움"))        { Function_Help     ();                           return 0; }
 
@@ -456,4 +457,5 @@ int anyFunction(char* line)
     }
     return ind;
 }
-///Todo : 예제 만들기 / 스파게티 정리 / 조건문 / 그냥 숫자로만 있는거 define
+///Todo : 스파게티 정리 / 그냥 숫자로만 있는거 define / 함수 / 구조체
+//누가 http://www.no-smok.net/nsmk/%ED%95%9C%EA%B8%80%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%EC%96%B8%EC%96%B4 ... 이미 생각해놨던 거다..
