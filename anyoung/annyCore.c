@@ -355,11 +355,13 @@ variable getFV(function* fun, int i)
 }
 int useFunction(function* fn)
 {
-    char* dName = fn->define.name;
+    char* dName = fn->define->name;
     if (isMatch(dName, "되풀이"))      { Function_Loop     (fn);                         return 1; }
     if (isMatch(dName, "조건"))        { Function_If       (fn);                         return 1; }
-
-    if (isMatch(dName, "말하기"))      { Function_Say      (getFV(fn, 0));               return 0; }
+    if (isMatch(dName, "말하기")) {
+        if (fn->options[0].isMatched)  { Function_Say_Si   (getFV(fn, 0));               return 0; }
+        else                           { Function_Say      (getFV(fn, 0));               return 0; }
+    }
     if (isMatch(dName, "듣기"))        { Function_Listen   (getFV(fn, 0));               return 0; }
     if (isMatch(dName, "표시하기"))    { Function_Print    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "도움"))        { Function_Help     ();                           return 0; }
@@ -374,14 +376,14 @@ int useFunction(function* fn)
 }
 int useFunction_end(function* fn)
 {
-    char* dName = fn->define.name;
+    char* dName = fn->name;
     if (isMatch(dName, "되풀이")) { Function_Loop_end(fn);  return 0; }
     if (isMatch(dName, "조건"))   { Function_If_end(fn);    return 0; }
     return -1;
 }
 void freeFunction(function* funNow)
 {
-    for (int i = 0; i < funNow->define.argsCount; i++)
+    for (int i = 0; i < funNow->define->argsCount; i++)
     {
         if(funNow->factors[i].value.type == sV)
             free(funNow->factors[i].value.sValue);
@@ -398,7 +400,7 @@ int anyFunction(char* line)
         functions[funC] = malloc(sizeof(function));
         if (functions[funC] == NULL) return 0;
 
-        getfunbyDef(defNow, line, functions[funC]);
+        getfunbyDef(&defNow, line, functions[funC]);
         splitFactors(*functions[funC], line);
         for (int i = 0; i < defNow.argsCount; i++)
         {
@@ -452,5 +454,5 @@ int anyFunction(char* line)
     }
     return ind;
 }
-///Todo : 스파게티 정리 / 그냥 숫자로만 있는거 define / 함수 / 구조체
+///Todo : 스파게티 정리 / 함수 / 배열 / 구조체
 //누가 http://www.no-smok.net/nsmk/%ED%95%9C%EA%B8%80%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%EC%96%B8%EC%96%B4 ... 이미 생각해놨던 거다..

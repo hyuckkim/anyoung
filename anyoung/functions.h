@@ -33,7 +33,7 @@ void Function_Help()
     printf("ㅁ 을/를 ㅇ 만큼 나누기\t\t변수 ㅁ의  값에 ㅇ를 나눕니다. ㅁ이 문자열이 아니어야 하고 없다면 새로 만듭니다.\n");
     printf("\n화면 입출력\n");
     printf("ㅁ 에 듣기\t\t\t화면에서 입력을 받아 변수 ㅁ에 전달합니다.\n");
-    printf("ㅁ 을/를 말하기 \t\tㅁ을 개행문자와 함께 출력합니다.\n");
+    printf("ㅁ 을/를 [조용히] 말하기 \tㅁ을 개행문자와 함께 출력합니다. '조용히' 와 사용되면 개행문자 없이 출력합니다.\n");
     printf("ㅁ 을/를 [ㅇ 번] 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
     printf("도움\t\t\t\t함수에 대한 도움말을 봅니다.");
     printf("\n");
@@ -163,6 +163,14 @@ void Function_Say(variable value)
     else if (value.type == sV)
         printf("%s\n", value.sValue);
 }
+void Function_Say_Si(variable value)
+{
+    itisRValue(&value);
+    if (value.type == iV)
+        printf("%d", value.iValue);
+    else if (value.type == sV)
+        printf("%s", value.sValue);
+}
 void Function_Print(variable value1, variable value2)
 {
     itisRValue(&value1);
@@ -172,17 +180,17 @@ void Function_Print(variable value1, variable value2)
         for (int i = 0; i < value2.iValue; i++)
         {
             if (value1.type == iV)
-                printf("%d\n", value1.iValue);
+                printf("%d", value1.iValue);
             else if (value1.type == sV)
-                printf("%s\n", value1.sValue);
+                printf("%s", value1.sValue);
         }
     }
     else
     {
         if (value1.type == iV)
-            printf("%d\n", value1.iValue);
+            printf("%d", value1.iValue);
         else if (value1.type == sV)
-            printf("%s\n", value1.sValue);
+            printf("%s", value1.sValue);
     }
     printf("\n");
 }

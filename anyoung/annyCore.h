@@ -54,7 +54,7 @@ int next_is_opperator(char* po) //띄어쓰기만 무시하며 다음문자가 �
 void changeSpacetoNull(char* item) // 지정 포인터부터 시작해 앞에 있는 개행문자를 널문자로 변환.
 {
     int i;
-    for (i = 0; item[i] != '\n'; i++) { }
+    for (i = 0; item[i] != '\n' && item[i] != '\0'; i++) { }
     item[i] = '\0';
 }
 int stringLength(char* item) //지정 포인터부터 시작해 null문자가 아닌 구간의 길이를 반환함.
@@ -104,9 +104,10 @@ char* setString(char* item) //문자열을 새로 할당해 복사함.
 
 int isFair(char* word, factor it, int* ret) //factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
 {
+    //if (deb == 1) printf("%d번 반복...", it.nameCount);
     for (int i = 0; i < it.nameCount; i++)
     {
-        //printf("%s / %s\n", word, it.name[i]); // For debug : 조건 순회하며 확인하기
+        //if (deb == 1) printf("%s / %s\n", word, it.name[i]); // For debug : 조건 순회하며 확인하기
         if (isMatch(word, it.name[i]))
         {
             *ret = stringLengthSpace(word);
@@ -133,10 +134,8 @@ variable* makeVariable(char* name)
     varNames[varCounts] = setString(name);
     vars[varCounts].type = iV;
     vars[varCounts].iValue = 0;
-    vars[varCounts].sValue = NULL;
-    vars[varCounts].vValue = &vars[varCounts];
     varCounts++;
-    return vars[varCounts - 1].vValue;
+    return &vars[varCounts - 1];
 }
 variable* setVariable(variable* var)
 {
@@ -159,29 +158,34 @@ def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
     errorExcept = 1;
     return defs[0];
 }
-void getfunbyDef(def define, char* str, function* result) // 함수로 변수를 만들어 result 포인터를 바꾼다.
+void getfunbyDef(def* define, char* str, function* result) // 함수로 변수를 만들어 result 포인터를 바꾼다.
 {
     result->define = define;
-    result->name = define.name;
+    result->name = define->name;
     result->factors = malloc(sizeof(factor)
-        * define.argsCount); //sizeof(포인터)는 동적할당 관계없이 무조건 4라서 Count를 따로만듦
-    if (result->factors != NULL) for (int i = 0; i < define.argsCount; i++)
+        * define->argsCount); //sizeof(포인터)는 동적할당 관계없이 무조건 4라서 Count를 따로만듦
+    result->options = malloc(sizeof(factor)
+        * define->optionsCount);
+    if (result->factors != NULL) for (int i = 0; i < define->argsCount; i++)
     {
-        result->factors[i].name = define.args[i];
-        result->factors[i].nameCount = define.argNameCount[i];
+        result->factors[i].name = define->args[i];
+        result->factors[i].nameCount = define->argNameCount[i];
         result->factors[i].isMatched = false;
+        result->factors[i].value.isMatched = false;
+    }
+    if (result->options != NULL) for (int i = 0; i < define->optionsCount; i++)
+    {
+        result->options[i].name = define->options;
+        result->options[i].nameCount = 1;
+        result->options[i].isMatched = false;
+        result->options[i].value.isMatched = false;
     }
 }
 void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
 {
     int starti = 0;
-    int ss = 0;
-    for (int i = 0; i < fun.define.argsCount; i++)
-    {
-        fun.factors[i].value.isMatched = false;
-    }
     for (int i = 0; str[i] != 0; i++) {
-        for (int j = 0; j < fun.define.argsCount; j++) {
+        for (int j = 0; j < fun.define->argsCount; j++) {
             if (fun.factors[j].isMatched) continue;
             int nameIndex;
             if (isFair(&str[i], fun.factors[j], &nameIndex) && !next_is_opperator(&str[i]))
@@ -190,13 +194,22 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
                 fun.factors[j].endF = str + i;
                 fun.factors[j].isMatched = true;
                 fun.factors[j].value.isMatched = true;
-                ss++;
                 starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringLengthSpace로 잘라서 스페이스바는 알아서 걸러짐)
                 break;
             }
-            else if (isMatch(fun.define.name, &str[i]))
+            else if (isMatch(fun.define->name, &str[i]))
             {
-                starti = i + stringLengthSpace(fun.define.name);
+                starti = i + stringLengthSpace(fun.define->name);
+            }
+        }
+        for (int j = 0; j < fun.define->optionsCount; j++) {
+            if (fun.options[j].isMatched) continue;
+            int nameIndex;
+            if (isFair(&str[i], fun.options[j], &nameIndex) && !next_is_opperator(&str[i]))
+            {
+                fun.options[j].isMatched = true;
+                fun.options[j].value.isMatched = true;
+                starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringLengthSpace로 잘라서 스페이스바는 알아서 걸러짐)
             }
         }
     }

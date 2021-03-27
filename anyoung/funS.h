@@ -4,6 +4,7 @@
 
 #define dd defs[defC]
 #define ddl(x) defs[defC].argsCount = x; defs[defC].args = malloc(sizeof(char**) * x); defs[defC].argNameCount = malloc(sizeof(int) * x);
+#define ddr(x) defs[defC].optionsCount = x; defs[defC].options = malloc(sizeof(char*) * x);
 void SetArgs(int o, int c, ...)
 {
     va_list v;
@@ -16,13 +17,27 @@ void SetArgs(int o, int c, ...)
             dd.args[o][i] = setString(va_arg(v, char*));
         }
 }
+void SetOptions(int c, ...)
+{
+    va_list v;
+    va_start(v, c);
+    if (dd.options != NULL)
+    {
+        for (int i = 0; i < c; i++)
+        {
+            dd.options[i] = setString(va_arg(v, char*));
+        }
+    }
+}
 void annyCore_init()
 {
     dd.name = setString("말하기");
     ddl(1);
+    ddr(1);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
+        SetOptions(1, "조용히");
     }
     dd.useindent = false;
     defC++;
