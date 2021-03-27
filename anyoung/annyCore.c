@@ -1,58 +1,53 @@
-#pragma once
-#include <stdio.h>
-#include <stdlib.h>
-#include "annyCore.h"
-
 void operate(variable a, variable b, char op, variable *result)
 {
     int tmp = 0;
     result->iValue = 0;
     result->sValue = 0;
-    result->type = 0;
-    if (a.type == 2)
+    result->type = iV;
+    if (a.type == vV)
     {
         a.type = a.vValue->type;
-        if (a.type == 0) a.iValue = a.vValue->iValue;
-        else if (a.type == 1) a.sValue = a.vValue->sValue;
+        if (a.type == iV) a.iValue = a.vValue->iValue;
+        else if (a.type == sV) a.sValue = a.vValue->sValue;
     }
-    if (b.type == 2)
+    if (b.type == vV)
     {
         b.type = b.vValue->type;
-        if (b.type == 0) b.iValue = b.vValue->iValue;
-        else if (b.type == 1) b.sValue = b.vValue->sValue;
+        if (b.type == iV) b.iValue = b.vValue->iValue;
+        else if (b.type == sV) b.sValue = b.vValue->sValue;
     }
     switch (a.type)
     {
-    case 0:
+    case iV:
         switch (b.type)
         {
-        case 0:
+        case iV:
             //int and int
             switch (op)
             {
             case '+':
-                result->type = 0;
+                result->type = iV;
                 result->iValue = a.iValue + b.iValue;
                 break;
             case '-':
-                result->type = 0;
+                result->type = iV;
                 result->iValue = a.iValue - b.iValue;
                 break;
             case '*':
-                result->type = 0;
+                result->type = iV;
                 result->iValue = a.iValue * b.iValue;
                 break;
             case '%':
-                result->type = 0;
+                result->type = iV;
                 result->iValue = a.iValue % b.iValue;
                 break;
             case '/':
-                result->type = 0;
+                result->type = iV;
                 result->iValue = a.iValue / b.iValue;
                 break;
             }
             break;
-        case 1:
+        case sV:
             //int and string
             switch (op)
             {
@@ -71,7 +66,7 @@ void operate(variable a, variable b, char op, variable *result)
                     }
                     result->sValue[tmp] = '\0';
                 }
-                result->type = 1;
+                result->type = sV;
                 break;
             case '-':
                 //except error
@@ -89,10 +84,10 @@ void operate(variable a, variable b, char op, variable *result)
             break;
         }
         break;
-    case 1:
+    case sV:
         switch (b.type)
         {
-        case 0:
+        case iV:
             //string and int
             switch (op)
             {
@@ -111,7 +106,7 @@ void operate(variable a, variable b, char op, variable *result)
                     }
                     result->sValue[tmp] = '\0';
                 }
-                result->type = 1;
+                result->type = sV;
                 break;
             case '-':
                 //except error
@@ -130,7 +125,7 @@ void operate(variable a, variable b, char op, variable *result)
                     }
                     result->sValue[tmp] = '\0';
                 }
-                result->type = 1;
+                result->type = sV;
                 break;
             case '%':
                 //except error
@@ -140,7 +135,7 @@ void operate(variable a, variable b, char op, variable *result)
                 break;
             }
             break;
-        case 1:
+        case sV:
             //string and string
             switch (op)
             {
@@ -159,7 +154,7 @@ void operate(variable a, variable b, char op, variable *result)
                     }
                     result->sValue[tmp] = '\0';
                 }
-                result->type = 1;
+                result->type = sV;
                 break;
             case '-':
                 //except error
@@ -196,13 +191,13 @@ void getValueinFactor(factor* result) //배열 아님!!
                 inputMod = 1;
                 sts++;
                 newStack[sts].iValue = iv - '0';
-                newStack[sts].type = 1;
+                newStack[sts].type = iV;
             }
             else if (iv == '"')
             {
                 inputMod = 2;
                 sts++;
-                newStack[sts].type = 2;
+                newStack[sts].type = sV;
                 newStack[sts].sValue = malloc(stringLengthQ(&result->startF[i]) + 1);
                 if (newStack[sts].sValue == NULL) return;
                 temp = 0;
@@ -210,7 +205,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
-                newStack[sts].type = 4;
+                newStack[sts].type = oV;
                 newStack[sts].oValue = iv;
             }
             else if (iv == ' ') { } //아무 특정 입력도 없을 때 띄어쓰기는 딱히 상관 없음.
@@ -218,12 +213,12 @@ void getValueinFactor(factor* result) //배열 아님!!
             {
                 inputMod = 3;
                 sts++;
-                newStack[sts].type = 3;
-                newStack[sts].sValue = malloc(sizeof(char) * 240);
-                if (newStack[sts].sValue == NULL) return;
-                for (int i = 0; i < 240; i++) newStack[sts].sValue[i] = '\0';
+                newStack[sts].type = vV;
+                newStack[sts].vValue = malloc(sizeof(char) * lineLength);
+                if (newStack[sts].vValue == NULL) return;
+                for (int i = 0; i < lineLength; i++) newStack[sts].vValue[i] = '\0';
                 temp = 0;
-                newStack[sts].sValue[temp] = iv;
+                newStack[sts].vValue[temp] = iv;
                 temp++;
             } 
             break;
@@ -236,7 +231,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
-                newStack[sts].type = 4;
+                newStack[sts].type = oV;
                 newStack[sts].oValue = iv;
                 inputMod = 0;
             }
@@ -262,7 +257,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
             {
                 sts++;
-                newStack[sts].type = 4;
+                newStack[sts].type = oV;
                 newStack[sts].oValue = iv;
                 inputMod = 0;
             }
@@ -278,9 +273,9 @@ void getValueinFactor(factor* result) //배열 아님!!
             break;
         }
     }
-    variable varStack[20];
+    variable varStack[stackLength];
     int varLast = 0;
-    char operatorStack[20] = "\0";
+    char operatorStack[stackLength] = "\0";
     int operatorLast = 0;
     int prio;
     //https://penglog.tistory.com/99 센세 감사합니다
@@ -288,23 +283,23 @@ void getValueinFactor(factor* result) //배열 아님!!
     {
         switch (newStack[q].type)
         {
-        case 1: //numberic
-            varStack[varLast].type = 0;
+        case iV: //numberic
+            varStack[varLast].type = iV;
             varStack[varLast].iValue = newStack[q].iValue;
             varLast++;
             break;
-        case 2: //string 
-            varStack[varLast].type = 1;
+        case sV: //string 
+            varStack[varLast].type = sV;
             varStack[varLast].sValue = newStack[q].sValue;
             varLast++;
             break;
-        case 3: //variable 
-            varStack[varLast].type = 2;
-            varStack[varLast].vValue = getVariable(newStack[q].sValue);
-            if (varStack[varLast].vValue == NULL) varStack[varLast].vValue = makeVariable(newStack[q].sValue);
+        case vV: //variable 
+            varStack[varLast].type = vV;
+            varStack[varLast].vValue = getVariable(newStack[q].vValue);
+            if (varStack[varLast].vValue == NULL) varStack[varLast].vValue = makeVariable(newStack[q].vValue);
             varLast++;
             break;
-        case 4: //operator
+        case oV: //operator
             switch (newStack[q].oValue)
             {
             case '(': // 일단 써놓고 ')' 나온 뒤에 사용
@@ -347,9 +342,9 @@ void getValueinFactor(factor* result) //배열 아님!!
     //printf("\n");
 }
 
-function* functions[20];
+function* functions[stackLength];
 int funC = 0;
-int temp[20] = { 0 };
+int temp[stackLength] = { 0 };
 int canInsert;
 int ind = 0, igd = 0;
 #include "functions.h"
@@ -388,7 +383,7 @@ void freeFunction(function* funNow)
 {
     for (int i = 0; i < funNow->define.argsCount; i++)
     {
-        if(funNow->factors[i].value.type == 1)
+        if(funNow->factors[i].value.type == sV)
             free(funNow->factors[i].value.sValue);
     }
     free(funNow->factors);
@@ -407,10 +402,10 @@ int anyFunction(char* line)
         splitFactors(*functions[funC], line);
         for (int i = 0; i < defNow.argsCount; i++)
         {
-            if (functions[funC]->factors[i].isMatched == 0) continue; // 없는 인수는 그냥 넘어간다.
+            if (!functions[funC]->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
             //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
             getValueinFactor(&functions[funC]->factors[i]);
-            functions[funC]->factors[i].value.isMatched = 1;
+            functions[funC]->factors[i].value.isMatched = true;
         }
         ind += useFunction(functions[funC]);
         if (ind == 0) freeFunction(functions[funC]);
@@ -441,7 +436,7 @@ int anyFunction(char* line)
             else if (canInsert == 1)
             {
                 ind += defNow.useindent;
-                functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * 240);
+                functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * lineLength);
                 for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
                 temp[funC]++;
             }
@@ -450,7 +445,7 @@ int anyFunction(char* line)
         else
         {
             ind += defNow.useindent;
-            functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * 240);
+            functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * lineLength);
             for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
             temp[funC]++;
         }

@@ -3,13 +3,18 @@
 /// 사용 운영체제 : Windows 10 64bit 20H2 19042.867
 /// UTF-8 사용 beta 기능 사용시에만 사용 가능함
 #include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+#include <stdarg.h>
+#include "types.h"
 #include "kinput.h"
+#include "annyCore.h"
 #include "annyCore.c"
 
 int main(int argc, char** argv)
 {
     annyCore_init();
-    char chars[240] = "default";
+    char chars[lineLength] = "default";
     int indent = 1;
     if (argc == 1)
     {
@@ -30,7 +35,7 @@ int main(int argc, char** argv)
         
         if (fopen_s(&stream, argv[1], "r") == 0 && stream != NULL)
         {
-            while (fgets(chars, 240, stream) != NULL)
+            while (fgets(chars, lineLength, stream) != NULL)
             {
                 changeSpacetoNull(chars);
                 anyFunction(chars);

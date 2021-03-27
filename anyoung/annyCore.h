@@ -1,9 +1,3 @@
-#pragma once
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include "types.h"
-
 int isMatch(char* word1, char* word2) //포인터부터 시작해 '\0'이나 ' '까지 같은지 비교함.
 {
     int i = 0;
@@ -137,7 +131,7 @@ variable* getVariable(char* name)
 variable* makeVariable(char* name)
 {
     varNames[varCounts] = setString(name);
-    vars[varCounts].type = 0;
+    vars[varCounts].type = iV;
     vars[varCounts].iValue = 0;
     vars[varCounts].sValue = NULL;
     vars[varCounts].vValue = &vars[varCounts];
@@ -175,7 +169,7 @@ void getfunbyDef(def define, char* str, function* result) // 함수로 변수를
     {
         result->factors[i].name = define.args[i];
         result->factors[i].nameCount = define.argNameCount[i];
-        result->factors[i].isMatched = 0;
+        result->factors[i].isMatched = false;
     }
 }
 void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
@@ -184,7 +178,7 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
     int ss = 0;
     for (int i = 0; i < fun.define.argsCount; i++)
     {
-        fun.factors[i].value.isMatched = 0;
+        fun.factors[i].value.isMatched = false;
     }
     for (int i = 0; str[i] != 0; i++) {
         for (int j = 0; j < fun.define.argsCount; j++) {
@@ -194,8 +188,8 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
             {
                 fun.factors[j].startF = str + starti;
                 fun.factors[j].endF = str + i;
-                fun.factors[j].isMatched = 1;
-                fun.factors[j].value.isMatched = 1;
+                fun.factors[j].isMatched = true;
+                fun.factors[j].value.isMatched = true;
                 ss++;
                 starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringLengthSpace로 잘라서 스페이스바는 알아서 걸러짐)
                 break;

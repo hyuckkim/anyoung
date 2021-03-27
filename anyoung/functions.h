@@ -4,16 +4,16 @@
 
 void itisRValue(variable* v)
 {
-    if (v->isMatched == 1 && v->type == 2)
+    if (v->isMatched && v->type == vV)
     {
-        if (v->vValue->type == 0)
+        if (v->vValue->type == iV)
         {
-            v->type = 0;
+            v->type = iV;
             v->iValue = v->vValue->iValue;
         }
-        else if (v->vValue->type == 1)
+        else if (v->vValue->type == sV)
         {
-            v->type = 1;
+            v->type = sV;
             v->sValue = v->vValue->sValue;
         }
     }
@@ -41,13 +41,13 @@ void Function_Help()
 extern int anyFunction(char* line);
 void Function_Loop(function* looping)
 {
-    looping->moon = malloc(sizeof(char* ) * 40);
+    looping->moon = malloc(sizeof(char* ) * moonLength);
     canInsert = 1;
 }
 void Function_If(function* looping)
 {
-    looping->moon = malloc(sizeof(char*) * 40);
-    if (looping->factors[0].value.type == 0 && looping->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
+    looping->moon = malloc(sizeof(char*) * moonLength);
+    if (looping->factors[0].value.type == iV && looping->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
         canInsert = 1;
     else
         canInsert = 0; //조건문 시작할 때 조건 비교해서 틀리면 아예 메모리에 저장 안함.
@@ -55,7 +55,7 @@ void Function_If(function* looping)
 void Function_Loop_end(function* fn)
 {
     funC++; //안에서 쓰이지 않아도 anyFunction에서 쓰므로 변경.
-    if (fn->factors[0].value.isMatched == 1)
+    if (fn->factors[0].value.isMatched)
     {
         variable* v = fn->factors[0].value.vValue;
         v->iValue = 0;
@@ -97,25 +97,24 @@ void Function_If_end(function* fn)
 void Function_Set(variable value1, variable value2)
 {
     itisRValue(&value2);
-    if (value1.type == 2)
+    if (value1.type != vV) return;
+    switch (value2.type)
     {
-        switch (value2.type)
-        {
-        case 0:
-            value1.vValue->type = 0;
-            value1.vValue->iValue = value2.iValue;
-            break;
-        case 1:
-            value1.vValue->type = 1;
-            value1.vValue->sValue = setString(value2.sValue);
-            break;
-        }
+    case iV:
+        value1.vValue->type = iV;
+        value1.vValue->iValue = value2.iValue;
+        break;
+    case sV:
+        value1.vValue->type = sV;
+        value1.vValue->sValue = setString(value2.sValue);
+        break;
     }
 }
 void Function_Add(variable value1, variable value2)
 {
     itisRValue(&value2);
-    if (value1.type == 2 && value1.vValue->type == 0 && value2.type == 0)
+    if (value1.type != vV) return;
+    if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue += value2.iValue;
     }
@@ -123,7 +122,8 @@ void Function_Add(variable value1, variable value2)
 void Function_Minus(variable value1, variable value2)
 {
     itisRValue(&value2);
-    if (value1.type == 2 && value1.vValue->type == 0 && value2.type == 0)
+    if (value1.type != vV) return;
+    if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue -= value2.iValue;
     }
@@ -131,7 +131,8 @@ void Function_Minus(variable value1, variable value2)
 void Function_Multi(variable value1, variable value2)
 {
     itisRValue(&value2);
-    if (value1.type == 2 && value1.vValue->type == 0 && value2.type == 0)
+    if (value1.type != vV) return;
+    if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue *= value2.iValue;
     }
@@ -139,50 +140,49 @@ void Function_Multi(variable value1, variable value2)
 void Function_Devide(variable value1, variable value2)
 {
     itisRValue(&value2);
-    if (value1.type == 2 && value1.vValue->type == 0 && value2.type == 0)
+    if (value1.type != vV) return;
+    if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue /= value2.iValue;
     }
 }
 void Function_Listen(variable value)
 {
-    if (value.type == 2)
-    {
-        char* cc = malloc(240);
+    if (value.type != vV) return;
+        char* cc = malloc(lineLength);
         getSO(cc, "");
         value.vValue->sValue = setString(cc);
-        value.vValue->type = 1;
+        value.vValue->type = sV;
         free(cc);
-    }
 }
 void Function_Say(variable value)
 {
     itisRValue(&value);
-    if (value.type == 0)
+    if (value.type == iV)
         printf("%d\n", value.iValue);
-    else if (value.type == 1)
+    else if (value.type == sV)
         printf("%s\n", value.sValue);
 }
 void Function_Print(variable value1, variable value2)
 {
     itisRValue(&value1);
     itisRValue(&value2);
-    if (value2.isMatched == 1)
+    if (value2.isMatched)
     {
         for (int i = 0; i < value2.iValue; i++)
         {
-            if (value1.type == 0)
-                printf("%d", value1.iValue);
-            else if (value1.type == 1)
-                printf("%s", value1.sValue);
+            if (value1.type == iV)
+                printf("%d\n", value1.iValue);
+            else if (value1.type == sV)
+                printf("%s\n", value1.sValue);
         }
     }
     else
     {
-        if (value1.type == 0)
-            printf("%d", value1.iValue);
-        else if (value1.type == 1)
-            printf("%s", value1.sValue);
+        if (value1.type == iV)
+            printf("%d\n", value1.iValue);
+        else if (value1.type == sV)
+            printf("%s\n", value1.sValue);
     }
     printf("\n");
 }

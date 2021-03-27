@@ -24,7 +24,7 @@ void annyCore_init()
     {
         SetArgs(0, 2, "을", "를");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("듣기");
@@ -33,7 +33,7 @@ void annyCore_init()
     {
         SetArgs(0, 1, "에");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("표시하기");
@@ -43,7 +43,7 @@ void annyCore_init()
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "번");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("도움");
@@ -58,7 +58,7 @@ void annyCore_init()
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 2, "로", "으로");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("더하기");
@@ -68,7 +68,7 @@ void annyCore_init()
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("빼기");
@@ -78,7 +78,7 @@ void annyCore_init()
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("곱하기");
@@ -88,7 +88,7 @@ void annyCore_init()
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("나누기");
@@ -98,7 +98,7 @@ void annyCore_init()
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 
     dd.name = setString("되풀이");
@@ -108,7 +108,7 @@ void annyCore_init()
         SetArgs(0, 2, "로", "으로");
         SetArgs(1, 1, "번");
     }
-    dd.useindent = 1;
+    dd.useindent = true;
     defC++;
 
     dd.name = setString("조건");
@@ -122,16 +122,16 @@ void annyCore_init()
             SetArgs(0, 1, "면");
         }
     }
-    dd.useindent = 1;
+    dd.useindent = true;
     defC++;
 
     dd.name = setString("여기까지");
     dd.argsCount = 0;
-    dd.useindent = -1;
+    dd.useindent = rev;
     defC++;
 
     dd.name = setString("아니면");
     dd.argsCount = 0;
-    dd.useindent = 0;
+    dd.useindent = false;
     defC++;
 }

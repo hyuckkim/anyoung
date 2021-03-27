@@ -1,8 +1,5 @@
-#pragma once
-#include <stdio.h>
-#include <conio.h>
 
-typedef enum { false, true } bool;
+
 typedef enum { sol, duo, tri, qua, funA, funB, LineBreak, BackSpace } textInfo;
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow);
 void printBit(unsigned char a)
