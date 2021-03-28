@@ -45,6 +45,18 @@ void operate(variable a, variable b, char op, variable *result)
                 result->type = iV;
                 result->iValue = a.iValue / b.iValue;
                 break;
+            case '=':
+                result->type = iV;
+                result->iValue = a.iValue == b.iValue;
+                break;
+            case '>':
+                result->type = iV;
+                result->iValue = a.iValue > b.iValue;
+                break;
+            case '<':
+                result->type = iV;
+                result->iValue = a.iValue < b.iValue;
+                break;
             }
             break;
         case sV:
@@ -79,6 +91,12 @@ void operate(variable a, variable b, char op, variable *result)
                 break;
             case '/':
                 //except error
+                break;
+            case '=':
+                break;
+            case '>':
+                break;
+            case '<':
                 break;
             }
             break;
@@ -133,6 +151,12 @@ void operate(variable a, variable b, char op, variable *result)
             case '/':
                 //except error
                 break;
+            case '=':
+                break;
+            case '>':
+                break;
+            case '<':
+                break;
             }
             break;
         case sV:
@@ -167,6 +191,14 @@ void operate(variable a, variable b, char op, variable *result)
                 break;
             case '/':
                 //except error
+                break;
+            case '=':
+                result->type = iV;
+                result->iValue = isMatch(a.sValue, b.sValue);
+                break;
+            case '>':
+                break;
+            case '<':
                 break;
             }
             break;
@@ -205,7 +237,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 if (newStack[sts].sValue == NULL) return;
                 temp = 0;
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
+            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')' || iv == '=' || iv == '<' || iv == '>')
             {
                 sts++;
                 newStack[sts].type = oV;
@@ -376,7 +408,8 @@ int useFunction(function* fn)
     if (isMatch(dName, "빼기"))        { Function_Minus    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "곱하기"))      { Function_Multi    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "나누기"))      { Function_Devide   (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    for (int i = 15; i < defC; i++)
+    if (isMatch(dName, "있는지"))      { Function_valid    (getFV(fn, 0), getFV(fn, 1)); return 0; }
+    for (int i = 16; i < defC; i++)
     {
         if (isMatch(dName, defs[i].name)) { Function_User(fn); return 0; };
     }

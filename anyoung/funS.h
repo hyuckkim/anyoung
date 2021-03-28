@@ -166,4 +166,14 @@ void annyCore_init()
     }
     dd.useindent = false;
     defC++;
+
+    dd.name = setString("있는지");
+    ddl(2);
+    if (dd.args != NULL && dd.argNameCount != NULL)
+    {
+        SetArgs(0, 1, "에");
+        SetArgs(1, 2, "이", "가");
+    }
+    dd.useindent = false;
+    defC++;
 }

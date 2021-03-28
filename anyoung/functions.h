@@ -27,6 +27,7 @@ void Function_Help()
     printf("아니면\t\t\t\t조건과 여기까지 사이에 넣어 함수를 실행할지를 반전합니다.\n\n");
     printf("ㅁ 이라는/라는 동작\t\tㅁ 라는 문자열로 함수를 정의합니다.\n");
     printf("ㅁ 을/를 [ㅇ 로/으로] 인수\t함수의 인수를 설정합니다. 'ㅂ 와/나' 로 여러 조사를 받게 할 수 있습니다.\n");
+    printf("ㅁ 이 있는지\t\t\t인수로 ㅁ이 있으면 1, 없으면 0을 출력합니다.\n");
     printf("\n데이터\n");
     printf("ㅁ 을/를 ㅇ으로/로 정하기\t변수 ㅁ의 값을 ㅇ로 지정합니다. ㅁ이 없다면 새로 만듭니다.\n");
     printf("ㅁ 을/를 ㅇ 만큼 더하기\t\t변수 ㅁ의 값에 ㅇ를 더합니다. ㅁ이 문자열이 아니어야 하고 없다면 새로 만듭니다.\n");
@@ -49,6 +50,7 @@ void Function_Loop(function* looping)
 void Function_If(function* looping)
 {
     looping->moon = malloc(sizeof(char*) * moonLength);
+    itisRValue(&looping->factors[0].value);
     if (looping->factors[0].value.type == iV && looping->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
         canInsert = 1;
     else
@@ -135,6 +137,7 @@ void Function_fun_end(function* fn)
             if (!functions[funC]->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
             {
                 defs[defC].options[defs[defC].optionsCount] = setString(functions[funC]->factors[0].value.sValue);
+                defs[defC].optionsCount++;
             }
             else if (!functions[funC]->factors[2].isMatched) // 조사 하나
             {
@@ -197,6 +200,30 @@ void Function_User(function* fn)
     }
     funC--;
     funLoopingNow = 0;
+}
+void Function_valid(variable value1, variable value2)
+{
+    itisRValue(&value2);
+    if (value1.type != vV) return;
+    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
+    {
+        if (isMatch(value2.sValue, funLoopingNow->define->argsName[i]))
+        {
+            value1.vValue->iValue = funLoopingNow->factors[i].isMatched;
+            value1.vValue->type = iV;
+            return;
+        }
+    }
+    for (int i = 0; i < funLoopingNow->define->optionsCount; i++)
+    {
+        if (isMatch(value2.sValue, funLoopingNow->define->options[i]))
+        {
+            //printf("%d", funLoopingNow->options[i].isMatched);
+            value1.vValue->iValue = funLoopingNow->options[i].isMatched;
+            value1.vValue->type = iV;
+            return;
+        }
+    }
 }
 variable* GetArgument(char* name)
 {

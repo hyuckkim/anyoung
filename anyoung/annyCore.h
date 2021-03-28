@@ -17,8 +17,9 @@ breakBySecond:
 }
 int getPriority(char op) //연산자 기호 하나를 주고 연산자의 우선순위를 반환함.
 {
-    if (op == '*' || op == '/' || op == '%') return 1;
-    if (op == '+' || op == '-') return 0;
+    if (op == '*' || op == '/' || op == '%') return 2;
+    if (op == '+' || op == '-') return 1;
+    if (op == '=' || op == '<' || op == '>') return 0;
     return -1;
 }
 void sayAtoB(char* A, char* B) //A 포인터부터 B 포인터까지 화면에 표시함.
@@ -43,6 +44,10 @@ int next_is_opperator(char* po) //띄어쓰기만 무시하며 다음문자가 �
         case '-':
         case '*':
         case '/':
+        case '%':
+        case '=':
+        case '<':
+        case '>':
             return 1;
         case '\0':
             return 0;
@@ -102,12 +107,12 @@ char* setString(char* item) //문자열을 새로 할당해 복사함.
     return str;
 }
 
-int isFair(char* word, factor it, int* ret) //factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
+int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
 {
-    //if (deb == 1) printf("%d번 반복...", it.nameCount);
+    if (deb == 1) printf("%d번 반복...", it.nameCount);
     for (int i = 0; i < it.nameCount; i++)
     {
-        //if (deb == 1) printf("%s / %s\n", word, it.name[i]); // For debug : 조건 순회하며 확인하기
+        if (deb == 1) printf("%s / %s\n", word, it.name[i]); // For debug : 조건 순회하며 확인하기
         if (isMatch(word, it.name[i]))
         {
             *ret = stringLengthSpace(word);
@@ -189,7 +194,7 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
         for (int j = 0; j < fun.define->argsCount; j++) {
             if (fun.factors[j].isMatched) continue;
             int nameIndex;
-            if (isFair(&str[i], fun.factors[j], &nameIndex) && !next_is_opperator(&str[i]))
+            if (isFair(&str[i], fun.factors[j], &nameIndex, 0) && !next_is_opperator(&str[i]))
             {
                 fun.factors[j].startF = str + starti;
                 fun.factors[j].endF = str + i;
@@ -206,7 +211,7 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
         for (int j = 0; j < fun.define->optionsCount; j++) {
             if (fun.options[j].isMatched) continue;
             int nameIndex;
-            if (isFair(&str[i], fun.options[j], &nameIndex) && !next_is_opperator(&str[i]))
+            if (isFair(&str[i], fun.options[j], &nameIndex, 0) && !next_is_opperator(&str[i]))
             {
                 fun.options[j].isMatched = true;
                 fun.options[j].value.isMatched = true;
