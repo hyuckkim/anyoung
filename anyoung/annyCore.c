@@ -174,6 +174,9 @@ void operate(variable a, variable b, char op, variable *result)
         break;
     }
 }
+
+variable* GetArgument(char* name);
+function* funLoopingNow = 0;
 void getValueinFactor(factor* result) //배열 아님!!
 {
     stack newStack[20];
@@ -296,6 +299,7 @@ void getValueinFactor(factor* result) //배열 아님!!
         case vV: //variable 
             varStack[varLast].type = vV;
             varStack[varLast].vValue = getVariable(newStack[q].vValue);
+            if (varStack[varLast].vValue == NULL && funLoopingNow != 0) varStack[varLast].vValue = GetArgument(newStack[q].vValue);
             if (varStack[varLast].vValue == NULL) varStack[varLast].vValue = makeVariable(newStack[q].vValue);
             varLast++;
             break;
@@ -358,6 +362,7 @@ int useFunction(function* fn)
     char* dName = fn->define->name;
     if (isMatch(dName, "되풀이"))      { Function_Loop     (fn);                         return 1; }
     if (isMatch(dName, "조건"))        { Function_If       (fn);                         return 1; }
+    if (isMatch(dName, "동작"))        { Function_fun      (fn);                         return 1; }
     if (isMatch(dName, "말하기")) {
         if (fn->options[0].isMatched)  { Function_Say_Si   (getFV(fn, 0));               return 0; }
         else                           { Function_Say      (getFV(fn, 0));               return 0; }
@@ -371,7 +376,10 @@ int useFunction(function* fn)
     if (isMatch(dName, "빼기"))        { Function_Minus    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "곱하기"))      { Function_Multi    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "나누기"))      { Function_Devide   (getFV(fn, 0), getFV(fn, 1)); return 0; }
-
+    for (int i = 15; i < defC; i++)
+    {
+        if (isMatch(dName, defs[i].name)) { Function_User(fn); return 0; };
+    }
     return -1;
 }
 int useFunction_end(function* fn)
@@ -379,6 +387,7 @@ int useFunction_end(function* fn)
     char* dName = fn->name;
     if (isMatch(dName, "되풀이")) { Function_Loop_end(fn);  return 0; }
     if (isMatch(dName, "조건"))   { Function_If_end(fn);    return 0; }
+    if (isMatch(dName, "동작"))   { Function_fun_end(fn);   return 0; }
     return -1;
 }
 void freeFunction(function* funNow)
@@ -454,5 +463,5 @@ int anyFunction(char* line)
     }
     return ind;
 }
-///Todo : 스파게티 정리 / 함수 / 배열 / 구조체
+///Todo : 스파게티 정리 / 함수 / 다른 연산자 / 배열 / 구조체
 //누가 http://www.no-smok.net/nsmk/%ED%95%9C%EA%B8%80%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%EC%96%B8%EC%96%B4 ... 이미 생각해놨던 거다..

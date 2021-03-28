@@ -17,10 +17,12 @@ typedef struct struct_def //함수의 정의.
     char* name;
     char*** args; //여러개의 인수, 여러개의 얻는 방법, 여러개의 문자
     int argsCount; //args 개수
+    char** argsName; //args 이름들.
     int* argNameCount; //arg별 인수 개수
     char** options; //'매우' 같은 단어들.
     int optionsCount;
     char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
+    int lineCount; //
     bool useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1.
 } def;
 typedef struct struct_variable //최종적으로 할당되는 변수.

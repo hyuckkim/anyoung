@@ -130,23 +130,40 @@ void annyCore_init()
     ddl(1);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
-        dd.argNameCount[0] = 1;
-        dd.args[0] = malloc(sizeof(char*) * 1);
-        if (dd.args[0] != NULL)
-        {
-            SetArgs(0, 1, "면");
-        }
+        SetArgs(0, 1, "면");
     }
     dd.useindent = true;
     defC++;
 
     dd.name = setString("여기까지");
-    dd.argsCount = 0;
+    ddl(0);
     dd.useindent = rev;
     defC++;
 
     dd.name = setString("아니면");
-    dd.argsCount = 0;
+    ddl(0);
+    dd.useindent = false;
+    defC++;
+
+    dd.name = setString("동작");
+    ddl(1);
+    if (dd.args != NULL && dd.argNameCount != NULL)
+    {
+        SetArgs(0, 2, "이라는", "라는");
+    }
+    dd.useindent = true;
+    defC++;
+
+    dd.name = setString("인수"); 
+    ddl(5);
+    if (dd.args != NULL && dd.argNameCount != NULL)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 2, "로", "으로");
+        SetArgs(2, 2, "와", "나");
+        SetArgs(3, 2, "와", "나");
+        SetArgs(4, 2, "와", "나");
+    }
     dd.useindent = false;
     defC++;
 }
