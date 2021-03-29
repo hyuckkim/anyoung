@@ -85,7 +85,7 @@ int stringLengthQ(char* po) //대상 포인터부터 '"'가 얼마나 앞에 있
 int logSize(int v)
 {
     int res = 1;
-    for(int i = v; i > 10; i /= 10, res++) { }
+    for(int i = v; i >= 10; i /= 10, res++) { }
     return res;
 }
 int logScale(int v, int is)

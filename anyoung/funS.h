@@ -130,7 +130,7 @@ void annyCore_init()
     ddl(1);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
-        SetArgs(0, 1, "면");
+        SetArgs(0, 2, "면", "이면");
     }
     dd.useindent = true;
     defC++;
@@ -173,6 +173,15 @@ void annyCore_init()
     {
         SetArgs(0, 1, "에");
         SetArgs(1, 2, "이", "가");
+    }
+    dd.useindent = false;
+    defC++;
+
+    dd.name = setString("읽어오기");
+    ddl(1);
+    if (dd.args != NULL && dd.argNameCount != NULL)
+    {
+        SetArgs(0, 2, "을", "를");
     }
     dd.useindent = false;
     defC++;

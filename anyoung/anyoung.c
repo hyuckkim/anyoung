@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     else
     {
         FILE* stream;
-        
+
         if (fopen_s(&stream, argv[1], "r") == 0 && stream != NULL)
         {
             while (fgets(chars, lineLength, stream) != NULL)

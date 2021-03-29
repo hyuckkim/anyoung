@@ -165,7 +165,7 @@ void operate(variable a, variable b, char op, variable *result)
             {
             case '+':
                 free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
-                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
+                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + stringLength(b.sValue)) + 1);
                 if (result->sValue != NULL)
                 {
                     for (int i = 0; a.sValue[i] != 0; i++, tmp++)
@@ -403,13 +403,15 @@ int useFunction(function* fn)
     if (isMatch(dName, "표시하기"))    { Function_Print    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "도움"))        { Function_Help     ();                           return 0; }
 
+    if (isMatch(dName, "읽어오기"))   { Function_include   (getFV(fn, 0));               return 0; }
+
     if (isMatch(dName, "정하기"))      { Function_Set      (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "더하기"))      { Function_Add      (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "빼기"))        { Function_Minus    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "곱하기"))      { Function_Multi    (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "나누기"))      { Function_Devide   (getFV(fn, 0), getFV(fn, 1)); return 0; }
     if (isMatch(dName, "있는지"))      { Function_valid    (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    for (int i = 16; i < defC; i++)
+    for (int i = 17; i < defC; i++)
     {
         if (isMatch(dName, defs[i].name)) { Function_User(fn); return 0; };
     }

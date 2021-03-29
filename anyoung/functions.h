@@ -18,16 +18,37 @@ void itisRValue(variable* v)
         }
     }
 }
+void itisLValue(variable* v)
+{
+    if (v->isMatched && v->type == sV)
+    {
+        variable* result;
+        v->type = vV;
+        result = getVariable(v->sValue);
+        if (result != NULL) v->vValue = result;
+        else v->vValue = makeVariable(v->sValue);
+    }
+}
+variable* GetArgument(char* name)
+{
+    //functions[funC]->factors[0].value.sValue
+    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
+    {
+        if (isMatch(funLoopingNow->define->argsName[i], name)) return &funLoopingNow->factors[i].value;
+    }
+    return NULL;
+}
 void Function_Help()
 {
     printf("\n흐름\n");
     printf("여기까지 \t\t\t흐름 함수를 어디까지 실행할지의 조건이 됩니다.\n\n");
     printf("[ㅁ 로/으로] ㅇ 번 되풀이 \t'여기까지' 까지의 함수를 ㅇ번 실행합니다. ㅁ에 동작 횟수를 0부터 기록합니다.\n");
-    printf("ㅁ 면 조건\t\t\tㅁ가 숫자고 1이라면 '여기까지' 까지의 함수를 실행합니다.\n");
+    printf("ㅁ 면/이면 조건\t\t\tㅁ가 숫자고 1이라면 '여기까지' 까지의 함수를 실행합니다.\n");
     printf("아니면\t\t\t\t조건과 여기까지 사이에 넣어 함수를 실행할지를 반전합니다.\n\n");
     printf("ㅁ 이라는/라는 동작\t\tㅁ 라는 문자열로 함수를 정의합니다.\n");
     printf("ㅁ 을/를 [ㅇ 로/으로] 인수\t함수의 인수를 설정합니다. 'ㅂ 와/나' 로 여러 조사를 받게 할 수 있습니다.\n");
     printf("ㅁ 이 있는지\t\t\t인수로 ㅁ이 있으면 1, 없으면 0을 출력합니다.\n");
+    printf("ㅁ 을/를 읽어오기 \t\t\tㅁ이라는 이름의 안녕 파일을 읽어 실행합니다.\n");
     printf("\n데이터\n");
     printf("ㅁ 을/를 ㅇ으로/로 정하기\t변수 ㅁ의 값을 ㅇ로 지정합니다. ㅁ이 없다면 새로 만듭니다.\n");
     printf("ㅁ 을/를 ㅇ 만큼 더하기\t\t변수 ㅁ의 값에 ㅇ를 더합니다. ㅁ이 문자열이 아니어야 하고 없다면 새로 만듭니다.\n");
@@ -63,6 +84,7 @@ void Function_fun(function* looping)
 }
 void Function_Loop_end(function* fn)
 {
+    itisLValue(&fn->factors[0].value);
     itisRValue(&fn->factors[1].value);
     funC++; //안에서 쓰이지 않아도 anyFunction에서 쓰므로 변경.
     if (fn->factors[0].value.isMatched)
@@ -106,6 +128,7 @@ void Function_If_end(function* fn)
 }
 void Function_fun_end(function* fn)
 {
+    itisRValue(&fn->factors[0].value);
     funC++;
     defs[defC].name = fn->factors[0].value.sValue;
     defs[defC].args = malloc(sizeof(char**) * 8);
@@ -190,6 +213,25 @@ void Function_fun_end(function* fn)
     }
     defC++;
 }
+void Function_include(variable value)
+{
+    itisRValue(&value);
+    if (value.type != sV) return;
+
+    FILE* stream;
+    funC++;
+    char chars[lineLength];
+    if (fopen_s(&stream, value.sValue, "r") == 0 && stream != NULL)
+    {
+        while (fgets(chars, lineLength, stream) != NULL)
+        {
+            changeSpacetoNull(chars);
+            anyFunction(chars);
+        }
+        fclose(stream);
+    }
+    funC--;
+}
 void Function_User(function* fn)
 {
     funLoopingNow = fn;
@@ -203,8 +245,8 @@ void Function_User(function* fn)
 }
 void Function_valid(variable value1, variable value2)
 {
+    itisLValue(&value1);
     itisRValue(&value2);
-    if (value1.type != vV) return;
     for (int i = 0; i < funLoopingNow->define->argsCount; i++)
     {
         if (isMatch(value2.sValue, funLoopingNow->define->argsName[i]))
@@ -225,18 +267,9 @@ void Function_valid(variable value1, variable value2)
         }
     }
 }
-variable* GetArgument(char* name)
-{
-
-    //functions[funC]->factors[0].value.sValue
-    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
-    {
-        if (isMatch(funLoopingNow->define->argsName[i], name)) return &funLoopingNow->factors[i].value;
-    }
-    return NULL;
-}
 void Function_Set(variable value1, variable value2)
 {
+    itisLValue(&value1);
     itisRValue(&value2);
     if (value1.type != vV) return;
     switch (value2.type)
@@ -253,6 +286,7 @@ void Function_Set(variable value1, variable value2)
 }
 void Function_Add(variable value1, variable value2)
 {
+    itisLValue(&value1);
     itisRValue(&value2);
     if (value1.type != vV) return;
     if (value1.vValue->type == iV && value2.type == iV)
@@ -262,6 +296,7 @@ void Function_Add(variable value1, variable value2)
 }
 void Function_Minus(variable value1, variable value2)
 {
+    itisLValue(&value1);
     itisRValue(&value2);
     if (value1.type != vV) return;
     if (value1.vValue->type == iV && value2.type == iV)
@@ -271,6 +306,7 @@ void Function_Minus(variable value1, variable value2)
 }
 void Function_Multi(variable value1, variable value2)
 {
+    itisLValue(&value1);
     itisRValue(&value2);
     if (value1.type != vV) return;
     if (value1.vValue->type == iV && value2.type == iV)
@@ -280,6 +316,7 @@ void Function_Multi(variable value1, variable value2)
 }
 void Function_Devide(variable value1, variable value2)
 {
+    itisLValue(&value1);
     itisRValue(&value2);
     if (value1.type != vV) return;
     if (value1.vValue->type == iV && value2.type == iV)
@@ -287,14 +324,39 @@ void Function_Devide(variable value1, variable value2)
         value1.vValue->iValue /= value2.iValue;
     }
 }
+
+int itCanInt(char* chars)
+{
+    for (int i = 0; chars[i] != 0; i++)
+        if (chars[i] > '9' || chars[i] < '0') return 0;
+    return 1;
+}
+int getIntinStr(char* chars)
+{
+    int result = 0;
+    for (int i = 0; chars[i] != 0; i++)
+    {
+        result *= 10;
+        result += chars[i] - '0';
+    }
+    return result;
+}
 void Function_Listen(variable value)
 {
-    if (value.type != vV) return;
-        char* cc = malloc(lineLength);
-        getSO(cc, "");
+    itisLValue(&value);
+    char* cc = malloc(lineLength);
+    getSO(cc, "");
+
+    if (itCanInt(cc))
+    {
+        value.vValue->iValue = getIntinStr(cc);
+        value.vValue->type = iV;
+    }
+    else
+    {
         value.vValue->sValue = setString(cc);
         value.vValue->type = sV;
-        free(cc);
+    }
 }
 void Function_Say(variable value)
 {

@@ -54,7 +54,7 @@ bool isQuaByte(unsigned char byte)
 		return true;
 	return false;
 }
-char* noo[80]; //sentence while \n. 
+char* noo[lineLength]; //sentence while \n. 
 int iAge = 0;
 void getSO(char* writeAt, char* various)
 {
