@@ -1,0 +1,19 @@
+되풀이 i로 100번
+    술을 99 - i로 정하기
+    조건 술 = 0이면
+        "No more bottles of beer on the wall, no more bottles of beer."를 말하기
+        "Go to the store and buy some more, 99 bottles of beer on the wall."를 말하기
+    여기까지
+    조건 술 = 1이면
+        "1 bottle of beer on the wall, 1 bottle of beer."를 말하기
+        "Take one down and pass it around, no more bottles of beer on the wall."를 말하기
+    여기까지
+    조건 술 = 2이면
+        "2 bottles of beer on the wall, 2 bottles of beer."를 말하기
+        "Take one down and pass it around, 1 bottle of beer on the wall."를 말하기
+    여기까지
+    조건 술 > 2이면
+        술  + " bottles of beer on the wall, "+ 술  + " bottles of beer."를 말하기
+        "Take one down and pass it around, " + (술 - 1)+ " bottles of beer on the wall."를 말하기
+    여기까지
+여기까지
