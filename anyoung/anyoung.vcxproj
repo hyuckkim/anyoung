@@ -29,6 +29,13 @@
     <ClInclude Include="kinput.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\example\guguclass.any" />
+    <None Include="..\example\helloworld.any" />
+    <None Include="..\example\ninetyninebeer.any" />
+    <None Include="..\example\oneton.any" />
+    <None Include="..\example\triangle.any" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

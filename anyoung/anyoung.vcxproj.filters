@@ -39,4 +39,21 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\example\guguclass.any">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\example\helloworld.any">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\example\ninetyninebeer.any">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\example\oneton.any">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\example\triangle.any">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
 </Project>
