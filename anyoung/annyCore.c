@@ -209,6 +209,21 @@ void operate(variable a, variable b, char op, variable *result)
 
 variable* GetArgument(char* name);
 function* funLoopingNow = 0;
+bool isOperator(char iv)
+{
+    return iv == '+'
+        || iv == '-' 
+        || iv == '*' 
+        || iv == '%' 
+        || iv == '/' 
+        || iv == '(' 
+        || iv == ')'
+        || iv == '='
+        || iv == '<'
+        || iv == '>'
+        || iv == '{'
+        || iv == '}';
+}
 void getValueinFactor(factor* result) //배열 아님!!
 {
     stack newStack[20];
@@ -237,7 +252,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 if (newStack[sts].sValue == NULL) return;
                 temp = 0;
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')' || iv == '=' || iv == '<' || iv == '>')
+            else if (isOperator(iv))
             {
                 sts++;
                 newStack[sts].type = oV;
@@ -263,7 +278,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 newStack[sts].iValue *= 10;
                 newStack[sts].iValue += iv - '0';
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')' || iv == '=' || iv == '<' || iv == '>')
+            else if (isOperator(iv))
             {
                 sts++;
                 newStack[sts].type = oV;
@@ -289,7 +304,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             }
             break;
         case 3:
-            if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')' || iv == '=' || iv == '<' || iv == '>')
+            if (isOperator(iv))
             {
                 sts++;
                 newStack[sts].type = oV;
@@ -350,6 +365,26 @@ void getValueinFactor(factor* result) //배열 아님!!
                     operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
                 }
                 operatorLast--; // 다 뺐으니까 '(' 없앰.
+                break;
+            case '{': // 일단 써놓고 '}' 나온 뒤에 사용
+                operatorStack[operatorLast] = '{';
+                operatorLast++;
+                break;
+            case '}': // 문자열 반복하면서 '{' 나올 때까지 연산
+                while (operatorLast > 0 && operatorStack[operatorLast - 1] != '{')
+                {
+                    varLast--;
+                    operatorLast--;
+                    operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+                }
+                operatorLast--; // 다 뺐으니까 '(' 없앰.
+                varStack[varLast - 1].type = vV;
+                char* tempStr = setString(varStack[varLast - 1].sValue);
+                varStack[varLast - 1].vValue = getVariable(tempStr);
+                if (varStack[varLast - 1].vValue == NULL && funLoopingNow != 0) varStack[varLast - 1].vValue = GetArgument(tempStr);
+                if (varStack[varLast - 1].vValue == NULL) varStack[varLast - 1].vValue = makeVariable(tempStr);
+
+                free(tempStr);
                 break;
             default:
                 prio = getPriority(newStack[q].oValue);

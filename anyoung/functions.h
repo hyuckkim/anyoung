@@ -52,7 +52,7 @@ variable itisLValue(variable* v)
         {
             result.type = vV;
             result.vValue = getVariable(v->sValue);
-            if (result.vValue == NULL) v->vValue = makeVariable(v->sValue);
+            if (result.vValue == NULL) result.vValue = makeVariable(v->sValue);
         }
         else if (v->type == vV)
         {
