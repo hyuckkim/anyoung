@@ -25,7 +25,7 @@ int main(int argc, char** argv)
         {
             if (indent == 1) getSO(chars, ">>> "); //todo : 운영체제별로 읽는 방법 다르게.
             else getSO(chars, "... ");
-            if (chars[0] == 3) return 0;
+                if (chars[0] == 3) return 0;
             else indent = anyFunction(chars) + 1;
         }
     }

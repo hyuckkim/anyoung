@@ -243,7 +243,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 newStack[sts].type = oV;
                 newStack[sts].oValue = iv;
             }
-            else if (iv == ' ') { } //아무 특정 입력도 없을 때 띄어쓰기는 딱히 상관 없음.
+            else if (iv == ' ' || iv == '\t') { } //아무 특정 입력도 없을 때 띄어쓰기는 딱히 상관 없음.
             else //변수.
             {
                 inputMod = 3;
@@ -263,14 +263,14 @@ void getValueinFactor(factor* result) //배열 아님!!
                 newStack[sts].iValue *= 10;
                 newStack[sts].iValue += iv - '0';
             }
-            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
+            else if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')' || iv == '=' || iv == '<' || iv == '>')
             {
                 sts++;
                 newStack[sts].type = oV;
                 newStack[sts].oValue = iv;
                 inputMod = 0;
             }
-            else if (iv == ' ')
+            else if (iv == ' ' || iv == '\t')
             {
                 inputMod = 0;
             }
@@ -289,14 +289,14 @@ void getValueinFactor(factor* result) //배열 아님!!
             }
             break;
         case 3:
-            if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')')
+            if (iv == '+' || iv == '-' || iv == '*' || iv == '%' || iv == '/' || iv == '(' || iv == ')' || iv == '=' || iv == '<' || iv == '>')
             {
                 sts++;
                 newStack[sts].type = oV;
                 newStack[sts].oValue = iv;
                 inputMod = 0;
             }
-            else if (iv == ' ')
+            else if (iv == ' ' || iv == '\t')
             {
                 inputMod = 0;
             }
@@ -389,34 +389,6 @@ variable getFV(function* fun, int i)
 {
     return fun->factors[i].value;
 }
-int useFunction(function* fn)
-{
-    char* dName = fn->define->name;
-    if (isMatch(dName, "되풀이"))      { Function_Loop     (fn);                         return 1; }
-    if (isMatch(dName, "조건"))        { Function_If       (fn);                         return 1; }
-    if (isMatch(dName, "동작"))        { Function_fun      (fn);                         return 1; }
-    if (isMatch(dName, "말하기")) {
-        if (fn->options[0].isMatched)  { Function_Say_Si   (getFV(fn, 0));               return 0; }
-        else                           { Function_Say      (getFV(fn, 0));               return 0; }
-    }
-    if (isMatch(dName, "듣기"))        { Function_Listen   (getFV(fn, 0));               return 0; }
-    if (isMatch(dName, "표시하기"))    { Function_Print    (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    if (isMatch(dName, "도움"))        { Function_Help     ();                           return 0; }
-
-    if (isMatch(dName, "읽어오기"))   { Function_include   (getFV(fn, 0));               return 0; }
-
-    if (isMatch(dName, "정하기"))      { Function_Set      (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    if (isMatch(dName, "더하기"))      { Function_Add      (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    if (isMatch(dName, "빼기"))        { Function_Minus    (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    if (isMatch(dName, "곱하기"))      { Function_Multi    (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    if (isMatch(dName, "나누기"))      { Function_Devide   (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    if (isMatch(dName, "있는지"))      { Function_valid    (getFV(fn, 0), getFV(fn, 1)); return 0; }
-    for (int i = 17; i < defC; i++)
-    {
-        if (isMatch(dName, defs[i].name)) { Function_User(fn); return 0; };
-    }
-    return -1;
-}
 int useFunction_end(function* fn)
 {
     char* dName = fn->name;
@@ -453,7 +425,7 @@ int anyFunction(char* line)
             getValueinFactor(&functions[funC]->factors[i]);
             functions[funC]->factors[i].value.isMatched = true;
         }
-        ind += useFunction(functions[funC]);
+        ind += defNow.fun(functions[funC]);
         if (ind == 0) freeFunction(functions[funC]);
     }
     else

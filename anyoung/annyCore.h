@@ -5,14 +5,14 @@ int isMatch(char* word1, char* word2) //포인터부터 시작해 '\0'이나 ' '
     {
         if (word1[i] != word2[i]) return 0;
         i++;
-        if (word1[i] == '\0' || word1[i] == ' ') goto breakByFirst;
-        if (word2[i] == '\0' || word2[i] == ' ') goto breakBySecond;
+        if (word1[i] == '\0' || word1[i] == ' ' || word1[i] == '\t') goto breakByFirst;
+        if (word2[i] == '\0' || word2[i] == ' ' || word1[i] == '\t') goto breakBySecond;
     }
 breakByFirst:
-    if (word2[i] == '\0' || word2[i] == ' ') return 1;
+    if (word2[i] == '\0' || word2[i] == ' ' || word1[i] == '\t') return 1;
     else return 0;
 breakBySecond:
-    if (word1[i] == '\0' || word1[i] == ' ') return 1;
+    if (word1[i] == '\0' || word1[i] == ' ' || word1[i] == '\t') return 1;
     else return 0;
 }
 int getPriority(char op) //연산자 기호 하나를 주고 연산자의 우선순위를 반환함.

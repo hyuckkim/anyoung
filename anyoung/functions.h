@@ -2,43 +2,116 @@
 /// 이게 어떻게 가능한지 궁금한 사람을 위해 : 이거 파일 맨 위에 있는거 아님. annyCore.c의 360번줄쯤에 있음.
 /// </summary>
 
-void itisRValue(variable* v)
+extern int anyFunction(char* line);
+variable itisRValue(variable* v)
 {
-    if (v->isMatched && v->type == vV)
+    variable result;
+    if (v->isMatched)
     {
-        if (v->vValue->type == iV)
+        result.isMatched = true;
+        if (v->type == vV)
         {
-            v->type = iV;
-            v->iValue = v->vValue->iValue;
+            if (v->vValue->type == iV)
+            {
+                result.type = iV;
+                result.iValue = v->vValue->iValue;
+            }
+            else if (v->vValue->type == sV)
+            {
+                result.type = sV;
+                result.sValue = v->vValue->sValue;
+            }
         }
-        else if (v->vValue->type == sV)
+        else
         {
-            v->type = sV;
-            v->sValue = v->vValue->sValue;
+            if (v->type == iV)
+            {
+                result.type = iV;
+                result.iValue = v->iValue;
+            }
+            else if (v->type == sV)
+            {
+                result.type = sV;
+                result.sValue = v->sValue;
+            }
         }
     }
+    else
+    {
+        result.isMatched = false;
+    }
+    return result;
 }
-void itisLValue(variable* v)
+variable itisLValue(variable* v)
 {
-    if (v->isMatched && v->type == sV)
+    variable result;
+    if (v->isMatched)
     {
-        variable* result;
-        v->type = vV;
-        result = getVariable(v->sValue);
-        if (result != NULL) v->vValue = result;
-        else v->vValue = makeVariable(v->sValue);
+        result.isMatched = true;
+        if (v->type == sV)
+        {
+            result.type = vV;
+            result.vValue = getVariable(v->sValue);
+            if (result.vValue == NULL) v->vValue = makeVariable(v->sValue);
+        }
+        else if (v->type == vV)
+        {
+            result.type = vV;
+            result.vValue = v->vValue;
+        }
+        return result;
     }
+    else
+    {
+        result.isMatched = false;
+    }
+    return result;
+}
+
+int itCanInt(char* chars)
+{
+    for (int i = 0; chars[i] != 0; i++)
+        if (chars[i] > '9' || chars[i] < '0') return 0;
+    return 1;
+}
+int getIntinStr(char* chars)
+{
+    int result = 0;
+    for (int i = 0; chars[i] != 0; i++)
+    {
+        result *= 10;
+        result += chars[i] - '0';
+    }
+    return result;
 }
 variable* GetArgument(char* name)
 {
     //functions[funC]->factors[0].value.sValue
     for (int i = 0; i < funLoopingNow->define->argsCount; i++)
     {
-        if (isMatch(funLoopingNow->define->argsName[i], name)) return &funLoopingNow->factors[i].value;
+        if (isMatch(funLoopingNow->define->argsName[i], name))
+        {
+            if (funLoopingNow->factors[i].value.type == vV)
+                return funLoopingNow->factors[i].value.vValue;
+            return &funLoopingNow->factors[i].value;
+        }
     }
     return NULL;
 }
-void Function_Help()
+
+int Function_User(function* fn)
+{
+    funLoopingNow = fn;
+    funC++;
+    for (int i = 0; i < fn->define->lineCount; i++)
+    {
+        anyFunction(fn->define->line[i]);
+    }
+    funC--;
+    funLoopingNow = 0;
+    return 0;
+}
+int Function_Help(function* fn)
 {
     printf("\n흐름\n");
     printf("여기까지 \t\t\t흐름 함수를 어디까지 실행할지의 조건이 됩니다.\n\n");
@@ -61,28 +134,31 @@ void Function_Help()
     printf("ㅁ 을/를 [ㅇ 번] 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
     printf("도움\t\t\t\t함수에 대한 도움말을 봅니다.");
     printf("\n");
+    return 0;
 }
-extern int anyFunction(char* line);
-void Function_Loop(function* looping)
+int Function_Loop(function* fn)
 {
-    looping->moon = malloc(sizeof(char* ) * moonLength);
+    fn->moon = malloc(sizeof(char* ) * moonLength);
     canInsert = 1;
+    return 1;
 }
-void Function_If(function* looping)
+int Function_If(function* fn)
 {
-    looping->moon = malloc(sizeof(char*) * moonLength);
-    itisRValue(&looping->factors[0].value);
-    if (looping->factors[0].value.type == iV && looping->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
+    fn->moon = malloc(sizeof(char*) * moonLength);
+    itisRValue(&fn->factors[0].value);
+    if (fn->factors[0].value.type == iV && fn->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
         canInsert = 1;
     else
         canInsert = 0; //조건문 시작할 때 조건 비교해서 틀리면 아예 메모리에 저장 안함.
+    return 1;
 }
-void Function_fun(function* looping)
+int Function_fun(function* fn)
 {
-    looping->moon = malloc(sizeof(char*) * moonLength);
+    fn->moon = malloc(sizeof(char*) * moonLength);
     canInsert = 1;
+    return 1;
 }
-void Function_Loop_end(function* fn)
+int Function_Loop_end(function* fn)
 {
     itisLValue(&fn->factors[0].value);
     itisRValue(&fn->factors[1].value);
@@ -112,8 +188,9 @@ void Function_Loop_end(function* fn)
         free(fn->moon[i]);
     free(fn);
     temp[funC] = 0;
+    return -1;
 }
-void Function_If_end(function* fn)
+int Function_If_end(function* fn)
 {
     funC++;
     variable* v = &fn->factors[0].value;
@@ -125,8 +202,9 @@ void Function_If_end(function* fn)
         free(fn->moon[i]);
     free(fn);
     temp[funC] = 0;
+    return -1;
 }
-void Function_fun_end(function* fn)
+int Function_fun_end(function* fn)
 {
     itisRValue(&fn->factors[0].value);
     funC++;
@@ -140,13 +218,14 @@ void Function_fun_end(function* fn)
     defs[defC].argsCount = 0;
     defs[defC].optionsCount = 0;
     defs[defC].lineCount = 0;
+    defs[defC].fun = Function_User;
     for (int i = 0; i < temp[funC - 1]; i++)
     {
         def defNow = getdefbyStr(fn->moon[i]);
         if (isMatch(defNow.name, "인수"))
         {
             functions[funC] = malloc(sizeof(function));
-            if (functions[funC] == NULL) return;
+            if (functions[funC] == NULL) return 0;
 
             getfunbyDef(&defNow, fn->moon[i], functions[funC]);
             splitFactors(*functions[funC], fn->moon[i]);
@@ -212,11 +291,13 @@ void Function_fun_end(function* fn)
         }
     }
     defC++;
+    return -1;
 }
-void Function_include(variable value)
+int Function_include(function* fn)
 {
+    variable value = fn->factors[0].value;
     itisRValue(&value);
-    if (value.type != sV) return;
+    if (value.type != sV) return 0;
 
     FILE* stream;
     funC++;
@@ -231,29 +312,19 @@ void Function_include(variable value)
         fclose(stream);
     }
     funC--;
+    return 0;
 }
-void Function_User(function* fn)
+int Function_valid(function* fn)
 {
-    funLoopingNow = fn;
-    funC++;
-    for (int i = 0; i < fn->define->lineCount; i++)
-    {
-        anyFunction(fn->define->line[i]);
-    }
-    funC--;
-    funLoopingNow = 0;
-}
-void Function_valid(variable value1, variable value2)
-{
-    itisLValue(&value1);
-    itisRValue(&value2);
+    variable value1 = itisLValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
     for (int i = 0; i < funLoopingNow->define->argsCount; i++)
     {
         if (isMatch(value2.sValue, funLoopingNow->define->argsName[i]))
         {
             value1.vValue->iValue = funLoopingNow->factors[i].isMatched;
             value1.vValue->type = iV;
-            return;
+            return 0;
         }
     }
     for (int i = 0; i < funLoopingNow->define->optionsCount; i++)
@@ -263,15 +334,16 @@ void Function_valid(variable value1, variable value2)
             //printf("%d", funLoopingNow->options[i].isMatched);
             value1.vValue->iValue = funLoopingNow->options[i].isMatched;
             value1.vValue->type = iV;
-            return;
+            return 0;
         }
     }
+    return 0;
 }
-void Function_Set(variable value1, variable value2)
+int Function_Set(function* fn)
 {
-    itisLValue(&value1);
-    itisRValue(&value2);
-    if (value1.type != vV) return;
+    variable value1 = itisLValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
+    if (value1.type != vV) return 0;
     switch (value2.type)
     {
     case iV:
@@ -283,70 +355,57 @@ void Function_Set(variable value1, variable value2)
         value1.vValue->sValue = setString(value2.sValue);
         break;
     }
+    return 0;
 }
-void Function_Add(variable value1, variable value2)
+int Function_Add(function* fn)
 {
-    itisLValue(&value1);
-    itisRValue(&value2);
-    if (value1.type != vV) return;
+    variable value1 = itisLValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
+    if (value1.type != vV) return 0;
     if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue += value2.iValue;
     }
+    return 0;
 }
-void Function_Minus(variable value1, variable value2)
+int Function_Minus(function* fn)
 {
-    itisLValue(&value1);
-    itisRValue(&value2);
-    if (value1.type != vV) return;
+    variable value1 = itisLValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
+    if (value1.type != vV) return 0;
     if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue -= value2.iValue;
     }
+    return 0;
 }
-void Function_Multi(variable value1, variable value2)
+int Function_Multi(function* fn)
 {
-    itisLValue(&value1);
-    itisRValue(&value2);
-    if (value1.type != vV) return;
+    variable value1 = itisLValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
+    if (value1.type != vV) return 0;
     if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue *= value2.iValue;
     }
+    return 0;
 }
-void Function_Devide(variable value1, variable value2)
+int Function_Devide(function* fn)
 {
-    itisLValue(&value1);
-    itisRValue(&value2);
-    if (value1.type != vV) return;
+    variable value1 = itisLValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
+    if (value1.type != vV) return 0;
     if (value1.vValue->type == iV && value2.type == iV)
     {
         value1.vValue->iValue /= value2.iValue;
     }
+    return 0;
 }
-
-int itCanInt(char* chars)
+int Function_Listen(function* fn)
 {
-    for (int i = 0; chars[i] != 0; i++)
-        if (chars[i] > '9' || chars[i] < '0') return 0;
-    return 1;
-}
-int getIntinStr(char* chars)
-{
-    int result = 0;
-    for (int i = 0; chars[i] != 0; i++)
-    {
-        result *= 10;
-        result += chars[i] - '0';
-    }
-    return result;
-}
-void Function_Listen(variable value)
-{
-    itisLValue(&value);
+    variable value = itisLValue(&fn->factors[0].value);
     char* cc = malloc(lineLength);
     getSO(cc, "");
-
     if (itCanInt(cc))
     {
         value.vValue->iValue = getIntinStr(cc);
@@ -357,27 +416,31 @@ void Function_Listen(variable value)
         value.vValue->sValue = setString(cc);
         value.vValue->type = sV;
     }
+    return 0;
 }
-void Function_Say(variable value)
+int Function_Say(function* fn)
 {
-    itisRValue(&value);
-    if (value.type == iV)
-        printf("%d\n", value.iValue);
-    else if (value.type == sV)
-        printf("%s\n", value.sValue);
+    variable value = itisRValue(&fn->factors[0].value);
+    if (fn->options[0].isMatched)
+    {
+        if (value.type == iV)
+            printf("%d", value.iValue);
+        else if (value.type == sV)
+            printf("%s", value.sValue);
+    }
+    else
+    {
+        if (value.type == iV)
+            printf("%d\n", value.iValue);
+        else if (value.type == sV)
+            printf("%s\n", value.sValue);
+    }
+    return 0;
 }
-void Function_Say_Si(variable value)
+int Function_Print(function* fn)
 {
-    itisRValue(&value);
-    if (value.type == iV)
-        printf("%d", value.iValue);
-    else if (value.type == sV)
-        printf("%s", value.sValue);
-}
-void Function_Print(variable value1, variable value2)
-{
-    itisRValue(&value1);
-    itisRValue(&value2);
+    variable value1 = itisRValue(&fn->factors[0].value);
+    variable value2 = itisRValue(&fn->factors[1].value);
     if (value2.isMatched)
     {
         for (int i = 0; i < value2.iValue; i++)
@@ -396,4 +459,5 @@ void Function_Print(variable value1, variable value2)
             printf("%s", value1.sValue);
     }
     printf("\n");
+    return 0;
 }
