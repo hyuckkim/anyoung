@@ -378,9 +378,7 @@ void getValueinFactor(factor* result) //배열 아님!!
     //printf("\n");
 }
 
-function* functions[stackLength];
-int funC = 0;
-int temp[stackLength] = { 0 };
+function* LastF;
 int canInsert;
 int ind = 0, igd = 0;
 #include "functions.h"
@@ -413,20 +411,26 @@ int anyFunction(char* line)
     if (ind == 0)
     {
         if (errorExcept != 0) return 0;
-        functions[funC] = malloc(sizeof(function));
-        if (functions[funC] == NULL) return 0;
+        function* ll = LastF;
+        LastF = malloc(sizeof(function));
+        if (LastF == NULL) return 0;
 
-        getfunbyDef(&defNow, line, functions[funC]);
-        splitFactors(*functions[funC], line);
+        LastF->returnTo = ll;
+        getfunbyDef(&defNow, line, LastF);
+        splitFactors(*LastF, line);
         for (int i = 0; i < defNow.argsCount; i++)
         {
-            if (!functions[funC]->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
+            if (!LastF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
             //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
-            getValueinFactor(&functions[funC]->factors[i]);
-            functions[funC]->factors[i].value.isMatched = true;
+            getValueinFactor(&LastF->factors[i]);
+            LastF->factors[i].value.isMatched = true;
         }
-        ind += defNow.fun(functions[funC]);
-        if (ind == 0) freeFunction(functions[funC]);
+        ind += defNow.fun(LastF);
+        if (ind == 0)
+        {
+            freeFunction(LastF);
+            LastF = ll;
+        }
     }
     else
     {
@@ -443,7 +447,8 @@ int anyFunction(char* line)
                 if (igd == 0)
                 {
                     ind--;
-                    useFunction_end(functions[funC]);
+                    useFunction_end(LastF);
+                    function* ll = LastF;
                 }
                 else igd--;
             }
@@ -454,18 +459,18 @@ int anyFunction(char* line)
             else if (canInsert == 1)
             {
                 ind += defNow.useindent;
-                functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * lineLength);
-                for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
-                temp[funC]++;
+                LastF->moon[LastF->temp] = malloc(sizeof(char) * lineLength);
+                for (int i = 0; line[i - 1] != 0; i++) LastF->moon[LastF->temp][i] = line[i];
+                LastF->temp++;
             }
             else igd += defNow.useindent;
         }
         else
         {
             ind += defNow.useindent;
-            functions[funC]->moon[temp[funC]] = malloc(sizeof(char) * lineLength);
-            for (int i = 0; line[i - 1] != 0; i++) functions[funC]->moon[temp[funC]][i] = line[i];
-            temp[funC]++;
+            LastF->moon[LastF->temp] = malloc(sizeof(char) * lineLength);
+            for (int i = 0; line[i - 1] != 0; i++) LastF->moon[LastF->temp][i] = line[i];
+            LastF->temp++;
         }
     }
     return ind;

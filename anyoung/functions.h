@@ -102,12 +102,10 @@ variable* GetArgument(char* name)
 int Function_User(function* fn)
 {
     funLoopingNow = fn;
-    funC++;
     for (int i = 0; i < fn->define->lineCount; i++)
     {
         anyFunction(fn->define->line[i]);
     }
-    funC--;
     funLoopingNow = 0;
     return 0;
 }
@@ -140,6 +138,7 @@ int Function_Loop(function* fn)
 {
     fn->moon = malloc(sizeof(char* ) * moonLength);
     canInsert = 1;
+    fn->temp = 0;
     return 1;
 }
 int Function_If(function* fn)
@@ -150,19 +149,20 @@ int Function_If(function* fn)
         canInsert = 1;
     else
         canInsert = 0; //조건문 시작할 때 조건 비교해서 틀리면 아예 메모리에 저장 안함.
+    fn->temp = 0;
     return 1;
 }
 int Function_fun(function* fn)
 {
     fn->moon = malloc(sizeof(char*) * moonLength);
     canInsert = 1;
+    fn->temp = 0;
     return 1;
 }
 int Function_Loop_end(function* fn)
 {
     itisLValue(&fn->factors[0].value);
     itisRValue(&fn->factors[1].value);
-    funC++; //안에서 쓰이지 않아도 anyFunction에서 쓰므로 변경.
     if (fn->factors[0].value.isMatched)
     {
         variable* v = fn->factors[0].value.vValue;
@@ -170,7 +170,7 @@ int Function_Loop_end(function* fn)
         ind = 0;
         for (int i = 0; i < fn->factors[1].value.iValue; i++) //v번
         {
-            for (int j = 0; j < temp[funC - 1]; j++) //각 함수 실행
+            for (int j = 0; j < fn->temp; j++) //각 함수 실행
                 anyFunction(fn->moon[j]);
             v->iValue++;
         }
@@ -179,35 +179,28 @@ int Function_Loop_end(function* fn)
     {
         for (int i = 0; i < fn->factors[1].value.iValue; i++) //v번
         {
-            for (int j = 0; j < temp[funC - 1]; j++) //각 함수 실행
+            for (int j = 0; j < fn->temp; j++) //각 함수 실행
                 anyFunction(fn->moon[j]);
         }
     }
-    funC--;
-    for (int i = 0; i < temp[funC]; i++)
+    for (int i = 0; i < fn->temp; i++)
         free(fn->moon[i]);
-    free(fn);
-    temp[funC] = 0;
     return -1;
 }
 int Function_If_end(function* fn)
 {
-    funC++;
     variable* v = &fn->factors[0].value;
     ind = 0;
-    for (int j = 0; j < temp[funC - 1]; j++) //각 함수 실행
+    for (int j = 0; j < fn->temp; j++) //각 함수 실행
         anyFunction(fn->moon[j]);
-    funC--;
-    for (int i = 0; i < temp[funC]; i++)
+    for (int i = 0; i < fn->temp; i++)
         free(fn->moon[i]);
-    free(fn);
-    temp[funC] = 0;
     return -1;
 }
 int Function_fun_end(function* fn)
 {
     itisRValue(&fn->factors[0].value);
-    funC++;
+
     defs[defC].name = fn->factors[0].value.sValue;
     defs[defC].args = malloc(sizeof(char**) * 8);
     defs[defC].argsName = malloc(sizeof(char*) * 8);
@@ -219,56 +212,62 @@ int Function_fun_end(function* fn)
     defs[defC].optionsCount = 0;
     defs[defC].lineCount = 0;
     defs[defC].fun = Function_User;
-    for (int i = 0; i < temp[funC - 1]; i++)
+    for (int i = 0; i < fn->temp; i++)
     {
         def defNow = getdefbyStr(fn->moon[i]);
         if (isMatch(defNow.name, "인수"))
         {
-            functions[funC] = malloc(sizeof(function));
-            if (functions[funC] == NULL) return 0;
+            function* ll = LastF;
+            LastF = malloc(sizeof(function));
+            if (LastF == NULL)
+            {
+                LastF = ll;
+                return 0;
+            }
+            LastF->returnTo = ll;
 
-            getfunbyDef(&defNow, fn->moon[i], functions[funC]);
-            splitFactors(*functions[funC], fn->moon[i]);
+            getfunbyDef(&defNow, fn->moon[i], LastF);
+            splitFactors(*LastF, fn->moon[i]);
             for (int i = 0; i < defNow.argsCount; i++)
             {
-                if (!functions[funC]->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
+                if (!LastF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
                 //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
-                getValueinFactor(&functions[funC]->factors[i]);
-                functions[funC]->factors[i].value.isMatched = true;
+                getValueinFactor(&LastF->factors[i]);
+                LastF->factors[i].value.isMatched = true;
             }
-            if (!functions[funC]->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
+            if (!LastF->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
             {
-                defs[defC].options[defs[defC].optionsCount] = setString(functions[funC]->factors[0].value.sValue);
+                defs[defC].options[defs[defC].optionsCount] = setString(LastF->factors[0].value.sValue);
                 defs[defC].optionsCount++;
             }
-            else if (!functions[funC]->factors[2].isMatched) // 조사 하나
+            else if (!LastF->factors[2].isMatched) // 조사 하나
             {
                 int c = defs[defC].argsCount;
                 defs[defC].args[c] = malloc(sizeof(char**) * 1);
                 defs[defC].argNameCount[c] = 1;
-                defs[defC].argsName[c] = setString(functions[funC]->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(functions[funC]->factors[1].value.sValue);
+                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
+                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
                 defs[defC].argsCount++;
             }
-            else if (!functions[funC]->factors[3].isMatched) // 조사 둘
+            else if (!LastF->factors[3].isMatched) // 조사 둘
             {
                 int c = defs[defC].argsCount;
                 defs[defC].args[c] = malloc(sizeof(char**) * 2);
                 defs[defC].argNameCount[c] = 2;
-                defs[defC].argsName[c] = setString(functions[funC]->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(functions[funC]->factors[1].value.sValue);
-                defs[defC].args[c][1] = setString(functions[funC]->factors[2].value.sValue);
+                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
+                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
+                defs[defC].args[c][1] = setString(LastF->factors[2].value.sValue);
                 defs[defC].argsCount++;
             }
-            else if (!functions[funC]->factors[4].isMatched) // 조사 셋
+            else if (!LastF->factors[4].isMatched) // 조사 셋
             {
                 int c = defs[defC].argsCount;
                 defs[defC].args[c] = malloc(sizeof(char**) * 3);
                 defs[defC].argNameCount[c] = 3;
-                defs[defC].argsName[c] = setString(functions[funC]->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(functions[funC]->factors[1].value.sValue);
-                defs[defC].args[c][1] = setString(functions[funC]->factors[2].value.sValue);
-                defs[defC].args[c][2] = setString(functions[funC]->factors[3].value.sValue);
+                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
+                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
+                defs[defC].args[c][1] = setString(LastF->factors[2].value.sValue);
+                defs[defC].args[c][2] = setString(LastF->factors[3].value.sValue);
                 defs[defC].argsCount++;
             }
             else // 조사 넷
@@ -276,11 +275,11 @@ int Function_fun_end(function* fn)
                 int c = defs[defC].argsCount;
                 defs[defC].args[c] = malloc(sizeof(char**) * 4);
                 defs[defC].argNameCount[c] = 4;
-                defs[defC].argsName[c] = setString(functions[funC]->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(functions[funC]->factors[1].value.sValue);
-                defs[defC].args[c][1] = setString(functions[funC]->factors[2].value.sValue);
-                defs[defC].args[c][2] = setString(functions[funC]->factors[3].value.sValue);
-                defs[defC].args[c][3] = setString(functions[funC]->factors[4].value.sValue);
+                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
+                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
+                defs[defC].args[c][1] = setString(LastF->factors[2].value.sValue);
+                defs[defC].args[c][2] = setString(LastF->factors[3].value.sValue);
+                defs[defC].args[c][3] = setString(LastF->factors[4].value.sValue);
                 defs[defC].argsCount++;
             }
         }
@@ -300,7 +299,6 @@ int Function_include(function* fn)
     if (value.type != sV) return 0;
 
     FILE* stream;
-    funC++;
     char chars[lineLength];
     if (fopen_s(&stream, value.sValue, "r") == 0 && stream != NULL)
     {
@@ -311,7 +309,6 @@ int Function_include(function* fn)
         }
         fclose(stream);
     }
-    funC--;
     return 0;
 }
 int Function_valid(function* fn)
