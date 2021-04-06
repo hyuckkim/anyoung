@@ -51,8 +51,7 @@ variable itisLValue(variable* v)
         if (v->type == sV)
         {
             result.type = vV;
-            result.vValue = getVariable(v->sValue);
-            if (result.vValue == NULL) result.vValue = makeVariable(v->sValue);
+            result.vValue = getVar(v->sValue);
         }
         else if (v->type == vV)
         {
@@ -83,20 +82,6 @@ int getIntinStr(char* chars)
         result += chars[i] - '0';
     }
     return result;
-}
-variable* GetArgument(char* name)
-{
-    //functions[funC]->factors[0].value.sValue
-    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
-    {
-        if (isMatch(funLoopingNow->define->argsName[i], name))
-        {
-            if (funLoopingNow->factors[i].value.type == vV)
-                return funLoopingNow->factors[i].value.vValue;
-            return &funLoopingNow->factors[i].value;
-        }
-    }
-    return NULL;
 }
 
 int Function_User(function* fn)
@@ -289,7 +274,13 @@ int Function_fun_end(function* fn)
             defs[defC].lineCount++;
         }
     }
-    defC++;
+    defC++; 
+    if (defC >= defM) { 
+        oldBuffer = defs; 
+        defM *= 2; 
+        realloc(defs, defM * sizeof(def)); 
+        free(oldBuffer); 
+    }
     return -1;
 }
 int Function_include(function* fn)

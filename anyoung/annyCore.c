@@ -323,7 +323,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             break;
         }
     }
-    variable varStack[stackLength];
+    variable valueStack[stackLength];
     int varLast = 0;
     char operatorStack[stackLength] = "\0";
     int operatorLast = 0;
@@ -334,20 +334,18 @@ void getValueinFactor(factor* result) //배열 아님!!
         switch (newStack[q].type)
         {
         case iV: //numberic
-            varStack[varLast].type = iV;
-            varStack[varLast].iValue = newStack[q].iValue;
+            valueStack[varLast].type = iV;
+            valueStack[varLast].iValue = newStack[q].iValue;
             varLast++;
             break;
         case sV: //string 
-            varStack[varLast].type = sV;
-            varStack[varLast].sValue = newStack[q].sValue;
+            valueStack[varLast].type = sV;
+            valueStack[varLast].sValue = newStack[q].sValue;
             varLast++;
             break;
         case vV: //variable 
-            varStack[varLast].type = vV;
-            varStack[varLast].vValue = getVariable(newStack[q].vValue);
-            if (varStack[varLast].vValue == NULL && funLoopingNow != 0) varStack[varLast].vValue = GetArgument(newStack[q].vValue);
-            if (varStack[varLast].vValue == NULL) varStack[varLast].vValue = makeVariable(newStack[q].vValue);
+            valueStack[varLast].type = vV;
+            valueStack[varLast].vValue = getVar(newStack[q].vValue)
             varLast++;
             break;
         case oV: //operator
@@ -362,7 +360,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 {
                     varLast--;
                     operatorLast--;
-                    operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+                    operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
                 }
                 operatorLast--; // 다 뺐으니까 '(' 없앰.
                 break;
@@ -375,14 +373,11 @@ void getValueinFactor(factor* result) //배열 아님!!
                 {
                     varLast--;
                     operatorLast--;
-                    operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+                    operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
                 }
                 operatorLast--; // 다 뺐으니까 '(' 없앰.
-                varStack[varLast - 1].type = vV;
-                char* tempStr = setString(varStack[varLast - 1].sValue);
-                varStack[varLast - 1].vValue = getVariable(tempStr);
-                if (varStack[varLast - 1].vValue == NULL && funLoopingNow != 0) varStack[varLast - 1].vValue = GetArgument(tempStr);
-                if (varStack[varLast - 1].vValue == NULL) varStack[varLast - 1].vValue = makeVariable(tempStr);
+                valueStack[varLast - 1].type = vV;
+                valueStack[varLast - 1].vValue = getVar(valueStack[varLast - 1].sValue);
 
                 free(tempStr);
                 break;
@@ -394,7 +389,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                     varLast--;
                     operatorLast--;
                     if (varLast <= 0 || operatorLast < 0) break; //오류 : 변수가 2개 이상 없거나 연산자가 1개 이상 없을 때
-                    operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+                    operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
                 }
                 operatorStack[operatorLast] = newStack[q].oValue;
                 operatorLast++;
@@ -407,9 +402,9 @@ void getValueinFactor(factor* result) //배열 아님!!
     {
         varLast--;
         operatorLast--;
-        operate(varStack[varLast - 1], varStack[varLast], operatorStack[operatorLast], &varStack[varLast - 1]);
+        operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
     }
-    result->value = varStack[0];
+    result->value = valueStack[0];
     //printf("\n");
 }
 

@@ -122,13 +122,14 @@ int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 �
     return 0;
 }
 
-def defs[120];
-variable vars[120];
-char* varNames[120];
-int varCounts = 0;
+def* defs;
+int defC = 0, defM = 10;
+variable* vars;
+char** varNames;
+int varC = 0 varM = 10;
 variable* getVariable(char* name)
 {
-    for (int i = 0; i < varCounts; i++)
+    for (int i = 0; i < varC; i++)
     {
         if (isMatch(varNames[i], name)) return &vars[i];
     }
@@ -136,19 +137,58 @@ variable* getVariable(char* name)
 }
 variable* makeVariable(char* name)
 {
-    varNames[varCounts] = setString(name);
-    vars[varCounts].type = iV;
-    vars[varCounts].iValue = 0;
-    varCounts++;
-    return &vars[varCounts - 1];
+    varNames[varC] = setString(name);
+    vars[varC].type = iV;
+    vars[varC].iValue = 0;
+    varC++;
+    if (varC >= varM) {
+        oldBuffer = vars;
+        varM *= 2;
+        realloc(vars, varM * sizeof(variable));
+        free(oldBuffer);
+        oldBuffer = varNames;
+        realloc(varNames, varM * sizeof(char*));
+        free(oldBuffer);
+    }
+    return &vars[varC - 1];
 }
 variable* setVariable(variable* var)
 {
-    vars[varCounts] = *var;
-    varCounts++;
-    return &vars[varCounts - 1];
+    vars[varC] = *var;
+    varC++;
+    if (varC >= varM) {
+        oldBuffer = vars;
+        varM *= 2;
+        realloc(vars, varM * sizeof(variable));
+        free(oldBuffer);
+        oldBuffer = varNames;
+        realloc(varNames, varM * sizeof(char*));
+        free(oldBuffer);
+    }
+    return &vars[varC - 1];
 }
-char defC = 0;
+variable* GetArgument(char* name)
+{
+    //functions[funC]->factors[0].value.sValue
+    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
+    {
+        if (isMatch(funLoopingNow->define->argsName[i], name))
+        {
+            if (funLoopingNow->factors[i].value.type == vV)
+                return funLoopingNow->factors[i].value.vValue;
+            return &funLoopingNow->factors[i].value;
+        }
+    }
+    return NULL;
+}
+variable* setVar(char* name)
+{
+    variable* v;
+    v = getVariable(name);
+    if (v == NULL && funLoopingNow != 0) v = GetArgument(name);
+    if (v == NULL) v = makeVariable(name);
+    return v;
+}
 
 int errorExcept = 0;
 def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
