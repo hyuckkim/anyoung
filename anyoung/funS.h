@@ -39,10 +39,6 @@ void SetOptions(int c, ...)
 }
 void annyCore_init()
 {
-    defs = malloc(defM * sizeof(def));
-    vars = malloc(varM * sizeof(variable));
-    varNames = malloc(varM * sizeof(char*));
-
     dd.name = setString("말하기");
     ddl(1);
     ddr(1);
@@ -53,7 +49,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Say;
-
+    defC++;
 
     dd.name = setString("듣기");
     ddl(1);
@@ -63,7 +59,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Listen;
-    AddFun;
+    defC++;
 
     dd.name = setString("표시하기");
     ddl(2);
@@ -74,13 +70,13 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Print;
-    AddFun;
+    defC++;
 
     dd.name = setString("도움");
     dd.argsCount = 0;
     dd.useindent = 0;
     dd.fun = Function_Help;
-    AddFun;
+    defC++;
 
     dd.name = setString("정하기");
     ddl(2);
@@ -91,7 +87,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Set;
-    AddFun;
+    defC++;
 
     dd.name = setString("더하기");
     ddl(2);
@@ -102,7 +98,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Add;
-    AddFun;
+    defC++;
 
     dd.name = setString("빼기");
     ddl(2);
@@ -113,7 +109,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Minus;
-    AddFun;
+    defC++;
 
     dd.name = setString("곱하기");
     ddl(2);
@@ -124,7 +120,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Multi;
-    AddFun;
+    defC++;
 
     dd.name = setString("나누기");
     ddl(2);
@@ -135,7 +131,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Devide;
-    AddFun;
+    defC++;
 
     dd.name = setString("되풀이");
     ddl(2);
@@ -146,7 +142,7 @@ void annyCore_init()
     }
     dd.useindent = true;
     dd.fun = Function_Loop;
-    AddFun;
+    defC++;
 
     dd.name = setString("조건");
     ddl(1);
@@ -156,17 +152,17 @@ void annyCore_init()
     }
     dd.useindent = true;
     dd.fun = Function_If;
-    AddFun;
+    defC++;
 
     dd.name = setString("여기까지");
     ddl(0);
     dd.useindent = rev;
-    AddFun;
+    defC++;
 
     dd.name = setString("아니면");
     ddl(0);
     dd.useindent = false;
-    AddFun;
+    defC++;
 
     dd.name = setString("동작");
     ddl(1);
@@ -176,7 +172,7 @@ void annyCore_init()
     }
     dd.useindent = true;
     dd.fun = Function_fun;
-    AddFun;
+    defC++;
 
     dd.name = setString("인수"); 
     ddl(5);
@@ -189,7 +185,7 @@ void annyCore_init()
         SetArgs(4, 2, "와", "나");
     }
     dd.useindent = false;
-    AddFun;
+    defC++;
 
     dd.name = setString("있는지");
     ddl(2);
@@ -200,7 +196,7 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_valid;
-    AddFun;
+    defC++;
 
     dd.name = setString("읽어오기");
     ddl(1);
@@ -210,5 +206,5 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_include;
-    AddFun;
+    defC++;
 }

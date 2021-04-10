@@ -274,13 +274,7 @@ int Function_fun_end(function* fn)
             defs[defC].lineCount++;
         }
     }
-    defC++; 
-    if (defC >= defM) { 
-        oldBuffer = defs; 
-        defM *= 2; 
-        realloc(defs, defM * sizeof(def)); 
-        free(oldBuffer); 
-    }
+    defC++;
     return -1;
 }
 int Function_include(function* fn)

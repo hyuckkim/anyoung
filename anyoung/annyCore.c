@@ -208,7 +208,6 @@ void operate(variable a, variable b, char op, variable *result)
 }
 
 variable* GetArgument(char* name);
-function* funLoopingNow = 0;
 bool isOperator(char iv)
 {
     return iv == '+'
@@ -345,7 +344,7 @@ void getValueinFactor(factor* result) //배열 아님!!
             break;
         case vV: //variable 
             valueStack[varLast].type = vV;
-            valueStack[varLast].vValue = getVar(newStack[q].vValue)
+            valueStack[varLast].vValue = getVar(newStack[q].vValue);
             varLast++;
             break;
         case oV: //operator
@@ -378,8 +377,6 @@ void getValueinFactor(factor* result) //배열 아님!!
                 operatorLast--; // 다 뺐으니까 '(' 없앰.
                 valueStack[varLast - 1].type = vV;
                 valueStack[varLast - 1].vValue = getVar(valueStack[varLast - 1].sValue);
-
-                free(tempStr);
                 break;
             default:
                 prio = getPriority(newStack[q].oValue);

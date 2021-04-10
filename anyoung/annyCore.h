@@ -122,11 +122,11 @@ int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 �
     return 0;
 }
 
-def* defs;
+def defs[80];
 int defC = 0, defM = 10;
-variable* vars;
-char** varNames;
-int varC = 0 varM = 10;
+variable vars[80];
+char* varNames[80];
+int varC;
 variable* getVariable(char* name)
 {
     for (int i = 0; i < varC; i++)
@@ -141,32 +141,15 @@ variable* makeVariable(char* name)
     vars[varC].type = iV;
     vars[varC].iValue = 0;
     varC++;
-    if (varC >= varM) {
-        oldBuffer = vars;
-        varM *= 2;
-        realloc(vars, varM * sizeof(variable));
-        free(oldBuffer);
-        oldBuffer = varNames;
-        realloc(varNames, varM * sizeof(char*));
-        free(oldBuffer);
-    }
     return &vars[varC - 1];
 }
 variable* setVariable(variable* var)
 {
     vars[varC] = *var;
     varC++;
-    if (varC >= varM) {
-        oldBuffer = vars;
-        varM *= 2;
-        realloc(vars, varM * sizeof(variable));
-        free(oldBuffer);
-        oldBuffer = varNames;
-        realloc(varNames, varM * sizeof(char*));
-        free(oldBuffer);
-    }
     return &vars[varC - 1];
 }
+function* funLoopingNow = 0;
 variable* GetArgument(char* name)
 {
     //functions[funC]->factors[0].value.sValue
@@ -188,6 +171,14 @@ variable* setVar(char* name)
     if (v == NULL && funLoopingNow != 0) v = GetArgument(name);
     if (v == NULL) v = makeVariable(name);
     return v;
+}
+variable* getVar(char* name)
+{
+    variable* v = getVariable(name);
+    if (v != NULL) return v;
+    if (funLoopingNow != 0) v = GetArgument(name);
+    if (v != NULL) return v;
+    return makeVariable(name);
 }
 
 int errorExcept = 0;
