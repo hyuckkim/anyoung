@@ -185,7 +185,7 @@ int Function_If_end(function* fn)
 int Function_fun_end(function* fn)
 {
     itisRValue(&fn->factors[0].value);
-
+    
     defs[defC].name = fn->factors[0].value.sValue;
     defs[defC].args = malloc(sizeof(char**) * 8);
     defs[defC].argsName = malloc(sizeof(char*) * 8);

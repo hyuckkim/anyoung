@@ -394,6 +394,8 @@ void getValueinFactor(factor* result) //배열 아님!!
             }
             break;
         }
+        if (newStack[q].type == sV) free(newStack[q].sValue);
+        else if (newStack[q].type == vV) free(newStack[q].vValue);
     }
     while (varLast > 0 && operatorLast > 0) //남은 문자 계산
     {

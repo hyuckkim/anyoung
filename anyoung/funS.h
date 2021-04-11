@@ -5,14 +5,6 @@
 #define dd defs[defC]
 #define ddl(x) defs[defC].argsCount = x; defs[defC].args = malloc(sizeof(char**) * x); defs[defC].argNameCount = malloc(sizeof(int) * x);
 #define ddr(x) defs[defC].optionsCount = x; defs[defC].options = malloc(sizeof(char*) * x);
-#define AddFun \
-    defC++; \
-    if (defC >= defM) { \
-        oldBuffer = defs; \
-        defM *= 2; \
-        realloc(defs, defM * sizeof(def)); \
-        free(oldBuffer); \
-    }
 void SetArgs(int o, int c, ...)
 {
     va_list v;

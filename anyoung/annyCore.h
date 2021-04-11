@@ -123,10 +123,10 @@ int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 �
 }
 
 def defs[80];
-int defC = 0, defM = 10;
-variable vars[80];
-char* varNames[80];
-int varC;
+int defC = 0;
+variable* vars;
+char** varNames;
+int varC, varM = 1;
 variable* getVariable(char* name)
 {
     for (int i = 0; i < varC; i++)
@@ -135,18 +135,27 @@ variable* getVariable(char* name)
     }
     return NULL;
 }
+void VariableInserted()
+{
+    varC++;
+    if (varC >= varM) {
+        varM *= 2;
+        vars = realloc(vars, varM * sizeof(variable));
+        varNames = realloc(varNames, varM * sizeof(char*));
+    }
+}
 variable* makeVariable(char* name)
 {
     varNames[varC] = setString(name);
     vars[varC].type = iV;
     vars[varC].iValue = 0;
-    varC++;
+    VariableInserted();
     return &vars[varC - 1];
 }
 variable* setVariable(variable* var)
 {
     vars[varC] = *var;
-    varC++;
+    VariableInserted();
     return &vars[varC - 1];
 }
 function* funLoopingNow = 0;
