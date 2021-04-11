@@ -225,46 +225,15 @@ int Function_fun_end(function* fn)
                 defs[defC].options[defs[defC].optionsCount] = setString(LastF->factors[0].value.sValue);
                 defs[defC].optionsCount++;
             }
-            else if (!LastF->factors[2].isMatched) // 조사 하나
+            else
             {
-                int c = defs[defC].argsCount;
-                defs[defC].args[c] = malloc(sizeof(char**) * 1);
-                defs[defC].argNameCount[c] = 1;
+                int c = defs[defC].argsCount, argCount = 0;
                 defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
-                defs[defC].argsCount++;
-            }
-            else if (!LastF->factors[3].isMatched) // 조사 둘
-            {
-                int c = defs[defC].argsCount;
-                defs[defC].args[c] = malloc(sizeof(char**) * 2);
-                defs[defC].argNameCount[c] = 2;
-                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
-                defs[defC].args[c][1] = setString(LastF->factors[2].value.sValue);
-                defs[defC].argsCount++;
-            }
-            else if (!LastF->factors[4].isMatched) // 조사 셋
-            {
-                int c = defs[defC].argsCount;
-                defs[defC].args[c] = malloc(sizeof(char**) * 3);
-                defs[defC].argNameCount[c] = 3;
-                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
-                defs[defC].args[c][1] = setString(LastF->factors[2].value.sValue);
-                defs[defC].args[c][2] = setString(LastF->factors[3].value.sValue);
-                defs[defC].argsCount++;
-            }
-            else // 조사 넷
-            {
-                int c = defs[defC].argsCount;
-                defs[defC].args[c] = malloc(sizeof(char**) * 4);
-                defs[defC].argNameCount[c] = 4;
-                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
-                defs[defC].args[c][0] = setString(LastF->factors[1].value.sValue);
-                defs[defC].args[c][1] = setString(LastF->factors[2].value.sValue);
-                defs[defC].args[c][2] = setString(LastF->factors[3].value.sValue);
-                defs[defC].args[c][3] = setString(LastF->factors[4].value.sValue);
+                for (int argCount = 0; LastF->factors[argCount + 1].isMatched; argCount++) { }
+                defs[defC].args[c] = malloc(sizeof(char**) * argCount);
+                defs[defC].argNameCount[c] = argCount;
+                for (int i = 0; i < argCount; i++)
+                    defs[defC].args[c][i] = setString(LastF->factors[i + 1].value.sValue);
                 defs[defC].argsCount++;
             }
         }

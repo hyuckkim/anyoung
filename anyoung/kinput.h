@@ -149,10 +149,7 @@ void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
 	switch (thisInfo)
 	{
 	case funA:
-		printf("%d %d", utf8[0], utf8[1]);
-		break;
 	case funB:
-		printf("%d %d", utf8[0], utf8[1]);
 		break;
 	case LineBreak:
 		printf("\n");

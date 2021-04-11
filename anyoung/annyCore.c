@@ -502,5 +502,5 @@ int anyFunction(char* line)
     }
     return ind;
 }
-///Todo : 스파게티 정리 / 함수 / 다른 연산자 / 배열 / 구조체
+///Todo : 스파게티 정리 
 //누가 http://www.no-smok.net/nsmk/%ED%95%9C%EA%B8%80%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%EC%96%B8%EC%96%B4 ... 이미 생각해놨던 거다..

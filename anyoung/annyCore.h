@@ -164,14 +164,6 @@ variable* GetArgument(char* name)
     }
     return NULL;
 }
-variable* setVar(char* name)
-{
-    variable* v;
-    v = getVariable(name);
-    if (v == NULL && funLoopingNow != 0) v = GetArgument(name);
-    if (v == NULL) v = makeVariable(name);
-    return v;
-}
 variable* getVar(char* name)
 {
     variable* v = getVariable(name);
