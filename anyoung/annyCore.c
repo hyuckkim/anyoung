@@ -231,7 +231,7 @@ void getValueinFactor(factor* result) //배열 아님!!
     for (int i = 0; i < result->endF - result->startF; i++)
     {
         char iv = result->startF[i];
-        //printf("%d ", i);
+        //printf("%c", iv);
         switch (inputMod)
         {
         case 0:
@@ -394,8 +394,6 @@ void getValueinFactor(factor* result) //배열 아님!!
             }
             break;
         }
-        if (newStack[q].type == sV) free(newStack[q].sValue);
-        else if (newStack[q].type == vV) free(newStack[q].vValue);
     }
     while (varLast > 0 && operatorLast > 0) //남은 문자 계산
     {
@@ -450,7 +448,7 @@ int anyFunction(char* line)
         for (int i = 0; i < defNow.argsCount; i++)
         {
             if (!LastF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
-            //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
+            //sayAtoB(LastF->factors[i].startF, LastF->factors[i].endF);
             getValueinFactor(&LastF->factors[i]);
             LastF->factors[i].value.isMatched = true;
         }

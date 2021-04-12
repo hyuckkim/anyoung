@@ -140,8 +140,10 @@ void VariableInserted()
     varC++;
     if (varC >= varM) {
         varM *= 2;
-        vars = realloc(vars, varM * sizeof(variable));
-        varNames = realloc(varNames, varM * sizeof(char*));
+        void* vTemp = realloc(vars, varM * sizeof(variable));
+        if (vTemp != NULL) vars = vTemp;
+        void* nTemp = realloc(varNames, varM * sizeof(char*));
+        if (nTemp != NULL) varNames = nTemp;
     }
 }
 variable* makeVariable(char* name)

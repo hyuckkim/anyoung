@@ -31,6 +31,9 @@ void SetOptions(int c, ...)
 }
 void annyCore_init()
 {
+    vars = malloc(sizeof(variable));
+    varNames = malloc(sizeof(char*));
+    
     dd.name = setString("말하기");
     ddl(1);
     ddr(1);
