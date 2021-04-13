@@ -191,7 +191,7 @@ def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
     for (int i = 0; str[i] != 0; i++) { //문자열의 문자마다
         if (str[i] == '"') i += stringLengthQ(&str[i]); //따옴표 있으면 문자열 영역이니까 넘어감.
         for (int j = 0; j < defC; j++) { //함수들마다
-           // printf("%s / %s\n", &str[i], defs[j].name);
+            //printf("%s / %s\n", &str[i], defs[j].name);
             if (isMatch(&str[i], defs[j].name)) return defs[j]; //함수 이름이 맞으면 반환.
         }
     }

@@ -438,36 +438,26 @@ int anyFunction(char* line)
     if (ind == 0)
     {
         if (errorExcept != 0) return 0;
-        function* ll = LastF;
-        LastF = malloc(sizeof(function));
-        if (LastF == NULL) return 0;
+        function* NewF = malloc(sizeof(function));
+        if (NewF == NULL) return 0;
 
-        LastF->returnTo = ll;
-        getfunbyDef(&defNow, line, LastF);
-        splitFactors(*LastF, line);
+        NewF->returnTo = LastF;
+        getfunbyDef(&defNow, line, NewF);
+        splitFactors(*NewF, line);
         for (int i = 0; i < defNow.argsCount; i++)
         {
-            if (!LastF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
+            if (!NewF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
             //sayAtoB(LastF->factors[i].startF, LastF->factors[i].endF);
-            getValueinFactor(&LastF->factors[i]);
-            LastF->factors[i].value.isMatched = true;
+            getValueinFactor(&NewF->factors[i]);
+            NewF->factors[i].value.isMatched = true;
         }
-        ind += defNow.fun(LastF);
-        if (ind == 0)
-        {
-            freeFunction(LastF);
-            LastF = ll;
-        }
+        ind += defNow.fun(NewF);
+        if (ind == 0) freeFunction(NewF);
+        else LastF = NewF; //if 같은게 있으면 필요함.
     }
     else
     {
-        //printf("%d %s, %d\n", ind, defNow.name, defNow.useindent);
-        ///indent가 0이 아닐 때. 조건문, 반복문의 처리이다.
-        ///여기의 핵심은 ind와 igd이다. ind는 indent의 줄임말로 깊이를 표시하고 igd는 ignored로 얼마만큼의 깊이를 무시할 것인지 표시한다.
-        ///ind가 2이상이면 ind가 1이 될 때까지 다시 사용할 것이므로 모두 저장해야 한다. (맨 아래)
-        ///ind가 1이면 저장해야 될 것만 (if가 사실인 것만) 저장해야 한다. 따라서 canInsert와 비교한다.
-        ///무시된 문 중에도 여기까지를 사용하는 문이 있으므로 if가 거짓인 동안은 igd를 더해준다.
-        if (ind == 1)
+        if (ind == 1) //1단계 : 맞는 값만 넣어야 할 때
         {
             if (isMatch(defNow.name, "여기까지"))
             {
@@ -475,7 +465,6 @@ int anyFunction(char* line)
                 {
                     ind--;
                     useFunction_end(LastF);
-                    function* ll = LastF;
                 }
                 else igd--;
             }
@@ -486,17 +475,15 @@ int anyFunction(char* line)
             else if (canInsert == 1)
             {
                 ind += defNow.useindent;
-                LastF->moon[LastF->temp] = malloc(sizeof(char) * lineLength);
-                for (int i = 0; line[i - 1] != 0; i++) LastF->moon[LastF->temp][i] = line[i];
+                LastF->moon[LastF->temp] = setString(line);
                 LastF->temp++;
             }
             else igd += defNow.useindent;
         }
-        else
+        else //2단계 이상 : 텍스트 형식으로 아무 값이나 넣어야 할 때
         {
             ind += defNow.useindent;
-            LastF->moon[LastF->temp] = malloc(sizeof(char) * lineLength);
-            for (int i = 0; line[i - 1] != 0; i++) LastF->moon[LastF->temp][i] = line[i];
+            LastF->moon[LastF->temp] = setString(line);
             LastF->temp++;
         }
     }
