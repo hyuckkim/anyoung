@@ -62,19 +62,19 @@ void changeSpacetoNull(char* item) // 지정 포인터부터 시작해 앞에 �
     for (i = 0; item[i] != '\n' && item[i] != '\0'; i++) { }
     item[i] = '\0';
 }
-int stringLength(char* item) //지정 포인터부터 시작해 null문자가 아닌 구간의 길이를 반환함.
+int stringLength(const char* item) //지정 포인터부터 시작해 null문자가 아닌 구간의 길이를 반환함.
 {
     int i;
     for (i = 0; item[i] != 0; i++) {}
     return i + 1;
 }
-int stringLengthSpace(char* item) //위와 같지만 띄어쓰기에서도 자르고 반환함.
+int stringLengthSpace(const char* item) //위와 같지만 띄어쓰기에서도 자르고 반환함.
 {
     int i;
     for (i = 0; item[i] != 0 && item[i] != ' '; i++) {}
     return i + 1;
 }
-int stringLengthQ(char* po) //대상 포인터부터 '"'가 얼마나 앞에 있는지를 반환함.
+int stringLengthQ(const char* po) //대상 포인터부터 '"'가 얼마나 앞에 있는지를 반환함.
 {
     for (int i = 1; po[i] != '\0'; i++)
     {
@@ -94,15 +94,13 @@ int logScale(int v, int is)
     for (int i = 0; i < is; i++) in *= 10;
     return (v / in) % 10; //is번 자리수를 가장 앞으로 당기고 1의 자리수만 반환.
 }
-char* setString(char* item) //문자열을 새로 할당해 복사함.
+char* setString(const char* item) //문자열을 새로 할당해 복사함.
 {
     int strlen = stringLength(item);
     char* str = malloc(strlen + 1);
     if (str == NULL) return NULL;
     for (int i = 0; i < strlen; i++)
-    {
         str[i] = item[i];
-    }
     str[strlen - 1] = '\0';
     return str;
 }
@@ -122,8 +120,8 @@ int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 �
     return 0;
 }
 
-def defs[80];
-int defC = 0;
+def* defs;
+int defC = 0, defM = 1;
 variable* vars;
 char** varNames;
 int varC, varM = 1;

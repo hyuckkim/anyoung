@@ -182,17 +182,17 @@ int Function_If_end(function* fn)
         free(fn->moon[i]);
     return -1;
 }
+extern void SetData(const char* name, int args, int options, bool useIndents);
+extern void DefineInserted();
 int Function_fun_end(function* fn)
 {
+    if (fn->returnTo != 0) { //왜 돌아갈 곳이 있는거지, 어째서 반복문 안에서 조건문 안에서 함수 안에서 함수를 선언하는거냐
+        freeFunction(fn);
+        return 0;
+    }  
     itisRValue(&fn->factors[0].value);
-    
-    defs[defC].name = fn->factors[0].value.sValue;
-    defs[defC].args = malloc(sizeof(char**) * 8);
-    defs[defC].argsName = malloc(sizeof(char*) * 8);
-    defs[defC].argNameCount = malloc(sizeof(int*) * 8);
-    defs[defC].options = malloc(sizeof(char*) * 8);
+    SetData(fn->factors[0].value.sValue, 8, 8, false); //실제 인수 개수에 안맞추고 무조건 8개 8개 할당중임. 공간복잡도 이슈 생기면 여기 바꾸셈. 
     defs[defC].line = malloc(sizeof(char*) * 80);
-    defs[defC].useindent = false;
     defs[defC].argsCount = 0;
     defs[defC].optionsCount = 0;
     defs[defC].lineCount = 0;
@@ -243,7 +243,7 @@ int Function_fun_end(function* fn)
             defs[defC].lineCount++;
         }
     }
-    defC++;
+    DefineInserted();
     return -1;
 }
 int Function_include(function* fn)

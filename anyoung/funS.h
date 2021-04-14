@@ -5,6 +5,22 @@
 #define dd defs[defC]
 #define ddl(x) defs[defC].argsCount = x; defs[defC].args = malloc(sizeof(char**) * x); defs[defC].argNameCount = malloc(sizeof(int) * x);
 #define ddr(x) defs[defC].optionsCount = x; defs[defC].options = malloc(sizeof(char*) * x);
+void SetData(const char* name, int args, int options, bool useIndents)
+{
+    dd.name = setString(name);
+    ddl(args);
+    ddr(options);
+    dd.useindent = useIndents;
+}
+void DefineInserted()
+{
+    defC++;
+    if (defC >= defM) {
+        defM *= 2;
+        void* dTemp = realloc(defs, defM * sizeof(def));
+        if (dTemp != NULL) defs = dTemp;
+    }
+}
 void SetArgs(int o, int c, ...)
 {
     va_list v;
@@ -31,50 +47,41 @@ void SetOptions(int c, ...)
 }
 void annyCore_init()
 {
+    defs = malloc(sizeof(def));
     vars = malloc(sizeof(variable));
     varNames = malloc(sizeof(char*));
     
-    dd.name = setString("말하기");
-    ddl(1);
-    ddr(1);
+    SetData("말하기" ,1 ,1, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetOptions(1, "조용히");
     }
-    dd.useindent = false;
     dd.fun = Function_Say;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("듣기");
-    ddl(1);
+    SetData("듣기", 1, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 1, "에");
     }
-    dd.useindent = false;
     dd.fun = Function_Listen;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("표시하기");
-    ddl(2);
+    SetData("표시하기", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "번");
     }
-    dd.useindent = false;
     dd.fun = Function_Print;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("도움");
-    dd.argsCount = 0;
-    dd.useindent = 0;
+    SetData("도움", 0, 0, false);
     dd.fun = Function_Help;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("정하기");
-    ddl(2);
+    SetData("정하기", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
@@ -82,95 +89,76 @@ void annyCore_init()
     }
     dd.useindent = false;
     dd.fun = Function_Set;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("더하기");
-    ddl(2);
+    SetData("더하기", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = false;
     dd.fun = Function_Add;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("빼기");
-    ddl(2);
+    SetData("빼기", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = false;
     dd.fun = Function_Minus;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("곱하기");
-    ddl(2);
+    SetData("곱하기", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = false;
     dd.fun = Function_Multi;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("나누기");
-    ddl(2);
+    SetData("나누기", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
     }
-    dd.useindent = false;
     dd.fun = Function_Devide;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("되풀이");
-    ddl(2);
+    SetData("되풀이", 2, 0, true);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "로", "으로");
         SetArgs(1, 1, "번");
     }
-    dd.useindent = true;
     dd.fun = Function_Loop;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("조건");
-    ddl(1);
+    SetData("조건", 1, 0, true);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "면", "이면");
     }
-    dd.useindent = true;
     dd.fun = Function_If;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("여기까지");
-    ddl(0);
-    dd.useindent = rev;
-    defC++;
+    SetData("여기까지", 0, 0, rev);
+    DefineInserted();
 
-    dd.name = setString("아니면");
-    ddl(0);
-    dd.useindent = false;
-    defC++;
+    SetData("아니면", 0, 0, false);
+    DefineInserted();
 
-    dd.name = setString("동작");
-    ddl(1);
+    SetData("동작", 1, 0, true);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "이라는", "라는");
     }
-    dd.useindent = true;
     dd.fun = Function_fun;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("인수"); 
-    ddl(5);
+    SetData("인수", 5, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
@@ -179,27 +167,22 @@ void annyCore_init()
         SetArgs(3, 2, "와", "나");
         SetArgs(4, 2, "와", "나");
     }
-    dd.useindent = false;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("있는지");
-    ddl(2);
+    SetData("있는지", 2, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 1, "에");
         SetArgs(1, 2, "이", "가");
     }
-    dd.useindent = false;
     dd.fun = Function_valid;
-    defC++;
+    DefineInserted();
 
-    dd.name = setString("읽어오기");
-    ddl(1);
+    SetData("읽어오기", 1, 0, false);
     if (dd.args != NULL && dd.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
     }
-    dd.useindent = false;
     dd.fun = Function_include;
-    defC++;
+    DefineInserted();
 }
