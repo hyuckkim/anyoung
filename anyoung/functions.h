@@ -184,6 +184,7 @@ int Function_If_end(function* fn)
 }
 extern void SetData(const char* name, int args, int options, bool useIndents);
 extern void DefineInserted();
+extern void freeFunction();
 int Function_fun_end(function* fn)
 {
     if (fn->returnTo != 0) { //왜 돌아갈 곳이 있는거지, 어째서 반복문 안에서 조건문 안에서 함수 안에서 함수를 선언하는거냐
