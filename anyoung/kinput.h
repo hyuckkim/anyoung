@@ -1,4 +1,4 @@
-
+#include <conio.h>
 
 typedef enum { sol, duo, tri, qua, funA, funB, LineBreak, BackSpace } textInfo;
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow);

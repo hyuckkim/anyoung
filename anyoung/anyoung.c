@@ -4,13 +4,13 @@
 /// UTF-8 사용 beta 기능 사용시에만 사용 가능함
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 #include <stdarg.h>
 #include "types.h"
 #include "kinput.h"
 #include "annyCore.h"
 #include "annyCore.c"
 
+#define SHUTDOWN 3
 int main(int argc, char** argv)
 {
     annyCore_init();
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
         {
             if (indent == 1) getSO(chars, ">>> "); //todo : 운영체제별로 읽는 방법 다르게.
             else getSO(chars, "... ");
-            if (chars[0] != 3) indent = anyFunction(chars) + 1;
+            if (chars[0] != SHUTDOWN) indent = anyFunction(chars) + 1;
             else return 0;
         }
     }

@@ -1,27 +1,5 @@
-int isMatch(char* word1, char* word2) //포인터부터 시작해 '\0'이나 ' '까지 같은지 비교함.
-{
-    int i = 0;
-    while (1)
-    {
-        if (word1[i] != word2[i]) return 0;
-        i++;
-        if (word1[i] == '\0' || word1[i] == ' ' || word1[i] == '\t') goto breakByFirst;
-        if (word2[i] == '\0' || word2[i] == ' ' || word1[i] == '\t') goto breakBySecond;
-    }
-breakByFirst:
-    if (word2[i] == '\0' || word2[i] == ' ' || word1[i] == '\t') return 1;
-    else return 0;
-breakBySecond:
-    if (word1[i] == '\0' || word1[i] == ' ' || word1[i] == '\t') return 1;
-    else return 0;
-}
-int getPriority(char op) //연산자 기호 하나를 주고 연산자의 우선순위를 반환함.
-{
-    if (op == '*' || op == '/' || op == '%') return 2;
-    if (op == '+' || op == '-') return 1;
-    if (op == '=' || op == '<' || op == '>') return 0;
-    return -1;
-}
+#pragma once
+#include "operator.h"
 void sayAtoB(char* A, char* B) //A 포인터부터 B 포인터까지 화면에 표시함.
 {
     for (char* i = A; i < B; i++)
@@ -62,41 +40,9 @@ void changeSpacetoNull(char* item) // 지정 포인터부터 시작해 앞에 �
     for (i = 0; item[i] != '\n' && item[i] != '\0'; i++) { }
     item[i] = '\0';
 }
-int stringLength(const char* item) //지정 포인터부터 시작해 null문자가 아닌 구간의 길이를 반환함.
-{
-    int i;
-    for (i = 0; item[i] != 0; i++) {}
-    return i + 1;
-}
-int stringLengthSpace(const char* item) //위와 같지만 띄어쓰기에서도 자르고 반환함.
-{
-    int i;
-    for (i = 0; item[i] != 0 && item[i] != ' '; i++) {}
-    return i + 1;
-}
-int stringLengthQ(const char* po) //대상 포인터부터 '"'가 얼마나 앞에 있는지를 반환함.
-{
-    for (int i = 1; po[i] != '\0'; i++)
-    {
-        if (po[i] == '"') return i;
-    }
-    return -1;
-}
-int logSize(int v)
-{
-    int res = 1;
-    for(int i = v; i >= 10; i /= 10, res++) { }
-    return res;
-}
-int logScale(int v, int is)
-{
-    int in = 1;
-    for (int i = 0; i < is; i++) in *= 10;
-    return (v / in) % 10; //is번 자리수를 가장 앞으로 당기고 1의 자리수만 반환.
-}
 char* setString(const char* item) //문자열을 새로 할당해 복사함.
 {
-    int strlen = stringLength(item);
+    int strlen = stringLength(item, 0);
     char* str = malloc(strlen + 1);
     if (str == NULL) return NULL;
     for (int i = 0; i < strlen; i++)
@@ -113,7 +59,7 @@ int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 �
         if (deb == 1) printf("%s / %s\n", word, it.name[i]); // For debug : 조건 순회하며 확인하기
         if (isMatch(word, it.name[i]))
         {
-            *ret = stringLengthSpace(word);
+            *ret = stringLength(word, ' ');
             return 1;
         }
     }
@@ -187,7 +133,7 @@ def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
 {
     errorExcept = 0;
     for (int i = 0; str[i] != 0; i++) { //문자열의 문자마다
-        if (str[i] == '"') i += stringLengthQ(&str[i]); //따옴표 있으면 문자열 영역이니까 넘어감.
+        if (str[i] == '"') i += stringLength(&str[i], '"'); //따옴표 있으면 문자열 영역이니까 넘어감.
         for (int j = 0; j < defC; j++) { //함수들마다
             //printf("%s / %s\n", &str[i], defs[j].name);
             if (isMatch(&str[i], defs[j].name)) return defs[j]; //함수 이름이 맞으면 반환.
@@ -237,7 +183,7 @@ void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
             }
             else if (isMatch(fun.define->name, &str[i]))
             {
-                starti = i + stringLengthSpace(fun.define->name);
+                starti = i + stringLength(fun.define->name, ' ');
             }
         }
         for (int j = 0; j < fun.define->optionsCount; j++) {

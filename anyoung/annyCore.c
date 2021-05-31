@@ -1,229 +1,7 @@
-void operate(variable a, variable b, char op, variable *result)
-{
-    int tmp = 0;
-    result->iValue = 0;
-    result->sValue = 0;
-    result->type = iV;
-    if (a.type == vV)
-    {
-        a.type = a.vValue->type;
-        if (a.type == iV) a.iValue = a.vValue->iValue;
-        else if (a.type == sV) a.sValue = a.vValue->sValue;
-    }
-    if (b.type == vV)
-    {
-        b.type = b.vValue->type;
-        if (b.type == iV) b.iValue = b.vValue->iValue;
-        else if (b.type == sV) b.sValue = b.vValue->sValue;
-    }
-    switch (a.type)
-    {
-    case iV:
-        switch (b.type)
-        {
-        case iV:
-            //int and int
-            switch (op)
-            {
-            case '+':
-                result->type = iV;
-                result->iValue = a.iValue + b.iValue;
-                break;
-            case '-':
-                result->type = iV;
-                result->iValue = a.iValue - b.iValue;
-                break;
-            case '*':
-                result->type = iV;
-                result->iValue = a.iValue * b.iValue;
-                break;
-            case '%':
-                result->type = iV;
-                result->iValue = a.iValue % b.iValue;
-                break;
-            case '/':
-                result->type = iV;
-                result->iValue = a.iValue / b.iValue;
-                break;
-            case '=':
-                result->type = iV;
-                result->iValue = a.iValue == b.iValue;
-                break;
-            case '>':
-                result->type = iV;
-                result->iValue = a.iValue > b.iValue;
-                break;
-            case '<':
-                result->type = iV;
-                result->iValue = a.iValue < b.iValue;
-                break;
-            }
-            break;
-        case sV:
-            //int and string
-            switch (op)
-            {
-            case '+':
-                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
-                result->sValue = malloc(sizeof(char) * (stringLength(b.sValue) + logSize(a.iValue)) + 1);
-                if (result->sValue != NULL)
-                {
-                    for (int i = logSize(a.iValue) - 1; i >= 0; i--, tmp++)
-                    {
-                        result->sValue[tmp] = logScale(a.iValue, i) + '0';
-                    }
-                    for (int i = 0; b.sValue[i] != 0; i++, tmp++)
-                    {
-                        result->sValue[tmp] = b.sValue[i];
-                    }
-                    result->sValue[tmp] = '\0';
-                }
-                result->type = sV;
-                break;
-            case '-':
-                //except error
-                break;
-            case '*':
-                //except error
-                break;
-            case '%':
-                //except error
-                break;
-            case '/':
-                //except error
-                break;
-            case '=':
-                break;
-            case '>':
-                break;
-            case '<':
-                break;
-            }
-            break;
-        }
-        break;
-    case sV:
-        switch (b.type)
-        {
-        case iV:
-            //string and int
-            switch (op)
-            {
-            case '+':
-                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
-                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + logSize(b.iValue)) + 1);
-                if (result->sValue != NULL)
-                {
-                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
-                    {
-                        result->sValue[tmp] = a.sValue[i];
-                    }
-                    for (int i = logSize(b.iValue) - 1; i >= 0; i--, tmp++)
-                    {
-                        result->sValue[tmp] = logScale(b.iValue, i) + '0';
-                    }
-                    result->sValue[tmp] = '\0';
-                }
-                result->type = sV;
-                break;
-            case '-':
-                //except error
-                break;
-            case '*':
-                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
-                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) * b.iValue) + 1);
-                if (result->sValue != NULL)
-                {
-                    for (int j = 0; j < b.iValue; j++)
-                    {
-                        for (int i = 0; a.sValue[i] != 0; i++, tmp++)
-                        {
-                            result->sValue[tmp] = a.sValue[i];
-                        }
-                    }
-                    result->sValue[tmp] = '\0';
-                }
-                result->type = sV;
-                break;
-            case '%':
-                //except error
-                break;
-            case '/':
-                //except error
-                break;
-            case '=':
-                break;
-            case '>':
-                break;
-            case '<':
-                break;
-            }
-            break;
-        case sV:
-            //string and string
-            switch (op)
-            {
-            case '+':
-                free(result->sValue); // (대충 글자 크기가 다르니 버리고 새로 만든다는 내용)
-                result->sValue = malloc(sizeof(char) * (stringLength(a.sValue) + stringLength(b.sValue)) + 1);
-                if (result->sValue != NULL)
-                {
-                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
-                    {
-                        result->sValue[tmp] = a.sValue[i];
-                    }
-                    for (int i = 0; b.sValue[i] != 0; i++, tmp++)
-                    {
-                        result->sValue[tmp] = b.sValue[i];
-                    }
-                    result->sValue[tmp] = '\0';
-                }
-                result->type = sV;
-                break;
-            case '-':
-                //except error
-                break;
-            case '*':
-                //except error
-                break;
-            case '%':
-                //except error
-                break;
-            case '/':
-                //except error
-                break;
-            case '=':
-                result->type = iV;
-                result->iValue = isMatch(a.sValue, b.sValue);
-                break;
-            case '>':
-                break;
-            case '<':
-                break;
-            }
-            break;
-        }
-        break;
-    }
-}
+#include "operator.h"
 
 variable* GetArgument(char* name);
-bool isOperator(char iv)
-{
-    return iv == '+'
-        || iv == '-' 
-        || iv == '*' 
-        || iv == '%' 
-        || iv == '/' 
-        || iv == '(' 
-        || iv == ')'
-        || iv == '='
-        || iv == '<'
-        || iv == '>'
-        || iv == '{'
-        || iv == '}';
-}
-void getValueinFactor(factor* result) //배열 아님!!
+void getValueinFactor(factor* result) //배열 아님
 {
     stack newStack[20];
     int sts = -1, temp = 0;
@@ -247,7 +25,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 inputMod = 2;
                 sts++;
                 newStack[sts].type = sV;
-                newStack[sts].sValue = malloc(stringLengthQ(&result->startF[i]) + 1);
+                newStack[sts].sValue = malloc(stringLength(&result->startF[i], '"') + 1);
                 if (newStack[sts].sValue == NULL) return;
                 temp = 0;
             }
@@ -359,7 +137,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 {
                     varLast--;
                     operatorLast--;
-                    operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
+                    valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
                 }
                 operatorLast--; // 다 뺐으니까 '(' 없앰.
                 break;
@@ -372,7 +150,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                 {
                     varLast--;
                     operatorLast--;
-                    operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
+                    valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
                 }
                 operatorLast--; // 다 뺐으니까 '(' 없앰.
                 valueStack[varLast - 1].type = vV;
@@ -386,7 +164,7 @@ void getValueinFactor(factor* result) //배열 아님!!
                     varLast--;
                     operatorLast--;
                     if (varLast <= 0 || operatorLast < 0) break; //오류 : 변수가 2개 이상 없거나 연산자가 1개 이상 없을 때
-                    operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
+                    valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
                 }
                 operatorStack[operatorLast] = newStack[q].oValue;
                 operatorLast++;
@@ -399,7 +177,7 @@ void getValueinFactor(factor* result) //배열 아님!!
     {
         varLast--;
         operatorLast--;
-        operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast], &valueStack[varLast - 1]);
+        valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
     }
     result->value = valueStack[0];
     //printf("\n");
@@ -434,25 +212,24 @@ void freeFunction(function* funNow)
 }
 int anyFunction(char* line)
 {
-    def defNow = getdefbyStr(line);
+    def defNow = getdefbyStr(line); // 함수 이름 인식
     if (ind == 0)
     {
-        if (errorExcept != 0) return 0;
-        function* NewF = malloc(sizeof(function));
-        if (NewF == NULL) return 0;
+        if (errorExcept != 0) return 0; //인식 실패시 나감.
+        function* NewF = malloc(sizeof(function)); //공간 할당
+        if (NewF == NULL) return 0; //공간 할당 성공했는지 확인
 
-        NewF->returnTo = LastF;
-        getfunbyDef(&defNow, line, NewF);
-        splitFactors(*NewF, line);
-        for (int i = 0; i < defNow.argsCount; i++)
+        NewF->returnTo = LastF; // 스택 구현 
+        getfunbyDef(&defNow, line, NewF); // 인식한 함수 공간 만들기
+        splitFactors(*NewF, line); // 단어 자르기
+        for (int i = 0; i < defNow.argsCount; i++) // 인수별로
         {
-            if (!NewF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
-            //sayAtoB(LastF->factors[i].startF, LastF->factors[i].endF);
-            getValueinFactor(&NewF->factors[i]);
+            if (!NewF->factors[i].isMatched) continue; // 없는 인수는 넘어감
+            getValueinFactor(&NewF->factors[i]); // 인수 계산
             NewF->factors[i].value.isMatched = true;
         }
-        ind += defNow.fun(NewF);
-        if (ind == 0) freeFunction(NewF);
+        ind += defNow.fun(NewF); 
+        if (ind == 0) freeFunction(NewF); // 함수 사용이 종료되면 삭제
         else LastF = NewF; //if 같은게 있으면 필요함.
     }
     else
@@ -489,5 +266,3 @@ int anyFunction(char* line)
     }
     return ind;
 }
-///Todo : 스파게티 정리 
-//누가 http://www.no-smok.net/nsmk/%ED%95%9C%EA%B8%80%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%EC%96%B8%EC%96%B4 ... 이미 생각해놨던 거다..

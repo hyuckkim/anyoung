@@ -2,6 +2,8 @@
 /// 이게 어떻게 가능한지 궁금한 사람을 위해 : 이거 파일 맨 위에 있는거 아님. annyCore.c의 360번줄쯤에 있음.
 /// </summary>
 
+#include <conio.h>
+
 extern int anyFunction(char* line);
 variable itisRValue(variable* v)
 {
@@ -129,7 +131,7 @@ int Function_Loop(function* fn)
 int Function_If(function* fn)
 {
     fn->moon = malloc(sizeof(char*) * moonLength);
-    itisRValue(&fn->factors[0].value);
+    fn->factors[0].value = itisRValue(&fn->factors[0].value);
     if (fn->factors[0].value.type == iV && fn->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
         canInsert = 1;
     else
@@ -146,8 +148,8 @@ int Function_fun(function* fn)
 }
 int Function_Loop_end(function* fn)
 {
-    itisLValue(&fn->factors[0].value);
-    itisRValue(&fn->factors[1].value);
+    fn->factors[0].value = itisLValue(&fn->factors[0].value);
+    fn->factors[1].value = itisRValue(&fn->factors[1].value);
     if (fn->factors[0].value.isMatched)
     {
         variable* v = fn->factors[0].value.vValue;
@@ -191,7 +193,7 @@ int Function_fun_end(function* fn)
         freeFunction(fn);
         return 0;
     }  
-    itisRValue(&fn->factors[0].value);
+    fn->factors[0].value = itisRValue(&fn->factors[0].value);
     SetData(fn->factors[0].value.sValue, 8, 8, false); //실제 인수 개수에 안맞추고 무조건 8개 8개 할당중임. 공간복잡도 이슈 생기면 여기 바꾸셈. 
     defs[defC].line = malloc(sizeof(char*) * 80);
     defs[defC].argsCount = 0;

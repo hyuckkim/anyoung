@@ -27,6 +27,7 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="funS.h" />
     <ClInclude Include="kinput.h" />
+    <ClInclude Include="operator.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
