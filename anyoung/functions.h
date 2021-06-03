@@ -372,6 +372,34 @@ int Function_Listen(function* fn)
     }
     return 0;
 }
+int Function_Cutstr(function* fn) // ~에서 ~로 [N글자만큼] 잘라내기
+{
+    variable newV = itisLValue(&fn->factors[1].value);
+    variable oldV = itisLValue(&fn->factors[0].value);
+    if (oldV.type != vV) return 0;
+    if (oldV.vValue->type != sV) return 0;
+
+    int fds = stringLength(oldV.vValue->sValue, 0);
+    char* newStr = malloc(fds);
+
+    int bts = getitsbyte(oldV.vValue->sValue[0]);
+    char* dropStr = malloc(bts + 1);
+    int i;
+    for (i = 0; i < bts; i++) {
+        dropStr[i] = oldV.vValue->sValue[i];
+    }
+    dropStr[i] = '\0';
+    if (newV.vValue->type == sV) free(newV.vValue->sValue);
+    newV.vValue->type = sV;
+    newV.vValue->sValue = dropStr;
+
+    for (; i < fds + 1; i++) {
+        newStr[i - bts] = oldV.vValue->sValue[i];
+    }
+    free(oldV.vValue->sValue);
+    oldV.vValue->sValue = newStr;
+    return 0;
+}
 int Function_Say(function* fn)
 {
     variable value = itisRValue(&fn->factors[0].value);
