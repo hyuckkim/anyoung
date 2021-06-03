@@ -18,30 +18,6 @@ bool isValid()
 {
 	return true;
 }
-int getitsbyte(unsigned char byte)
-{
-	if ((byte >> 7) % 2 == 0)
-		return 1;
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 0))
-		return 2;
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 1)
-		&& ((byte >> 4) % 2 == 0))
-		return 3;
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 1)
-		&& ((byte >> 4) % 2 == 1)
-		&& ((byte >> 3) % 2 == 0))
-		return 4;
-	return -1;
-}
 bool isSolByte(unsigned char byte)
 {
 	if ((byte >> 7) % 2 == 0)

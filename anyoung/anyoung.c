@@ -34,8 +34,6 @@ int main(int argc, char** argv)
         FILE* stream;
 
         if (fopen_s(&stream, argv[1], "r") == 0 && stream != NULL)
-            printf("파일을 여는 데 실패하였습니다.");
-        else
         {
             while (fgets(chars, lineLength, stream) != NULL)
             {

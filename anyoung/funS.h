@@ -3,7 +3,6 @@
 /// </summary>
 
 #define DEFNOW defs[defC]
-#define IS_CLEARED DEFNOW.args != NULL && DEFNOW.argNameCount != NULL
 void SetData(const char* name, int args, int options, bool useIndents)
 {
     DEFNOW.name = setString(name);
@@ -55,7 +54,7 @@ void annyCore_init()
     varNames = malloc(sizeof(char*));
     
     SetData("말하기" ,1 ,1, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetOptions(1, "조용히");
@@ -64,7 +63,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("듣기", 1, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 1, "에");
     }
@@ -72,7 +71,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("표시하기", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "번");
@@ -85,7 +84,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("정하기", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 2, "로", "으로");
@@ -95,7 +94,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("더하기", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
@@ -104,7 +103,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("빼기", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
@@ -113,7 +112,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("곱하기", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
@@ -122,7 +121,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("나누기", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 1, "만큼");
@@ -131,7 +130,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("되풀이", 2, 0, true);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "로", "으로");
         SetArgs(1, 1, "번");
@@ -140,7 +139,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("조건", 1, 0, true);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "면", "이면");
     }
@@ -153,17 +152,8 @@ void annyCore_init()
     SetData("아니면", 0, 0, false);
     DefineInserted();
 
-    SetData("잘라내기", 2, 0, false);
-    if (IS_CLEARED)
-    {
-        SetArgs(0, 1, "에서");
-        SetArgs(1, 2, "로", "으로");
-    }
-    DEFNOW.fun = Function_Cutstr;
-    DefineInserted();
-
     SetData("동작", 1, 0, true);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "이라는", "라는");
     }
@@ -171,7 +161,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("인수", 5, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
         SetArgs(1, 2, "로", "으로");
@@ -182,7 +172,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("있는지", 2, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 1, "에");
         SetArgs(1, 2, "이", "가");
@@ -191,7 +181,7 @@ void annyCore_init()
     DefineInserted();
 
     SetData("읽어오기", 1, 0, false);
-    if (IS_CLEARED)
+    if (DEFNOW.args != NULL && DEFNOW.argNameCount != NULL)
     {
         SetArgs(0, 2, "을", "를");
     }
