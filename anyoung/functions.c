@@ -1,10 +1,38 @@
 /// <summary>
 /// 이게 어떻게 가능한지 궁금한 사람을 위해 : 이거 파일 맨 위에 있는거 아님. annyCore.c의 360번줄쯤에 있음.
 /// </summary>
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
 #include <conio.h>
+#include <stdbool.h>
+#include "types.h"
+
+extern char* setString(const char* item);
+extern variable* getVar(char* name);
+extern void changeSpacetoNull(char* item);
+extern int isMatch(const char* word1, const char* word2);
+extern int getSO(char* writeAt, const char* various);
+extern int stringLength(const char* item, char name);
+extern int getitsbyte(unsigned char byte);
+
+extern def* defs;
+extern int defC;
+extern int defM;
+#define DEFNOW defs[defC]
+#define IS_CLEARED DEFNOW.args != NULL && DEFNOW.argNameCount != NULL
+extern variable* vars;
+extern char** varNames;
+extern int varC;
+extern int varM;
+extern function* funLoopingNow;
+
+extern int canInsert, ind;
+extern function* LastF;
 
 extern int anyFunction(char* line);
+extern void freeFunction(function* funNow);
+
 variable itisRValue(variable* v)
 {
     variable result;
@@ -123,14 +151,14 @@ int Function_Help(function* fn)
 }
 int Function_Loop(function* fn)
 {
-    fn->moon = malloc(sizeof(char* ) * moonLength);
+    fn->moon = (char **) malloc(sizeof(char* ) * moonLength);
     canInsert = 1;
     fn->temp = 0;
     return 1;
 }
 int Function_If(function* fn)
 {
-    fn->moon = malloc(sizeof(char*) * moonLength);
+    fn->moon = (char**) malloc(sizeof(char*) * moonLength);
     fn->factors[0].value = itisRValue(&fn->factors[0].value);
     if (fn->factors[0].value.type == iV && fn->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
         canInsert = 1;
@@ -139,22 +167,15 @@ int Function_If(function* fn)
     fn->temp = 0;
     return 1;
 }
-int Function_fun(function* fn)
-{
-    fn->moon = malloc(sizeof(char*) * moonLength);
-    canInsert = 1;
-    fn->temp = 0;
-    return 1;
-}
 int Function_Loop_end(function* fn)
 {
     fn->factors[0].value = itisLValue(&fn->factors[0].value);
     fn->factors[1].value = itisRValue(&fn->factors[1].value);
+    ind--; //함수들을 모두 실행해야 되니 임시로 === 
     if (fn->factors[0].value.isMatched)
     {
         variable* v = fn->factors[0].value.vValue;
         v->iValue = 0;
-        ind = 0;
         for (int i = 0; i < fn->factors[1].value.iValue; i++) //v번
         {
             for (int j = 0; j < fn->temp; j++) //각 함수 실행
@@ -170,85 +191,98 @@ int Function_Loop_end(function* fn)
                 anyFunction(fn->moon[j]);
         }
     }
-    for (int i = 0; i < fn->temp; i++)
+    for (int i = 0; i < fn->temp; i++) {
         free(fn->moon[i]);
+        fn->moon[i] = NULL;
+    }
+    ind++; // 임시로 함수 실행하는 거 끝났으니 === 
     return -1;
 }
 int Function_If_end(function* fn)
 {
     variable* v = &fn->factors[0].value;
-    ind = 0;
+    ind--; //함수들을 모두 실행해야 되니 임시로 === 
     for (int j = 0; j < fn->temp; j++) //각 함수 실행
         anyFunction(fn->moon[j]);
-    for (int i = 0; i < fn->temp; i++)
+    for (int i = 0; i < fn->temp; i++) {
         free(fn->moon[i]);
+        fn->moon[i] = NULL;
+    }
+    ind++; // 임시로 함수 실행하는 거 끝났으니 === 
     return -1;
 }
-extern void SetData(const char* name, int args, int options, bool useIndents);
-extern void DefineInserted();
-extern void freeFunction();
+void SetData(const char* name, int args, int options, int useIndents, bool usecondits);
+void DefineInserted();
+int Function_fun(function* fn)
+{
+    fn->moon = (char **) malloc(sizeof(char*) * moonLength);
+    canInsert = 1;
+    fn->temp = 0;
+    
+    fn->factors[0].value = itisRValue(&fn->factors[0].value);
+    SetData(fn->factors[0].value.sValue, 8, 8, false, false); //실제 인수 개수에 안맞추고 무조건 8개 8개 할당중임. 공간복잡도 이슈 생기면 여기 바꾸셈. 
+    defs[defC].line = (char **) malloc(sizeof(char*) * 80);
+    defs[defC].argsCount = 0;
+    defs[defC].optionsCount = 0;
+    defs[defC].lineCount = 0;
+    defs[defC].fun = Function_User;
+    return 1;
+}
+int Function_condition(function* fn)
+{
+    if (!LastF->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
+    {
+        defs[defC].options[defs[defC].optionsCount] = setString(LastF->factors[0].value.sValue);
+        defs[defC].optionsCount++;
+    }
+    else //인수 하나 추가
+    {
+        int c = defs[defC].argsCount;
+        int argCount = 0;
+        defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
+
+        for (argCount = 0; LastF->factors[argCount + 1].isMatched; argCount++) {} // 인수 개수 구하기
+        defs[defC].args[c] = (char **) malloc(sizeof(char**) * argCount);
+        defs[defC].argNameCount[c] = argCount;
+
+        for (int i = 0; i < argCount; i++)
+            defs[defC].args[c][i] = setString(LastF->factors[i + 1].value.sValue);
+
+        defs[defC].argsCount++;
+    }
+    return 0;
+}
 int Function_fun_end(function* fn)
 {
     if (fn->returnTo != 0) { //왜 돌아갈 곳이 있는거지, 어째서 반복문 안에서 조건문 안에서 함수 안에서 함수를 선언하는거냐
         freeFunction(fn);
         return 0;
-    }  
-    fn->factors[0].value = itisRValue(&fn->factors[0].value);
-    SetData(fn->factors[0].value.sValue, 8, 8, false); //실제 인수 개수에 안맞추고 무조건 8개 8개 할당중임. 공간복잡도 이슈 생기면 여기 바꾸셈. 
-    defs[defC].line = malloc(sizeof(char*) * 80);
-    defs[defC].argsCount = 0;
-    defs[defC].optionsCount = 0;
-    defs[defC].lineCount = 0;
-    defs[defC].fun = Function_User;
+    }
     for (int i = 0; i < fn->temp; i++)
     {
-        def defNow = getdefbyStr(fn->moon[i]);
-        if (isMatch(defNow.name, "인수"))
-        {
-            function* ll = LastF;
-            LastF = malloc(sizeof(function));
-            if (LastF == NULL)
-            {
-                LastF = ll;
-                return 0;
-            }
-            LastF->returnTo = ll;
-
-            getfunbyDef(&defNow, fn->moon[i], LastF);
-            splitFactors(*LastF, fn->moon[i]);
-            for (int i = 0; i < defNow.argsCount; i++)
-            {
-                if (!LastF->factors[i].isMatched) continue; // 없는 인수는 그냥 넘어간다.
-                //sayAtoB(funNow.factors[i].startF, funNow.factors[i].endF);
-                getValueinFactor(&LastF->factors[i]);
-                LastF->factors[i].value.isMatched = true;
-            }
-            if (!LastF->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
-            {
-                defs[defC].options[defs[defC].optionsCount] = setString(LastF->factors[0].value.sValue);
-                defs[defC].optionsCount++;
-            }
-            else
-            {
-                int c = defs[defC].argsCount, argCount = 0;
-                defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
-                for (int argCount = 0; LastF->factors[argCount + 1].isMatched; argCount++) { }
-                defs[defC].args[c] = malloc(sizeof(char**) * argCount);
-                defs[defC].argNameCount[c] = argCount;
-                for (int i = 0; i < argCount; i++)
-                    defs[defC].args[c][i] = setString(LastF->factors[i + 1].value.sValue);
-                defs[defC].argsCount++;
-            }
-        }
-        else
-        {
-            defs[defC].line[defs[defC].lineCount] = setString(fn->moon[i]);
-            defs[defC].lineCount++;
-        }
+        defs[defC].line[defs[defC].lineCount] = setString(fn->moon[i]);
+        defs[defC].lineCount++;
     }
     DefineInserted();
     return -1;
 }
+int Function_end(function* fn)
+{
+    char* dName = LastF->name;
+    if (isMatch(dName, "되풀이")) { Function_Loop_end(LastF);  return -1; }
+    if (isMatch(dName, "조건"))   { Function_If_end(LastF);    return -1; }
+    if (isMatch(dName, "동작"))   { Function_fun_end(LastF);   return -1; }
+    return 0;
+}
+int Function_not(function* fn) {
+    canInsert = 1 - canInsert;
+    return 0;
+}
+int Function_sub(function* fn)
+{
+    return 0;
+}
+
 int Function_include(function* fn)
 {
     variable value = fn->factors[0].value;
@@ -358,8 +392,10 @@ int Function_Devide(function* fn)
 int Function_Listen(function* fn)
 {
     variable value = itisLValue(&fn->factors[0].value);
-    char* cc = malloc(lineLength);
+    char* cc = (char *) malloc(lineLength);
     getSO(cc, "");
+    changeSpacetoNull(cc);
+
     if (itCanInt(cc))
     {
         value.vValue->iValue = getIntinStr(cc);
@@ -380,16 +416,17 @@ int Function_Cutstr(function* fn) // ~에서 ~로 [N글자만큼] 잘라내기
     if (oldV.vValue->type != sV) return 0;
 
     int fds = stringLength(oldV.vValue->sValue, 0);
-    char* newStr = malloc(fds);
+    char* newStr = (char *) malloc(fds);
 
     int bts = getitsbyte(oldV.vValue->sValue[0]);
-    char* dropStr = malloc(bts + 1);
+    char* dropStr = (char *) malloc(bts + 1);
     int i;
     for (i = 0; i < bts; i++) {
         dropStr[i] = oldV.vValue->sValue[i];
     }
     dropStr[i] = '\0';
-    if (newV.vValue->type == sV) free(newV.vValue->sValue);
+    if (newV.vValue->type == sV) 
+        free(newV.vValue->sValue);
     newV.vValue->type = sV;
     newV.vValue->sValue = dropStr;
 
@@ -441,5 +478,204 @@ int Function_Print(function* fn)
             printf("%s", value1.sValue);
     }
     printf("\n");
+    return 0;
+}
+void SetData(const char* name, int args, int options, int useIndents, bool usecondits)
+{
+    DEFNOW.name = setString(name);
+    DEFNOW.argsCount = args;
+    DEFNOW.args = (char ***) malloc(sizeof(char**) * args);
+    DEFNOW.argNameCount = (int *) malloc(sizeof(int) * args);
+
+    DEFNOW.optionsCount = options;
+    DEFNOW.options = (char **) malloc(sizeof(char*) * options);
+    DEFNOW.useindent = useIndents;
+    DEFNOW.usecondit = usecondits;
+}
+void DefineInserted()
+{
+    defC++;
+    if (defC >= defM) {
+        defM *= 2;
+        void* dTemp = realloc(defs, defM * sizeof(def));
+        if (dTemp != NULL) defs = (def *) dTemp;
+    }
+}
+void SetArgs(int o, int c, ...)
+{
+    va_list v;
+    va_start(v, c);
+    DEFNOW.argNameCount[o] = c;
+    DEFNOW.args[o] = (char **) malloc(sizeof(char*) * c);
+    if (DEFNOW.args[o] != NULL)
+        for (int i = 0; i < c; i++)
+        {
+            DEFNOW.args[o][i] = setString(va_arg(v, char*));
+        }
+}
+void SetOptions(int c, ...)
+{
+    va_list v;
+    va_start(v, c);
+    if (DEFNOW.options != NULL)
+    {
+        for (int i = 0; i < c; i++)
+        {
+            DEFNOW.options[i] = setString(va_arg(v, char*));
+        }
+    }
+}
+int annyCore_init()
+{
+    defs = (def *) malloc(sizeof(def));
+    vars = (variable *) malloc(sizeof(variable));
+    if (defs == NULL || vars == NULL) return -1;
+    varNames = (char **) malloc(sizeof(char*));
+
+    SetData("말하기", 1, 1, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetOptions(1, "조용히");
+    }
+    DEFNOW.fun = Function_Say;
+    DefineInserted();
+
+    SetData("듣기", 1, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 1, "에");
+    }
+    DEFNOW.fun = Function_Listen;
+    DefineInserted();
+
+    SetData("표시하기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 1, "번");
+    }
+    DEFNOW.fun = Function_Print;
+    DefineInserted();
+
+    SetData("도움", 0, 0, 0, false);
+    DEFNOW.fun = Function_Help;
+    DefineInserted();
+
+    SetData("정하기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 2, "로", "으로");
+    }
+    DEFNOW.fun = Function_Set;
+    DefineInserted();
+
+    SetData("더하기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 1, "만큼");
+    }
+    DEFNOW.fun = Function_Add;
+    DefineInserted();
+
+    SetData("빼기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 1, "만큼");
+    }
+    DEFNOW.fun = Function_Minus;
+    DefineInserted();
+
+    SetData("곱하기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 1, "만큼");
+    }
+    DEFNOW.fun = Function_Multi;
+    DefineInserted();
+
+    SetData("나누기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 1, "만큼");
+    }
+    DEFNOW.fun = Function_Devide;
+    DefineInserted();
+
+    SetData("되풀이", 2, 0, 1, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "로", "으로");
+        SetArgs(1, 1, "번");
+    }
+    DEFNOW.fun = Function_Loop;
+    DefineInserted();
+
+    SetData("조건", 1, 0, 1, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "면", "이면");
+    }
+    DEFNOW.fun = Function_If;
+    DefineInserted();
+
+    SetData("여기까지", 0, 0, -1, true);
+    DEFNOW.fun = Function_end;
+    DefineInserted();
+
+    SetData("아니면", 0, 0, 0, true);
+    DEFNOW.fun = Function_not;
+    DefineInserted();
+
+    SetData("잘라내기", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 1, "에서");
+        SetArgs(1, 2, "로", "으로");
+    }
+    DEFNOW.fun = Function_Cutstr;
+    DefineInserted();
+
+    SetData("동작", 1, 0, 1, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "이라는", "라는");
+    }
+    DEFNOW.fun = Function_fun;
+    DefineInserted();
+
+    SetData("인수", 5, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+        SetArgs(1, 2, "로", "으로");
+        SetArgs(2, 2, "와", "나");
+        SetArgs(3, 2, "와", "나");
+        SetArgs(4, 2, "와", "나");
+    }
+    DEFNOW.fun = Function_condition;
+    DefineInserted();
+
+    SetData("있는지", 2, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 1, "에");
+        SetArgs(1, 2, "이", "가");
+    }
+    DEFNOW.fun = Function_valid;
+    DefineInserted();
+
+    SetData("읽어오기", 1, 0, 0, false);
+    if (IS_CLEARED)
+    {
+        SetArgs(0, 2, "을", "를");
+    }
+    DEFNOW.fun = Function_include;
+    DefineInserted();
     return 0;
 }

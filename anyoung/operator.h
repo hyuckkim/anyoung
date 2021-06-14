@@ -1,8 +1,11 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+char* setString(const char* item);
+variable* getVar(char* name);
 
-int isMatch(char* word1, char* word2) //포인터부터 시작해 '\0'이나 ' '까지 같은지 비교함.
+int isMatch(const char* word1, const char* word2) //포인터부터 시작해 '\0'이나 ' '까지 같은지 비교함.
 {
     int i = 0;
     while (1)
@@ -44,6 +47,7 @@ int stringLength(const char* item, char name) //지정 포인터부터 시작해
     for (i = 0; item[i] != 0 && item[i] != name; i++) {}
     return i + 1;
 }
+
 
 int OperatorII(int a, int b, char op)
 {
@@ -140,97 +144,107 @@ char* OperatorSI(char* a, int b, char op)
     }
 }
 
-variable operate(variable a, variable b, char op)
+variable* operate(variable* a, variable* b, char op)
 {
     int tmp = 0;
-    variable result;
+    variable* result = malloc(sizeof(variable));
+    if (result == NULL) return NULL;
 
-    result.iValue = 0;
-    result.sValue = NULL;
-    result.type = iV;
+    variable value1;
+    value1.type = a->type;
+    if (value1.type == vV) value1.type = a->vValue->type;
 
-    bool isAPure = true;
-    if (a.type == vV)
+    if (a->type == iV) value1.iValue = a->iValue;
+    else if (a->type == sV) value1.sValue = a->sValue;
+    else if (a->type == vV)
     {
-        isAPure = false;
-    avValue:
-        a.type = a.vValue->type;
-        if (a.type == iV) a.iValue = a.vValue->iValue;
-        else if (a.type == sV) a.sValue = a.vValue->sValue;
-        else if (a.type == vV)
-        {
-            a.vValue = a.vValue->vValue;
-            goto avValue;
-        }
+        if (a->vValue->type == iV) value1.iValue = a->vValue->iValue;
+        else if (a->vValue->type == sV) value1.sValue = a->vValue->sValue;
+        else return NULL;
     }
-    bool isBPure = true;
-    if (b.type == vV)
+
+    variable value2;
+    value2.type = b->type;
+    if (value2.type == vV) value2.type = b->vValue->type;
+
+    if (b->type == iV) value2.iValue = b->iValue;
+    else if (b->type == sV) value2.sValue = b->sValue;
+    else if (b->type == vV)
     {
-        isBPure = false;
-    bvValue:
-        b.type = b.vValue->type;
-        if (b.type == iV) b.iValue = b.vValue->iValue;
-        else if (b.type == sV) b.sValue = b.vValue->sValue;
-        else if (b.type == vV)
-        {
-            b.vValue = b.vValue->vValue;
-            goto bvValue;
-        }
+        if (b->vValue->type == iV) value2.iValue = b->vValue->iValue;
+        else if (b->vValue->type == sV) value2.sValue = b->vValue->sValue;
+        else return NULL;
     }
-    switch (a.type)
+    switch (value1.type)
     {
     case iV:
-        switch (b.type)
+        switch (value2.type)
         {
         case iV:
-            result.type = iV;
-            result.iValue = OperatorII(a.iValue, b.iValue, op);
+            result->type = iV;
+            result->iValue = OperatorII(value1.iValue, value2.iValue, op);
             break;
         case sV:
-            result.type = sV;
-            result.sValue = OperatorIS(a.iValue, b.sValue, op);
+            result->type = sV;
+            result->sValue = OperatorIS(value1.iValue, value2.sValue, op);
             break;
         }
         break;
     case sV:
-        switch (b.type)
+        switch (value2.type)
         {
         case iV:
-            result.type = sV;
-            result.sValue = OperatorSI(a.sValue, b.iValue, op);
+            result->type = sV;
+            result->sValue = OperatorSI(value1.sValue, value2.iValue, op);
             break;
         case sV:
             //string and string
             switch (op)
             {
             case '+':
-                result.sValue = malloc(sizeof(char) * (stringLength(a.sValue, 0) + stringLength(b.sValue, 0)) + 1);
-                if (result.sValue != NULL)
+                result->sValue = malloc(sizeof(char) * (stringLength(value1.sValue, 0) + stringLength(value2.sValue, 0)) + 1);
+                if (result->sValue != NULL)
                 {
-                    for (int i = 0; a.sValue[i] != 0; i++, tmp++)
+                    for (int i = 0; value1.sValue[i] != 0; i++, tmp++)
                     {
-                        result.sValue[tmp] = a.sValue[i];
+                        result->sValue[tmp] = value1.sValue[i];
                     }
-                    for (int i = 0; b.sValue[i] != 0; i++, tmp++)
+                    for (int i = 0; value2.sValue[i] != 0; i++, tmp++)
                     {
-                        result.sValue[tmp] = b.sValue[i];
+                        result->sValue[tmp] = value2.sValue[i];
                     }
-                    result.sValue[tmp] = '\0';
+                    result->sValue[tmp] = '\0';
                 }
-                result.type = sV;
+                result->type = sV;
                 break;
             case '=':
-                result.type = iV;
-                result.iValue = isMatch(a.sValue, b.sValue);
+                result->type = iV;
+                result->iValue = isMatch(value1.sValue, value2.sValue);
                 break;
             }
             break;
         }
         break;
     }
-    if (isAPure && a.type == sV) free(a.sValue);
-    if (isBPure && b.type == sV) free(b.sValue);
     return result;
+}
+variable* setFactor(stack s)
+{
+    variable* v = malloc(sizeof(variable));
+    if (v == NULL) return v;
+    switch (s.type) {
+    case iV:
+        v->iValue = s.iValue;
+        break;
+    case sV:
+        v->sValue = setString(s.sValue);
+        break;
+    case vV:
+        v->vValue = getVar(s.vValue);
+        break;
+    }
+    v->type = s.type;
+    return v;
 }
 bool isOperator(char iv)
 {

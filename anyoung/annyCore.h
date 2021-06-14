@@ -8,7 +8,7 @@ void sayAtoB(char* A, char* B) //A 포인터부터 B 포인터까지 화면에 �
     }
     printf("\n");
 }
-int next_is_opperator(char* po) //띄어쓰기만 무시하며 다음문자가 연산자인지 확인함.
+int next_is_opperator(const char* po) //띄어쓰기만 무시하며 다음문자가 연산자인지 확인함.
 {
     int i = 0;
     while (1)
@@ -51,12 +51,10 @@ char* setString(const char* item) //문자열을 새로 할당해 복사함.
     return str;
 }
 
-int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
+int isFair(const char* word, factor it, int* ret) //factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
 {
-    if (deb == 1) printf("%d번 반복...", it.nameCount);
     for (int i = 0; i < it.nameCount; i++)
     {
-        if (deb == 1) printf("%s / %s\n", word, it.name[i]); // For debug : 조건 순회하며 확인하기
         if (isMatch(word, it.name[i]))
         {
             *ret = stringLength(word, ' ');
@@ -64,138 +62,4 @@ int isFair(char* word, factor it, int* ret, int deb) //factor의 인수 형식 �
         }
     }
     return 0;
-}
-
-def* defs;
-int defC = 0, defM = 1;
-variable* vars;
-char** varNames;
-int varC, varM = 1;
-variable* getVariable(char* name)
-{
-    for (int i = 0; i < varC; i++)
-    {
-        if (isMatch(varNames[i], name)) return &vars[i];
-    }
-    return NULL;
-}
-void VariableInserted()
-{
-    varC++;
-    if (varC >= varM) {
-        varM *= 2;
-        void* vTemp = realloc(vars, varM * sizeof(variable));
-        if (vTemp != NULL) vars = vTemp;
-        void* nTemp = realloc(varNames, varM * sizeof(char*));
-        if (nTemp != NULL) varNames = nTemp;
-    }
-}
-variable* makeVariable(char* name)
-{
-    varNames[varC] = setString(name);
-    vars[varC].type = iV;
-    vars[varC].iValue = 0;
-    VariableInserted();
-    return &vars[varC - 1];
-}
-variable* setVariable(variable* var)
-{
-    vars[varC] = *var;
-    VariableInserted();
-    return &vars[varC - 1];
-}
-function* funLoopingNow = 0;
-variable* GetArgument(char* name)
-{
-    //functions[funC]->factors[0].value.sValue
-    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
-    {
-        if (isMatch(funLoopingNow->define->argsName[i], name))
-        {
-            if (funLoopingNow->factors[i].value.type == vV)
-                return funLoopingNow->factors[i].value.vValue;
-            return &funLoopingNow->factors[i].value;
-        }
-    }
-    return NULL;
-}
-variable* getVar(char* name)
-{
-    variable* v = getVariable(name);
-    if (v != NULL) return v;
-    if (funLoopingNow != 0) v = GetArgument(name);
-    if (v != NULL) return v;
-    return makeVariable(name);
-}
-
-int errorExcept = 0;
-def getdefbyStr(char* str) // 문장에서 함수 이름을 찾아 반환함.
-{
-    errorExcept = 0;
-    for (int i = 0; str[i] != 0; i++) { //문자열의 문자마다
-        if (str[i] == '"') i += stringLength(&str[i], '"'); //따옴표 있으면 문자열 영역이니까 넘어감.
-        for (int j = 0; j < defC; j++) { //함수들마다
-            //printf("%s / %s\n", &str[i], defs[j].name);
-            if (isMatch(&str[i], defs[j].name)) return defs[j]; //함수 이름이 맞으면 반환.
-        }
-    }
-    errorExcept = 1;
-    return defs[0];
-}
-void getfunbyDef(def* define, char* str, function* result) // 함수로 변수를 만들어 result 포인터를 바꾼다.
-{
-    result->define = define;
-    result->name = define->name;
-    result->factors = malloc(sizeof(factor)
-        * define->argsCount); //sizeof(포인터)는 동적할당 관계없이 무조건 4라서 Count를 따로만듦
-    result->options = malloc(sizeof(factor)
-        * define->optionsCount);
-    if (result->factors != NULL) for (int i = 0; i < define->argsCount; i++)
-    {
-        result->factors[i].name = define->args[i];
-        result->factors[i].nameCount = define->argNameCount[i];
-        result->factors[i].isMatched = false;
-        result->factors[i].value.isMatched = false;
-    }
-    if (result->options != NULL) for (int i = 0; i < define->optionsCount; i++)
-    {
-        result->options[i].name = define->options;
-        result->options[i].nameCount = 1;
-        result->options[i].isMatched = false;
-        result->options[i].value.isMatched = false;
-    }
-}
-void splitFactors(function fun, char* str) // 문장 factor별로 잘라주기
-{
-    int starti = 0;
-    for (int i = 0; str[i] != 0; i++) {
-        for (int j = 0; j < fun.define->argsCount; j++) {
-            if (fun.factors[j].isMatched) continue;
-            int nameIndex;
-            if (isFair(&str[i], fun.factors[j], &nameIndex, 0) && !next_is_opperator(&str[i]))
-            {
-                fun.factors[j].startF = str + starti;
-                fun.factors[j].endF = str + i;
-                fun.factors[j].isMatched = true;
-                fun.factors[j].value.isMatched = true;
-                starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringLengthSpace로 잘라서 스페이스바는 알아서 걸러짐)
-                break;
-            }
-            else if (isMatch(fun.define->name, &str[i]))
-            {
-                starti = i + stringLength(fun.define->name, ' ');
-            }
-        }
-        for (int j = 0; j < fun.define->optionsCount; j++) {
-            if (fun.options[j].isMatched) continue;
-            int nameIndex;
-            if (isFair(&str[i], fun.options[j], &nameIndex, 0) && !next_is_opperator(&str[i]))
-            {
-                fun.options[j].isMatched = true;
-                fun.options[j].value.isMatched = true;
-                starti = i + nameIndex; //첫 단어 잘리는 부분 + 조사 (stringLengthSpace로 잘라서 스페이스바는 알아서 걸러짐)
-            }
-        }
-    }
-    //if (ss < fun.define.argsCount) printf("오류 발생. 인수 개수와 형식이 맞지 않습니다.\n");
 }

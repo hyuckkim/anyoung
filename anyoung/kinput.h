@@ -1,4 +1,9 @@
+#pragma once
+#include <stdio.h>
 #include <conio.h>
+#include <stdbool.h>
+
+#define SHUTDOWN 3
 
 typedef enum { sol, duo, tri, qua, funA, funB, LineBreak, BackSpace } textInfo;
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow);
@@ -13,10 +18,6 @@ void printBit(unsigned char a)
 		(a >> 2) % 2,
 		(a >> 1) % 2,
 		(a >> 0) % 2);
-}
-bool isValid()
-{
-	return true;
 }
 int getitsbyte(unsigned char byte)
 {
@@ -78,9 +79,9 @@ bool isQuaByte(unsigned char byte)
 		return true;
 	return false;
 }
-char* noo[lineLength]; //sentence while \n. 
+char* noo[240]; //sentence while \n. 
 int iAge = 0;
-void getSO(char* writeAt, char* various)
+int getSO(char* writeAt, const char* various)
 {
 	int key_value = 0; //get solo char data by _getch()
 	char nextValue = 0; //utf8 indexing data
@@ -97,6 +98,7 @@ void getSO(char* writeAt, char* various)
 		{
 			utf8[0] = key_value;
 			if (key_value == 0) { thisInfo = funA; stack = 1; }
+			else if (key_value == SHUTDOWN) return -1;
 			else if (key_value == 224) { thisInfo = funB; stack = 1; }
 			else if (key_value == '\n' || key_value == '\r') { thisInfo = LineBreak; stack = 0; }
 			else if (key_value == '\b') { thisInfo = BackSpace; stack = 0; }
@@ -122,7 +124,8 @@ void getSO(char* writeAt, char* various)
 			case funB:
 				break;
 			case LineBreak:
-				nooNow[0] = '\0';
+				nooNow[0] = '\n';
+				nooNow[1] = '\0';
 				break;
 			case BackSpace:
 				if (iAge > 0)
@@ -167,6 +170,7 @@ void getSO(char* writeAt, char* various)
 			nextValue = 0;
 		}
 	}
+	return 0;
 }
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
 {

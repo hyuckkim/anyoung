@@ -100,169 +100,111 @@ void getValueinFactor(factor* result) //배열 아님
             break;
         }
     }
-    variable valueStack[stackLength];
-    int varLast = 0;
+    sts += 1;
+
+    // =============================== 구분선 ==============================
+
+    variable* valueStack[stackLength];
+    int varCount = 0;
     char operatorStack[stackLength] = "\0";
-    int operatorLast = 0;
+    int opCount = 0;
     int prio;
     //https://penglog.tistory.com/99 센세 감사합니다
-    for (int q = 0; q < sts + 1; q++)
+
+    for (int q = 0; q < sts; q++) //각 스택에 대해 반복
     {
-        switch (newStack[q].type)
+        if (varCount >= stackLength) { // 스택에 값이 너무 많으면 
+            printf("error except in getValueInFactor");
+            break;
+        }
+        if (newStack[q].type == oV)
         {
-        case iV: //numberic
-            valueStack[varLast].type = iV;
-            valueStack[varLast].iValue = newStack[q].iValue;
-            varLast++;
-            break;
-        case sV: //string 
-            valueStack[varLast].type = sV;
-            valueStack[varLast].sValue = newStack[q].sValue;
-            varLast++;
-            break;
-        case vV: //variable 
-            valueStack[varLast].type = vV;
-            valueStack[varLast].vValue = getVar(newStack[q].vValue);
-            varLast++;
-            break;
-        case oV: //operator
             switch (newStack[q].oValue)
             {
             case '(': // 일단 써놓고 ')' 나온 뒤에 사용
-                operatorStack[operatorLast] = '(';
-                operatorLast++;
+                operatorStack[opCount] = '(';
+                opCount++;
                 break;
             case ')': // 문자열 반복하면서 '(' 나올 때까지 연산
-                while (operatorLast > 0 && operatorStack[operatorLast - 1] != '(')
+                while (opCount > 0 && operatorStack[opCount - 1] != '(')
                 {
-                    varLast--;
-                    operatorLast--;
-                    valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
+                    varCount--;
+                    opCount--;
+                    variable* temp = operate(valueStack[varCount - 1], valueStack[varCount], operatorStack[opCount]);
+                    if (temp != NULL)
+                    {
+                        free(valueStack[varCount - 1]);
+                        free(valueStack[varCount]);
+                        valueStack[varCount - 1] = temp;
+                        valueStack[varCount] = NULL;
+                    }
                 }
-                operatorLast--; // 다 뺐으니까 '(' 없앰.
+                opCount--; // 다 뺐으니까 '(' 없앰.
                 break;
             case '{': // 일단 써놓고 '}' 나온 뒤에 사용
-                operatorStack[operatorLast] = '{';
-                operatorLast++;
+                operatorStack[opCount] = '{';
+                opCount++;
                 break;
             case '}': // 문자열 반복하면서 '{' 나올 때까지 연산
-                while (operatorLast > 0 && operatorStack[operatorLast - 1] != '{')
+                while (opCount > 0 && operatorStack[opCount - 1] != '{')
                 {
-                    varLast--;
-                    operatorLast--;
-                    valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
+                    varCount--;
+                    opCount--;
+                    variable* temp = operate(valueStack[varCount - 1], valueStack[varCount], operatorStack[opCount]);
+                    if (temp != NULL)
+                    {
+                        free(valueStack[varCount - 1]);
+                        free(valueStack[varCount]);
+                        valueStack[varCount - 1] = temp;
+                        valueStack[varCount] = NULL;
+                    }
                 }
-                operatorLast--; // 다 뺐으니까 '(' 없앰.
-                valueStack[varLast - 1].type = vV;
-                valueStack[varLast - 1].vValue = getVar(valueStack[varLast - 1].sValue);
+                opCount--; // 다 뺐으니까 '(' 없앰.
+                valueStack[varCount - 1]->type = vV;
+                valueStack[varCount - 1]->vValue = getVar(valueStack[varCount - 1]->sValue);
                 break;
             default:
                 prio = getPriority(newStack[q].oValue);
                 //지금 들어가는 거보다 우선순위 높은거 다 계산하고 들어감.
-                while (operatorLast != 0 && prio <= getPriority(operatorStack[operatorLast - 1]))
+                while (opCount != 0 && prio <= getPriority(operatorStack[opCount - 1]))
                 {
-                    varLast--;
-                    operatorLast--;
-                    if (varLast <= 0 || operatorLast < 0) break; //오류 : 변수가 2개 이상 없거나 연산자가 1개 이상 없을 때
-                    valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
+                    varCount--;
+                    opCount--;
+                    if (varCount <= 0 || opCount < 0) break; //오류 : 변수가 2개 이상 없거나 연산자가 1개 이상 없을 때
+                    variable* temp = operate(valueStack[varCount - 1], valueStack[varCount], operatorStack[opCount]);
+                    if (temp != NULL)
+                    {
+                        free(valueStack[varCount - 1]);
+                        free(valueStack[varCount]);
+                        valueStack[varCount - 1] = temp;
+                        valueStack[varCount] = NULL;
+                    }
                 }
-                operatorStack[operatorLast] = newStack[q].oValue;
-                operatorLast++;
+                operatorStack[opCount] = newStack[q].oValue;
+                opCount++;
                 break;
             }
-            break;
+        }
+        else
+        {
+            valueStack[varCount] = setFactor(newStack[q]);
+            varCount++;
         }
     }
-    while (varLast > 0 && operatorLast > 0) //남은 문자 계산
+    while (varCount > 1 && opCount > 0) //남은 문자 계산
     {
-        varLast--;
-        operatorLast--;
-        valueStack[varLast - 1] = operate(valueStack[varLast - 1], valueStack[varLast], operatorStack[operatorLast]);
+        // 예를 들어서 개수가 3개 남아서 varCount가 3일때 1 빼서 2로 만들고 1번 2번 가지고.
+        varCount--;
+        opCount--;
+        variable* temp = operate(valueStack[varCount - 1], valueStack[varCount], operatorStack[opCount]);
+        if (temp != NULL)
+        {
+            free(valueStack[varCount - 1]);
+            free(valueStack[varCount]);
+            valueStack[varCount - 1] = temp;
+            valueStack[varCount] = NULL;
+        }
     }
-    result->value = valueStack[0];
+    result->value = *valueStack[0];
     //printf("\n");
-}
-
-function* LastF;
-int canInsert;
-int ind = 0, igd = 0;
-#include "functions.h"
-#include "funS.h"
-variable getFV(function* fun, int i)
-{
-    return fun->factors[i].value;
-}
-int useFunction_end(function* fn)
-{
-    char* dName = fn->name;
-    if (isMatch(dName, "되풀이")) { Function_Loop_end(fn);  return 0; }
-    if (isMatch(dName, "조건"))   { Function_If_end(fn);    return 0; }
-    if (isMatch(dName, "동작"))   { Function_fun_end(fn);   return 0; }
-    return -1;
-}
-void freeFunction(function* funNow)
-{
-    for (int i = 0; i < funNow->define->argsCount; i++)
-    {
-        if(funNow->factors[i].value.type == sV)
-            free(funNow->factors[i].value.sValue);
-    }
-    free(funNow->factors);
-    free(funNow);
-}
-int anyFunction(char* line)
-{
-    def defNow = getdefbyStr(line); // 함수 이름 인식
-    if (ind == 0)
-    {
-        if (errorExcept != 0) return 0; //인식 실패시 나감.
-        function* NewF = malloc(sizeof(function)); //공간 할당
-        if (NewF == NULL) return 0; //공간 할당 성공했는지 확인
-
-        NewF->returnTo = LastF; // 스택 구현 
-        getfunbyDef(&defNow, line, NewF); // 인식한 함수 공간 만들기
-        splitFactors(*NewF, line); // 단어 자르기
-        for (int i = 0; i < defNow.argsCount; i++) // 인수별로
-        {
-            if (!NewF->factors[i].isMatched) continue; // 없는 인수는 넘어감
-            getValueinFactor(&NewF->factors[i]); // 인수 계산
-            NewF->factors[i].value.isMatched = true;
-        }
-        ind += defNow.fun(NewF); 
-        if (ind == 0) freeFunction(NewF); // 함수 사용이 종료되면 삭제
-        else LastF = NewF; //if 같은게 있으면 필요함.
-    }
-    else
-    {
-        if (ind == 1) //1단계 : 맞는 값만 넣어야 할 때
-        {
-            if (isMatch(defNow.name, "여기까지"))
-            {
-                if (igd == 0)
-                {
-                    ind--;
-                    useFunction_end(LastF);
-                }
-                else igd--;
-            }
-            else if (isMatch(defNow.name, "아니면"))
-            {
-                canInsert = 1 - canInsert;
-            }
-            else if (canInsert == 1)
-            {
-                ind += defNow.useindent;
-                LastF->moon[LastF->temp] = setString(line);
-                LastF->temp++;
-            }
-            else igd += defNow.useindent;
-        }
-        else //2단계 이상 : 텍스트 형식으로 아무 값이나 넣어야 할 때
-        {
-            ind += defNow.useindent;
-            LastF->moon[LastF->temp] = setString(line);
-            LastF->temp++;
-        }
-    }
-    return ind;
 }

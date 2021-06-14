@@ -20,12 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="anyoung.c" />
+    <ClCompile Include="functions.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annyCore.c" />
     <ClInclude Include="annyCore.h" />
-    <ClInclude Include="functions.h" />
-    <ClInclude Include="funS.h" />
     <ClInclude Include="kinput.h" />
     <ClInclude Include="operator.h" />
     <ClInclude Include="types.h" />

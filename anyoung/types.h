@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #define lineLength 240
 #define moonLength 40
 #define stackLength 20
@@ -7,7 +8,6 @@ typedef struct struct_variable variable;
 typedef struct struct_stack stack;
 typedef struct struct_factor factor;
 typedef struct struct_function function;
-typedef enum {false, true, rev = -1} bool;
 typedef enum { //int, string, variable, operator, enum
     none, //아무것도 없는 상태
     iV, //int Value. 숫자.
@@ -32,7 +32,8 @@ struct struct_def //함수의 정의.
     char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
     int lineCount; //
     
-    bool useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1.
+    int useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1.
+    bool usecondit; //조건문인지. '인수', '아니면', '여기까지' 등등.
     int (*fun) (function*);
 };
 struct struct_variable //최종적으로 할당되는 변수.
@@ -59,8 +60,8 @@ struct struct_factor //한 인수의 전체 문자열.
 {
     char** name; // 조사 처리 여기서. 조사가 여러개가 같이 있을 수 있음.
     int nameCount;
-    char* startF;
-    char* endF;
+    const char* startF;
+    const char* endF;
     variable value;
     bool isMatched; // 기본 0, 매치되고 나면 1.
 };
