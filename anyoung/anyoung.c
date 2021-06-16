@@ -13,7 +13,7 @@
 
 int useFunction(const char* line, def* define);
 int saveFunction(const char* line, int indent, function* saveTo);
-int anyFunction(char* line);
+void anyFunction(char* line);
 void freeFunction(function* funNow);
 def* searchDefine(char* str);
 extern function* initFunction(def* define, const char* str);
@@ -38,7 +38,6 @@ int main(int argc, char** argv)
 {
 	Anyoung_Init();
 	char chars[lineLength] = "default";
-	int indent = 1;
 	FILE* stream = NULL;
 
 	int getBy, getIn;
@@ -63,7 +62,7 @@ int main(int argc, char** argv)
 	{
 		if (getBy == 0) 
 		{
-			if (indent == 1) getIn = getSO(chars, ">>> ");
+			if (ind == 0) getIn = getSO(chars, ">>> ");
 			else getIn = getSO(chars, "... ");
 			if (getIn != 0) break;
 		}
@@ -74,16 +73,16 @@ int main(int argc, char** argv)
 		}
 		ChangeLFtoNULL(chars);
 
-		indent = anyFunction(chars) + 1;
+		anyFunction(chars);
 	}
 	if (stream != NULL) fclose(stream);
 	return 0;
 }
 //문자열을 판단해 함수를 실행할지 저장할지 결정한다.
-int anyFunction(char* line)
+void anyFunction(char* line)
 {
 	def* defNow = searchDefine(line);
-	if (defNow == NULL) return 0;
+	if (defNow == NULL) return;
 	switch (ind)
 	{
 	case 0:
@@ -100,7 +99,6 @@ int anyFunction(char* line)
 		saveFunction(line, defNow->useindent, LastF);
 		break;
 	}
-	return ind;
 }
 //함수를 실제로 실행한다.
 int useFunction(const char* line, def* define)
@@ -114,7 +112,7 @@ int useFunction(const char* line, def* define)
 	for (int i = 0; i < define->argsCount; i++)
 	{
 		if (!NewF->factors[i].isMatched) continue;
-		NewF->factors->value = getValueinFactor(NewF->factors[i].startF, NewF->factors[i].endF);
+		NewF->factors[i].value = getValueinFactor(NewF->factors[i].startF, NewF->factors[i].endF);
 		NewF->factors[i].value.isMatched = true;
 	}
 	ind += define->fun(NewF);
@@ -127,9 +125,21 @@ int useFunction(const char* line, def* define)
 void freeFunction(function* funNow)
 {
 	if (funNow->factors != NULL)
+	{
+		for (int i = 0; i < funNow->define->argsCount; i++)
+		{
+			if (funNow->factors[i].isMatched && funNow->factors[i].value.type == sV)
+			{
+				free(funNow->factors[i].value.sValue);
+			}
+		}
 		free(funNow->factors);
+	}
 	if (funNow->options != NULL)
+	{
+
 		free(funNow->options);
+	}
 	free(funNow);
 	funNow = NULL;
 }
@@ -217,10 +227,12 @@ function* initFunction(def* define, const char* str)
 	if (result == NULL) return NULL;
 	result->define = define;
 	result->name = define->name;
-	result->factors = (factor*)malloc(sizeof(factor)
-		* define->argsCount);
-	result->options = (factor*)malloc(sizeof(factor)
-		* define->optionsCount);
+	if (define->argsCount != 0)
+		result->factors = (factor*)malloc(sizeof(factor)
+			* define->argsCount);
+	if (define->optionsCount != 0)
+		result->options = (factor*)malloc(sizeof(factor)
+			* define->optionsCount);
 
 	if (result->factors == NULL || result->options == NULL)
 	{
@@ -231,20 +243,24 @@ function* initFunction(def* define, const char* str)
 		free(result);
 		return NULL;
 	}
-	for (int i = 0; i < define->argsCount; i++)
-	{
-		result->factors[i].name = define->args[i];
-		result->factors[i].nameCount = define->argNameCount[i];
-		result->factors[i].isMatched = false;
-		result->factors[i].value.isMatched = false;
-	}
-	for (int i = 0; i < define->optionsCount; i++)
-	{
-		result->options[i].name = define->options;
-		result->options[i].nameCount = 1;
-		result->options[i].isMatched = false;
-		result->options[i].value.isMatched = false;
-	}
+	if (define->argsCount != 0)
+		for (int i = 0; i < define->argsCount; i++)
+		{
+			result->factors[i].name = define->args[i];
+			result->factors[i].nameCount = define->argNameCount[i];
+			result->factors[i].isMatched = false;
+			result->factors[i].value.isMatched = false;
+		}
+	else result->factors = NULL;
+	if (define->optionsCount != 0)
+		for (int i = 0; i < define->optionsCount; i++)
+		{
+			result->options[i].name = define->options;
+			result->options[i].nameCount = 1;
+			result->options[i].isMatched = false;
+			result->options[i].value.isMatched = false;
+		}
+	else result->options = NULL;
 	return result;
 }
 void splitFactors(function fun, const char* str) // 문장 factor별로 잘라주기

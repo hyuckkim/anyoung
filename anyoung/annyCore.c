@@ -192,7 +192,7 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
             case ')': // 문자열 반복하면서 '(' 나올 때까지 연산
                 while (opCount > 0 && operatorStack[opCount - 1] != '(')
                 {
-                    variable a = popValue(), b = popValue();
+                    variable b = popValue(), a = popValue();
                     char o = popOperator();
                     pushValuePo(operate(&a, &b, o));
                 }
@@ -201,7 +201,7 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
             case '}': // 문자열 반복하면서 '{' 나올 때까지 연산
                 while (opCount > 0 && operatorStack[opCount - 1] != '(')
                 {
-                    variable a = popValue(), b = popValue();
+                    variable b = popValue(), a = popValue();
                     char o = popOperator();
                     pushValuePo(operate(&a, &b, o));
                 }
@@ -214,7 +214,7 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
                 //지금 들어가는 거보다 우선순위 높은거 다 계산하고 들어감.
                 while (opCount != 0 && prio <= getPriority(operatorStack[opCount - 1]))
                 {
-                    variable a = popValue(), b = popValue();
+                    variable b = popValue(), a = popValue();
                     char o = popOperator();
                     pushValuePo(operate(&a, &b, o));
                 }
@@ -229,7 +229,7 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
     }
     while (varCount > 1 && opCount > 0) //남은 문자 계산
     {
-        variable a = popValue(), b = popValue();
+        variable b = popValue(), a = popValue();
         char o = popOperator();
         pushValuePo(operate(&a, &b, o));
     }

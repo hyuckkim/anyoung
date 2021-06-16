@@ -190,7 +190,7 @@ int Function_Loop_end(function* fn)
             for (int j = 0; j < fn->temp; j++) //각 함수 실행
                 anyFunction(fn->moon[j]);
         }
-    }
+    }   
     for (int i = 0; i < fn->temp; i++) {
         free(fn->moon[i]);
         fn->moon[i] = NULL;
@@ -230,6 +230,7 @@ int Function_fun(function* fn)
 }
 int Function_condition(function* fn)
 {
+    if (!isMatch(LastF->name, "동작")) return 0;
     if (!LastF->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
     {
         defs[defC].options[defs[defC].optionsCount] = setString(LastF->factors[0].value.sValue);
@@ -647,7 +648,7 @@ int Anyoung_Init()
     DEFNOW.fun = Function_fun;
     DefineInserted();
 
-    SetData("인수", 5, 0, 0, false);
+    SetData("인수", 5, 0, 0, true);
     if (IS_CLEARED)
     {
         SetArgs(0, 2, "을", "를");
