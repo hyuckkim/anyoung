@@ -26,9 +26,6 @@
     <ClInclude Include="annyCore.c">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="kinput.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="types.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
