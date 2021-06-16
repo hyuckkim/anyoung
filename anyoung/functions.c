@@ -10,7 +10,7 @@
 
 extern char* setString(const char* item);
 extern variable* getVar(char* name);
-extern void changeSpacetoNull(char* item);
+extern void ChangeLFtoNULL(char* item);
 extern int isMatch(const char* word1, const char* word2);
 extern int getSO(char* writeAt, const char* various);
 extern int stringLength(const char* item, char name);
@@ -295,7 +295,7 @@ int Function_include(function* fn)
     {
         while (fgets(chars, lineLength, stream) != NULL)
         {
-            changeSpacetoNull(chars);
+            ChangeLFtoNULL(chars);
             anyFunction(chars);
         }
         fclose(stream);
@@ -394,7 +394,7 @@ int Function_Listen(function* fn)
     variable value = itisLValue(&fn->factors[0].value);
     char* cc = (char *) malloc(lineLength);
     getSO(cc, "");
-    changeSpacetoNull(cc);
+    ChangeLFtoNULL(cc);
 
     if (itCanInt(cc))
     {
@@ -429,10 +429,7 @@ int Function_Cutstr(function* fn) // ~에서 ~로 [N글자만큼] 잘라내기
         free(newV.vValue->sValue);
     newV.vValue->type = sV;
     newV.vValue->sValue = dropStr;
-
-    for (; i < fds + 1; i++) {
-        newStr[i - bts] = oldV.vValue->sValue[i];
-    }
+    newStr = setString(&oldV.vValue->sValue[fds]);
     free(oldV.vValue->sValue);
     oldV.vValue->sValue = newStr;
     return 0;
@@ -525,7 +522,8 @@ void SetOptions(int c, ...)
         }
     }
 }
-int annyCore_init()
+//프로그램 실행에 필요한 기본 함수 정보들을 초기화한다.
+int Anyoung_Init()
 {
     defs = (def *) malloc(sizeof(def));
     vars = (variable *) malloc(sizeof(variable));

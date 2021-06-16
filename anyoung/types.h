@@ -1,4 +1,6 @@
+#pragma once
 #include <stdbool.h>
+
 #define lineLength 240
 #define moonLength 40
 #define stackLength 20

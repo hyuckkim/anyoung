@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "types.h"
 char* setString(const char* item);
 variable* getVar(char* name);
 
@@ -78,7 +79,7 @@ char* OperatorIS(int a, char* b, char op)
 {
     if (op == '+')
     {
-        char* result = malloc(sizeof(char) * (stringLength(b, 0) + logSize(a)) + 1);
+        char* result = (char *) malloc(sizeof(char) * (stringLength(b, 0) + logSize(a)) + 1);
         int tmp = 0;
         if (result != NULL)
         {
@@ -104,7 +105,7 @@ char* OperatorSI(char* a, int b, char op)
 {
     if (op == '+')
     {
-        char* result = malloc(sizeof(char) * (stringLength(a, 0) + logSize(b)) + 1);
+        char* result = (char *) malloc(sizeof(char) * (stringLength(a, 0) + logSize(b)) + 1);
         int tmp = 0;
         if (result != NULL)
         {
@@ -122,7 +123,7 @@ char* OperatorSI(char* a, int b, char op)
     }
     else if (op == '*')
     {
-        char* result = malloc(sizeof(char) * (stringLength(a, 0) * b) + 1);
+        char* result = (char *) malloc(sizeof(char) * (stringLength(a, 0) * b) + 1);
         int tmp = 0;
         if (result != NULL)
         {
@@ -147,7 +148,7 @@ char* OperatorSI(char* a, int b, char op)
 variable* operate(variable* a, variable* b, char op)
 {
     int tmp = 0;
-    variable* result = malloc(sizeof(variable));
+    variable* result = (variable *) malloc(sizeof(variable));
     if (result == NULL) return NULL;
 
     variable value1;
@@ -202,7 +203,7 @@ variable* operate(variable* a, variable* b, char op)
             switch (op)
             {
             case '+':
-                result->sValue = malloc(sizeof(char) * (stringLength(value1.sValue, 0) + stringLength(value2.sValue, 0)) + 1);
+                result->sValue = (char *) malloc(sizeof(char) * (stringLength(value1.sValue, 0) + stringLength(value2.sValue, 0)) + 1);
                 if (result->sValue != NULL)
                 {
                     for (int i = 0; value1.sValue[i] != 0; i++, tmp++)
@@ -228,24 +229,6 @@ variable* operate(variable* a, variable* b, char op)
     }
     return result;
 }
-variable* setFactor(stack s)
-{
-    variable* v = malloc(sizeof(variable));
-    if (v == NULL) return v;
-    switch (s.type) {
-    case iV:
-        v->iValue = s.iValue;
-        break;
-    case sV:
-        v->sValue = setString(s.sValue);
-        break;
-    case vV:
-        v->vValue = getVar(s.vValue);
-        break;
-    }
-    v->type = s.type;
-    return v;
-}
 bool isOperator(char iv)
 {
     return iv == '+'
@@ -260,4 +243,62 @@ bool isOperator(char iv)
         || iv == '>'
         || iv == '{'
         || iv == '}';
+}
+//띄어쓰기만 무시하며 다음문자가 연산자인지 확인한다.
+int next_is_opperator(const char* po)
+{
+    int i = 0;
+    while (1)
+    {
+        i += 1;
+        switch (po[i])
+        {
+        case ' ':
+            break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%':
+        case '=':
+        case '<':
+        case '>':
+            return 1;
+        case '\0':
+            return 0;
+        default:
+            return 0;
+        }
+    }
+}
+//LineFeed \n 문자를 NULL로 바꾼다. \n이 없으면 바꾸지 않는다.
+void ChangeLFtoNULL(char* item)
+{
+    int i;
+    for (i = 0; item[i] != '\n' && item[i] != '\0'; i++) {}
+    item[i] = '\0';
+}
+//문자열을 item과 같게 새로 할당해 덮어쓴다.
+char* setString(const char* item)
+{
+    int strlen = stringLength(item, 0);
+    char* str = (char *) malloc(strlen + 1);
+    if (str == NULL) return NULL;
+    for (int i = 0; i < strlen; i++)
+        str[i] = item[i];
+    str[strlen - 1] = '\0';
+    return str;
+}
+//factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
+bool isFair(const char* word, factor it, int* ret)
+{
+    for (int i = 0; i < it.nameCount; i++)
+    {
+        if (isMatch(word, it.name[i]))
+        {
+            *ret = stringLength(word, ' ');
+            return true;
+        }
+    }
+    return false;
 }
