@@ -26,7 +26,9 @@ stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
                 inputMod = 2;
                 sts++;
                 result[sts].type = sV;
-                result[sts].sValue = malloc(stringLength(&startF[i], '"') + 1);
+                int num = stringLength(&startF[i + 1], '"') + 1;
+                if (num == 1) return NULL;
+                result[sts].sValue = malloc(num);
                 if (result[sts].sValue == NULL) return NULL;
                 temp = 0;
             }
@@ -190,20 +192,24 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
                 pushOperator(&dataNow);
                 break;
             case ')': // 문자열 반복하면서 '(' 나올 때까지 연산
-                while (opCount > 0 && operatorStack[opCount - 1] != '(')
+                while (opCount > 0 && varCount > 1 && operatorStack[opCount - 1] != '(')
                 {
                     variable b = popValue(), a = popValue();
                     char o = popOperator();
                     pushValuePo(operate(&a, &b, o));
+                    if (a.type == sV) free(a.sValue);
+                    if (b.type == sV) free(b.sValue);
                 }
                 popOperator(); // '(' 없앰.
                 break;
             case '}': // 문자열 반복하면서 '{' 나올 때까지 연산
-                while (opCount > 0 && operatorStack[opCount - 1] != '(')
+                while (opCount > 0 && varCount > 1 && operatorStack[opCount - 1] != '(')
                 {
                     variable b = popValue(), a = popValue();
                     char o = popOperator();
                     pushValuePo(operate(&a, &b, o));
+                    if (a.type == sV) free(a.sValue);
+                    if (b.type == sV) free(b.sValue);
                 }
                 popOperator(); // '{' 없앰.
                 valueStack[varCount - 1]->type = vV;
@@ -217,6 +223,8 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
                     variable b = popValue(), a = popValue();
                     char o = popOperator();
                     pushValuePo(operate(&a, &b, o));
+                    if (a.type == sV) free(a.sValue);
+                    if (b.type == sV) free(b.sValue);
                 }
                 pushOperator(&dataNow);
                 break;
@@ -232,6 +240,8 @@ variable getValueinFactor(const char* textStartF, const char* textEndF)
         variable b = popValue(), a = popValue();
         char o = popOperator();
         pushValuePo(operate(&a, &b, o));
+        if (a.type == sV) free(a.sValue);
+        if (b.type == sV) free(b.sValue);
     }
     free(SliceData);
     return popValue();

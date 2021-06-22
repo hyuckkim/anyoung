@@ -1,6 +1,3 @@
-/// <summary>
-/// 이게 어떻게 가능한지 궁금한 사람을 위해 : 이거 파일 맨 위에 있는거 아님. annyCore.c의 360번줄쯤에 있음.
-/// </summary>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>

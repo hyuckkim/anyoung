@@ -83,6 +83,7 @@ char* OperatorIS(int a, char* b, char op)
         int tmp = 0;
         if (result != NULL)
         {
+            memset(result, 0, (stringLength(b, 0) + logSize(a)) + 1);
             for (int i = logSize(a) - 1; i >= 0; i--, tmp++)
             {
                 result[tmp] = logScale(a, i) + '0';
@@ -91,7 +92,6 @@ char* OperatorIS(int a, char* b, char op)
             {
                 result[tmp] = b[i];
             }
-            result[tmp] = '\0';
         }
         return result;
     }
@@ -109,6 +109,7 @@ char* OperatorSI(char* a, int b, char op)
         int tmp = 0;
         if (result != NULL)
         {
+            memset(result, 0, (stringLength(a, 0) + logSize(b)) + 1);
             for (int i = 0; a[i] != 0; i++, tmp++)
             {
                 result[tmp] = a[i];
@@ -117,7 +118,6 @@ char* OperatorSI(char* a, int b, char op)
             {
                 result[tmp] = logScale(b, i) + '0';
             }
-            result[tmp] = '\0';
         }
         return result;
     }
@@ -127,6 +127,7 @@ char* OperatorSI(char* a, int b, char op)
         int tmp = 0;
         if (result != NULL)
         {
+            memset(result, 0, (stringLength(a, 0) * b) + 1);
             for (int j = 0; j < b; j++)
             {
                 for (int i = 0; a[i] != 0; i++, tmp++)
@@ -206,6 +207,7 @@ variable* operate(variable* a, variable* b, char op)
                 result->sValue = (char *) malloc(sizeof(char) * (stringLength(value1.sValue, 0) + stringLength(value2.sValue, 0)) + 1);
                 if (result->sValue != NULL)
                 {
+                    memset(result->sValue, 0, (stringLength(value1.sValue, 0) + stringLength(value2.sValue, 0)) + 1);
                     for (int i = 0; value1.sValue[i] != 0; i++, tmp++)
                     {
                         result->sValue[tmp] = value1.sValue[i];
@@ -214,7 +216,6 @@ variable* operate(variable* a, variable* b, char op)
                     {
                         result->sValue[tmp] = value2.sValue[i];
                     }
-                    result->sValue[tmp] = '\0';
                 }
                 result->type = sV;
                 break;
@@ -282,7 +283,7 @@ void ChangeLFtoNULL(char* item)
 char* setString(const char* item)
 {
     int strlen = stringLength(item, 0);
-    char* str = (char *) malloc(strlen + 1);
+    char* str = (char *) malloc(strlen);
     if (str == NULL) return NULL;
     for (int i = 0; i < strlen; i++)
         str[i] = item[i];
