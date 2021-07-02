@@ -104,7 +104,10 @@ void anyFunction(char* line)
 int useFunction(const char* line, def* define)
 {
 	function* NewF = initFunction(define, line); //공간 할당
-	if (NewF == NULL) return -1;
+	if (NewF == NULL)
+	{
+		return -1;
+	}
 
 	NewF->returnTo = LastF; // 스택 구현
 	splitFactors(*NewF, line);
@@ -224,26 +227,21 @@ def* searchDefine(char* str)
 function* initFunction(def* define, const char* str)
 {
 	function* result = (function*)malloc(sizeof(function));
-	if (result == NULL) return NULL;
+	if (result == NULL)
+	{
+		return NULL;
+	}
 	result->define = define;
 	result->name = define->name;
 	if (define->argsCount != 0)
+	{
 		result->factors = (factor*)malloc(sizeof(factor)
 			* define->argsCount);
-	if (define->optionsCount != 0)
-		result->options = (factor*)malloc(sizeof(factor)
-			* define->optionsCount);
-
-	if (result->factors == NULL || result->options == NULL)
-	{
-		if (result->factors != NULL)
-			free(result->factors);
-		if (result->options != NULL)
-			free(result->options);
-		free(result);
-		return NULL;
-	}
-	if (define->argsCount != 0)
+		if (result->factors == NULL)
+		{
+			free(result);
+			return NULL;
+		}
 		for (int i = 0; i < define->argsCount; i++)
 		{
 			result->factors[i].name = define->args[i];
@@ -251,8 +249,24 @@ function* initFunction(def* define, const char* str)
 			result->factors[i].isMatched = false;
 			result->factors[i].value.isMatched = false;
 		}
-	else result->factors = NULL;
+	}
+	else
+	{
+		result->factors = NULL;
+	}
 	if (define->optionsCount != 0)
+	{
+		result->options = (factor*)malloc(sizeof(factor)
+			* define->optionsCount);
+		if (result->options == NULL)
+		{
+			if (define->argsCount != 0)
+			{
+				free(result->factors);
+			}
+			free(result);
+			return NULL;
+		}
 		for (int i = 0; i < define->optionsCount; i++)
 		{
 			result->options[i].name = define->options;
@@ -260,7 +274,11 @@ function* initFunction(def* define, const char* str)
 			result->options[i].isMatched = false;
 			result->options[i].value.isMatched = false;
 		}
-	else result->options = NULL;
+	}
+	else
+	{
+		result->options = NULL;
+	}
 	return result;
 }
 void splitFactors(function fun, const char* str) // 문장 factor별로 잘라주기
