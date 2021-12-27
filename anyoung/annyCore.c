@@ -1,4 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "operator.h"
+#include "annyCore.h"
+#include "usevariable.h"
+
+static variable* valueStack[stackLength] = { NULL };
+static int varCount = 0;
+static char operatorStack[stackLength] = "\0";
+static int opCount = 0;
 
 stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
 {
@@ -28,7 +38,7 @@ stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
                 result[sts].type = sV;
                 int num = stringLength(&startF[i + 1], '"') + 1;
                 if (num == 1) return NULL;
-                result[sts].sValue = malloc(num);
+                result[sts].sValue = (char *) malloc(num);
                 if (result[sts].sValue == NULL) return NULL;
                 temp = 0;
             }
@@ -44,7 +54,7 @@ stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
                 inputMod = 3;
                 sts++;
                 result[sts].type = vV;
-                result[sts].vValue = malloc(sizeof(char) * lineLength);
+                result[sts].vValue = (char*) malloc(sizeof(char) * lineLength);
                 if (result[sts].vValue == NULL) return NULL;
                 for (int i = 0; i < lineLength; i++) result[sts].vValue[i] = '\0';
                 temp = 0;
@@ -107,15 +117,11 @@ stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
     *index = sts;
     return result;
 }
-static variable* valueStack[stackLength] = { NULL };
-static int varCount = 0;
-static char operatorStack[stackLength] = "\0";
-static int opCount = 0;
 
 void pushValue(stack* item)
 {
     if (valueStack[varCount] != NULL) 
-        printf("Stack에서 오류가 발생했습니다 : 1\n");
+        printf("Stack에서 오류가 발생했습니다 : pushValue\n");
     variable* v = (variable*)malloc(sizeof(variable));
     if (v == NULL) return;
     switch (item->type) {
@@ -136,7 +142,7 @@ void pushValue(stack* item)
 void pushValuePo(variable* point)
 {
     if (valueStack[varCount] != NULL)
-        printf("Stack에서 오류가 발생했습니다 : 2\n");
+        printf("Stack에서 오류가 발생했습니다 : pushValuePo\n");
     valueStack[varCount] = point;
     varCount++;
 }
@@ -152,7 +158,7 @@ variable popValue()
 void pushOperator(stack* item)
 {
     if (operatorStack[opCount] != '\0') 
-        printf("Stack에서 오류가 발생했습니다 : 3\n");
+        printf("Stack에서 오류가 발생했습니다 : pushOperator\n");
     operatorStack[opCount] = item->oValue;
     opCount++;
 }
@@ -165,8 +171,8 @@ char popOperator()
     return c;
 }
 
-//(시작지검 startF와 종료지점 endF로 표현되는) 라인 문자열의 일부를 계산해 나타낸다.
-variable getValueinFactor(const char* textStartF, const char* textEndF)
+//(시작지점 startF와 종료지점 endF로 표현되는) 라인 문자열의 일부를 계산해 나타낸다.
+variable findArginFactor(const char* textStartF, const char* textEndF)
 {
     int dataCount;
     stack* SliceData = InitFactorSliceData(textStartF, textEndF, &dataCount);

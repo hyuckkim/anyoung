@@ -1,21 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <conio.h>
-#include <stdbool.h>
+#include "operator.h"
 #include "types.h"
+#include "usevariable.h"
+#include "kinput.h"
 
-extern char* setString(const char* item);
-extern variable* getVar(char* name);
-extern void ChangeLFtoNULL(char* item);
-extern int isMatch(const char* word1, const char* word2);
-extern int getSO(char* writeAt, const char* various);
-extern int stringLength(const char* item, char name);
-extern int getitsbyte(unsigned char byte);
+def* defs;
+int defC = 0;
+int defM = 1;
+function* funLoopingNow = NULL;
 
-extern def* defs;
-extern int defC;
-extern int defM;
+extern function* LastF;
+extern int ind;
+
 #define DEFNOW defs[defC]
 #define IS_CLEARED DEFNOW.args != NULL && DEFNOW.argNameCount != NULL
 extern variable* vars;
@@ -24,8 +22,7 @@ extern int varC;
 extern int varM;
 extern function* funLoopingNow;
 
-extern int canInsert, ind;
-extern function* LastF;
+extern int canInsert;
 
 extern int anyFunction(char* line);
 extern void freeFunction(function* funNow);
@@ -266,10 +263,10 @@ int Function_fun_end(function* fn)
 }
 int Function_end(function* fn)
 {
-    char* dName = LastF->name;
-    if (isMatch(dName, "되풀이")) { Function_Loop_end(LastF);  return -1; }
-    if (isMatch(dName, "조건"))   { Function_If_end(LastF);    return -1; }
-    if (isMatch(dName, "동작"))   { Function_fun_end(LastF);   return -1; }
+    char* dName = fn->name;
+    if (isMatch(dName, "되풀이")) { Function_Loop_end(fn);  return -1; }
+    if (isMatch(dName, "조건"))   { Function_If_end(fn);    return -1; }
+    if (isMatch(dName, "동작"))   { Function_fun_end(fn);   return -1; }
     return 0;
 }
 int Function_not(function* fn) {

@@ -17,9 +17,10 @@ typedef enum { //int, string, variable, operator, enum
     vV, //Variable Value. 다른 변수를 참조하는 중.
     oV, //Operator Value. 연산자.
     eV  //enum Value. def의 option과 연관있음.
-} type;
+} type; 
 
-struct struct_def //함수의 정의.
+//함수의 정의.
+struct struct_def
 {
     char* name;
 
@@ -33,12 +34,14 @@ struct struct_def //함수의 정의.
 
     char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
     int lineCount; //
-    
+
     int useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1.
     bool usecondit; //조건문인지. '인수', '아니면', '여기까지' 등등.
     int (*fun) (function*);
 };
-struct struct_variable //최종적으로 할당되는 변수.
+
+//최종적으로 할당되는 변수.
+struct struct_variable
 {
     union {
         int iValue;
@@ -48,7 +51,9 @@ struct struct_variable //최종적으로 할당되는 변수.
     type type; //none, iV, sV, vV, oV, eV
     bool isMatched; //0이면 Null이라고 생각하면 될듯.
 };
-struct struct_stack //긴 전체 문자열을 계산해 변수 하나가 되는 과정에서 만들어지는 스택.
+
+//긴 전체 문자열을 계산해 변수 하나가 되는 과정에서 만들어지는 스택.
+struct struct_stack
 {
     union {
         int iValue;
@@ -57,7 +62,7 @@ struct struct_stack //긴 전체 문자열을 계산해 변수 하나가 되는 
         char oValue;
     };
     type type; //none, iV, sV, vV, oV, eV
-};
+} ;
 struct struct_factor //한 인수의 전체 문자열.
 {
     char** name; // 조사 처리 여기서. 조사가 여러개가 같이 있을 수 있음.
@@ -66,7 +71,7 @@ struct struct_factor //한 인수의 전체 문자열.
     const char* endF;
     variable value;
     bool isMatched; // 기본 0, 매치되고 나면 1.
-};
+} ;
 struct struct_function //코드 한 줄.
 {
     char* name;
@@ -76,4 +81,4 @@ struct struct_function //코드 한 줄.
     char** moon;
     function* returnTo;
     int temp;
-};
+} ;

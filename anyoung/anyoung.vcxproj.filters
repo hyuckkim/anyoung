@@ -21,6 +21,18 @@
     <ClCompile Include="functions.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="kinput.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="operator.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="usefunction.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="usevariable.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annyCore.c">
@@ -33,6 +45,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="operator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="usefunction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="annyCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="usevariable.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
