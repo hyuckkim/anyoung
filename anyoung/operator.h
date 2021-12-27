@@ -21,14 +21,6 @@ char* OperatorSI(char* a, int b, char op);
 variable* operate(variable* a, variable* b, char op);
 bool isOperator(char iv);
 
-//띄어쓰기만 무시하며 다음문자가 연산자인지 확인한다.
 int next_is_opperator(const char* po);
 
 //LineFeed \n 문자를 NULL로 바꾼다. \n이 없으면 바꾸지 않는다.
-void ChangeLFtoNULL(char* item);
-
-//문자열을 item과 같게 새로 할당해 덮어쓴다.
-char* setString(const char* item);
-
-//factor의 인수 형식 중 맞는게 있으면 반환한다. ret에 글자의 길이를 넣는다.
-bool isFair(const char* word, factor it, int* ret);
