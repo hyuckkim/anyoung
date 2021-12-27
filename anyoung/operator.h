@@ -245,7 +245,7 @@ bool isOperator(char iv)
         || iv == '{'
         || iv == '}';
 }
-//띄어쓰기만 무시하며 다음문자가 연산자인지 확인한다.
+//띄어쓰기와 탭문자만 무시하며 다음문자가 연산자인지 확인한다.
 int next_is_opperator(const char* po)
 {
     int i = 0;
@@ -255,6 +255,7 @@ int next_is_opperator(const char* po)
         switch (po[i])
         {
         case ' ':
+        case '\t':
             break;
         case '+':
         case '-':
