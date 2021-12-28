@@ -8,4 +8,4 @@ int getitsbyte(unsigned char byte);
 
 int getitsbyte(unsigned char byte);
 
-int getSO(char* writeAt, const char* various);
+char* getSO(char* writeAt, const char* various);
