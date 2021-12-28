@@ -184,7 +184,7 @@ void splitFactors(function fun, const char* str) // 문장 factor별로 잘라�
 		}
 		for (int j = 0; j < fun.define->optionsCount; j++) {
 			if (fun.options[j].isMatched) continue;
-			int nameIndex;
+			int nameIndex = 0;
 			if (isFair(&str[i], fun.options[j], &nameIndex) && !next_is_opperator(&str[i]))
 			{
 				fun.options[j].isMatched = true;
