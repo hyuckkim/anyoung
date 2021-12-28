@@ -197,10 +197,10 @@ int Function_fun_end(function* fn)
 }
 int Function_end(function* fn)
 {
-    char* dName = fn->name;
-    if (isMatch(dName, "되풀이")) { Function_Loop_end(fn);  return -1; }
-    if (isMatch(dName, "조건"))   { Function_If_end(fn);    return -1; }
-    if (isMatch(dName, "동작"))   { Function_fun_end(fn);   return -1; }
+    char* dName = LastF->name;
+    if (isMatch(dName, "되풀이")) { Function_Loop_end(LastF);  return -1; }
+    if (isMatch(dName, "조건"))   { Function_If_end(LastF);    return -1; }
+    if (isMatch(dName, "동작"))   { Function_fun_end(LastF);   return -1; }
     return 0;
 }
 int Function_not(function* fn) {
