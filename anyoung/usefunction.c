@@ -144,8 +144,18 @@ function* initFunction(def* define, const char* str)
 	return result;
 }
 
-extern int defC;
+extern int defC, defM;
 extern def* defs;
+
+void DefineInserted()
+{
+	defC++;
+	if (defC >= defM) {
+		defM *= 2;
+		void* dTemp = realloc(defs, defM * sizeof(def));
+		if (dTemp != NULL) defs = (def*)dTemp;
+	}
+}
 
 //문장의 글자별로 함수가 있는지 찾아 반환한다.
 def* searchDefine(char* str)

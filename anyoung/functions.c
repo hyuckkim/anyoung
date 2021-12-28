@@ -4,6 +4,7 @@
 #include "operator.h"
 #include "types.h"
 #include "usevariable.h"
+#include "usefunction.h"
 #include "kinput.h"
 
 def* defs;
@@ -23,73 +24,6 @@ extern int varM;
 extern function* funLoopingNow;
 
 extern int canInsert;
-
-extern int anyFunction(char* line);
-extern void freeFunction(function* funNow);
-
-variable itisRValue(variable* v)
-{
-    variable result;
-    if (v->isMatched)
-    {
-        result.isMatched = true;
-        if (v->type == vV)
-        {
-            if (v->vValue->type == iV)
-            {
-                result.type = iV;
-                result.iValue = v->vValue->iValue;
-            }
-            else if (v->vValue->type == sV)
-            {
-                result.type = sV;
-                result.sValue = v->vValue->sValue;
-            }
-        }
-        else
-        {
-            if (v->type == iV)
-            {
-                result.type = iV;
-                result.iValue = v->iValue;
-            }
-            else if (v->type == sV)
-            {
-                result.type = sV;
-                result.sValue = v->sValue;
-            }
-        }
-    }
-    else
-    {
-        result.isMatched = false;
-    }
-    return result;
-}
-variable itisLValue(variable* v)
-{
-    variable result;
-    if (v->isMatched)
-    {
-        result.isMatched = true;
-        if (v->type == sV)
-        {
-            result.type = vV;
-            result.vValue = getVar(v->sValue);
-        }
-        else if (v->type == vV)
-        {
-            result.type = vV;
-            result.vValue = v->vValue;
-        }
-        return result;
-    }
-    else
-    {
-        result.isMatched = false;
-    }
-    return result;
-}
 
 int itCanInt(char* chars)
 {
@@ -483,15 +417,6 @@ void SetData(const char* name, int args, int options, int useIndents, bool useco
     DEFNOW.options = (char **) malloc(sizeof(char*) * options);
     DEFNOW.useindent = useIndents;
     DEFNOW.usecondit = usecondits;
-}
-void DefineInserted()
-{
-    defC++;
-    if (defC >= defM) {
-        defM *= 2;
-        void* dTemp = realloc(defs, defM * sizeof(def));
-        if (dTemp != NULL) defs = (def *) dTemp;
-    }
 }
 void SetArgs(int o, int c, ...)
 {

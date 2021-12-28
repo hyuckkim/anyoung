@@ -14,3 +14,9 @@ variable* GetArgument(char* name);
 
 //해당 이름의 변수가 있다면 반환하고 없다면 새로 만든다.
 variable* getVar(char* name);
+
+//대상이 LValue라면 표시하고 있는 Rvalue를 가져온다.
+variable itisRValue(variable* v);
+
+//대상의 이름과 같은 LValue가 있으면 가져온다.
+variable itisLValue(variable* v);
