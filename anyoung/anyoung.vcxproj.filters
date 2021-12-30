@@ -33,11 +33,11 @@
     <ClCompile Include="usevariable.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="annyCore.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="annyCore.c">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="kinput.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -71,6 +71,9 @@
       <Filter>리소스 파일</Filter>
     </None>
     <None Include="..\example\triangle.any">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\example\fibonacci.any">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

@@ -36,6 +36,7 @@
     <ClInclude Include="usevariable.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\example\fibonacci.any" />
     <None Include="..\example\guguclass.any" />
     <None Include="..\example\helloworld.any" />
     <None Include="..\example\ninetyninebeer.any" />
