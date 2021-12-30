@@ -24,3 +24,8 @@ bool isOperator(char iv);
 int next_is_opperator(const char* po);
 
 //LineFeed \n 문자를 NULL로 바꾼다. \n이 없으면 바꾸지 않는다.
+void ChangeLFtoNULL(char* item);
+
+char* setString(const char* item);
+
+bool isFair(const char* word, factor it, int* ret);
