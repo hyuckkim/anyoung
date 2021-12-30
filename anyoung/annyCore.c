@@ -10,16 +10,16 @@ static int varCount = 0;
 static char operatorStack[stackLength] = "\0";
 static int opCount = 0;
 
-stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
+stack* InitFactorSliceData(const char* startP, const char* endP, int* index)
 {
     stack* result = (stack*)malloc(sizeof(stack) * stackLength);
     if (result == NULL) return NULL;
 
     int sts = -1, temp = 0;
     char inputMod = 0; //0 : 기본 1 : numbericValue 2 : stringValue 3 : variable
-    for (int i = 0; i < endF - startF; i++)
+    for (int i = 0; i < endP - startP; i++)
     {
-        char iv = startF[i];
+        char iv = startP[i];
         //printf("%c", iv);
         switch (inputMod)
         {
@@ -36,7 +36,7 @@ stack* InitFactorSliceData(const char* startF, const char* endF, int* index)
                 inputMod = 2;
                 sts++;
                 result[sts].type = sV;
-                int num = stringLength(&startF[i + 1], '"') + 1;
+                int num = stringLength(&startP[i + 1], '"') + 1;
                 if (num == 1) return NULL;
                 result[sts].sValue = (char *) malloc(num);
                 if (result[sts].sValue == NULL) return NULL;

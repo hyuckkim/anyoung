@@ -22,7 +22,8 @@ int main(int argc, char** argv)
 	char chars[lineLength] = "default";
 	FILE* stream = NULL;
 
-	int getBy, getIn;
+	int getBy;
+	char* getIn;
 	if (argc == 1)
 	{
 		anyFunction("말하기 \"어순에 상관없는 한글 스크립트 언어 안녕\"을");
@@ -46,12 +47,12 @@ int main(int argc, char** argv)
 		{
 			if (ind == 0) getIn = getSO(chars, ">>> ");
 			else getIn = getSO(chars, "... ");
-			if (getIn != 0) break;
+			if (getIn == NULL) break;
 		}
 		else 
 		{
 			getIn = (int)fgets(chars, lineLength, stream);
-			if (getIn == 0) break;
+			if (getIn == NULL) break;
 		}
 		ChangeLFtoNULL(chars);
 

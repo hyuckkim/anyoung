@@ -64,3 +64,67 @@ variable* getVar(char* name)
 	if (v != NULL) return v;
 	return makeVariable(name);
 }
+
+variable itisRValue(variable* v)
+{
+    variable result;
+    if (v->isMatched)
+    {
+        result.isMatched = true;
+        if (v->type == vV)
+        {
+            if (v->vValue->type == iV)
+            {
+                result.type = iV;
+                result.iValue = v->vValue->iValue;
+            }
+            else if (v->vValue->type == sV)
+            {
+                result.type = sV;
+                result.sValue = v->vValue->sValue;
+            }
+        }
+        else
+        {
+            if (v->type == iV)
+            {
+                result.type = iV;
+                result.iValue = v->iValue;
+            }
+            else if (v->type == sV)
+            {
+                result.type = sV;
+                result.sValue = v->sValue;
+            }
+        }
+    }
+    else
+    {
+        result.isMatched = false;
+    }
+    return result;
+}
+variable itisLValue(variable* v)
+{
+    variable result;
+    if (v->isMatched)
+    {
+        result.isMatched = true;
+        if (v->type == sV)
+        {
+            result.type = vV;
+            result.vValue = getVar(v->sValue);
+        }
+        else if (v->type == vV)
+        {
+            result.type = vV;
+            result.vValue = v->vValue;
+        }
+        return result;
+    }
+    else
+    {
+        result.isMatched = false;
+    }
+    return result;
+}

@@ -5,6 +5,7 @@
 #include "kinput.h"
 
 #define SHUTDOWN 3
+typedef enum { sol, duo, tri, qua, funA, funB, LineBreak, BackSpace } textInfo;
 
 int iAge = 0;
 void printBit(unsigned char a)
@@ -18,30 +19,6 @@ printf("%d %d %d %d %d %d %d %d",
 	(a >> 2) % 2,
 	(a >> 1) % 2,
 	(a >> 0) % 2);
-}
-int getitsbyte(unsigned char byte)
-{
-	if ((byte >> 7) % 2 == 0)
-		return 1;
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 0))
-		return 2;
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 1)
-		&& ((byte >> 4) % 2 == 0))
-		return 3;
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 1)
-		&& ((byte >> 4) % 2 == 1)
-		&& ((byte >> 3) % 2 == 0))
-		return 4;
-	return -1;
 }
 bool isSolByte(unsigned char byte)
 {
@@ -79,9 +56,22 @@ bool isQuaByte(unsigned char byte)
 		return true;
 	return false;
 }
+int getitsbyte(unsigned char byte)
+{
+	if (isSolByte)
+		return 1;
+	if (isDuoByte)
+		return 2;
+	if (isTriByte)
+		return 3;
+	if (isQuaByte)
+		return 4;
+	return -1;
+}
 char* noo[240]; //each multibyte texts in line.
 
-int getSO(char* writeAt, const char* various)
+void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow);
+char* getSO(char* writeAt, const char* various)
 {
 	int key_value = 0; //get solo char data by _getch()
 	char nextValue = 0; //utf8 indexing data
@@ -98,7 +88,7 @@ int getSO(char* writeAt, const char* various)
 		{
 			utf8[0] = key_value;
 			if (key_value == 0) { thisInfo = funA; stack = 1; }
-			else if (key_value == SHUTDOWN) return -1;
+			else if (key_value == SHUTDOWN) return NULL;
 			else if (key_value == 224) { thisInfo = funB; stack = 1; }
 			else if (key_value == '\n' || key_value == '\r') { thisInfo = LineBreak; stack = 0; }
 			else if (key_value == '\b') { thisInfo = BackSpace; stack = 0; }
@@ -170,7 +160,7 @@ int getSO(char* writeAt, const char* various)
 			nextValue = 0;
 		}
 	}
-	return 0;
+	return writeAt;
 }
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
 {

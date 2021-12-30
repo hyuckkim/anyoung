@@ -144,8 +144,18 @@ function* initFunction(def* define, const char* str)
 	return result;
 }
 
-extern int defC;
+extern int defC, defM;
 extern def* defs;
+
+void DefineInserted()
+{
+	defC++;
+	if (defC >= defM) {
+		defM *= 2;
+		void* dTemp = realloc(defs, defM * sizeof(def));
+		if (dTemp != NULL) defs = (def*)dTemp;
+	}
+}
 
 //문장의 글자별로 함수가 있는지 찾아 반환한다.
 def* searchDefine(char* str)
@@ -184,7 +194,7 @@ void splitFactors(function fun, const char* str) // 문장 factor별로 잘라�
 		}
 		for (int j = 0; j < fun.define->optionsCount; j++) {
 			if (fun.options[j].isMatched) continue;
-			int nameIndex;
+			int nameIndex = 0;
 			if (isFair(&str[i], fun.options[j], &nameIndex) && !next_is_opperator(&str[i]))
 			{
 				fun.options[j].isMatched = true;

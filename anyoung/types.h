@@ -63,7 +63,8 @@ struct struct_stack
     };
     type type; //none, iV, sV, vV, oV, eV
 } ;
-struct struct_factor //한 인수의 전체 문자열.
+//한 인수의 전체 문자열.
+struct struct_factor 
 {
     char** name; // 조사 처리 여기서. 조사가 여러개가 같이 있을 수 있음.
     int nameCount;
@@ -72,7 +73,8 @@ struct struct_factor //한 인수의 전체 문자열.
     variable value;
     bool isMatched; // 기본 0, 매치되고 나면 1.
 } ;
-struct struct_function //코드 한 줄.
+//코드 한 줄.
+struct struct_function 
 {
     char* name;
     factor* factors;
