@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 		}
 		else 
 		{
-			getIn = (int)fgets(chars, lineLength, stream);
+			getIn = fgets(chars, lineLength, stream);
 			if (getIn == NULL) break;
 		}
 		ChangeLFtoNULL(chars);
