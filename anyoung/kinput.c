@@ -22,37 +22,28 @@ printf("%d %d %d %d %d %d %d %d",
 }
 bool isSolByte(unsigned char byte)
 {
-	if ((byte >> 7) % 2 == 0)
+	if (byte | 0b01111111 == 0b01111111)  //negative 
 		return true;
 	return false;
 }
 bool isDuoByte(unsigned char byte)
 {
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 0))
+	if (byte | 0b11011111 == 0b11011111  //negative
+	 && byte & 0b11000000 == 0b11000000) //positive
 		return true;
 	return false;
 }
 bool isTriByte(unsigned char byte)
 {
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 1)
-		&& ((byte >> 4) % 2 == 0))
+	if (byte | 0b11101111 == 0b11101111  //negative
+	 && byte & 0b11100000 == 0b11100000) //positive
 		return true;
 	return false;
 }
 bool isQuaByte(unsigned char byte)
 {
-	if (
-		((byte >> 7) % 2 == 1)
-		&& ((byte >> 6) % 2 == 1)
-		&& ((byte >> 5) % 2 == 1)
-		&& ((byte >> 4) % 2 == 1)
-		&& ((byte >> 3) % 2 == 0))
+	if (byte | 0b11110111 == 0b11110111  //negative
+	 && byte & 0b11110000 == 0b11110000) //positive
 		return true;
 	return false;
 }
@@ -76,7 +67,7 @@ char* getSO(char* writeAt, const char* various)
 	int key_value = 0; //get solo char data by _getch()
 	char nextValue = 0; //utf8 indexing data
 	char stack = 0; //datas - nextValue.
-	char utf8[4]; //array can utf8 4byte solo text
+	char utf8[4] = "\0"; //array can utf8 4byte solo text
 
 	char* nooNow = writeAt;
 	textInfo thisInfo = sol; //how byte to use
