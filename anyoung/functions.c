@@ -25,13 +25,13 @@ extern function* funLoopingNow;
 
 extern int canInsert;
 
-int itCanInt(char* chars)
+bool itCanInt(const char* chars)
 {
     for (int i = 0; chars[i] != 0; i++)
-        if (chars[i] > '9' || chars[i] < '0') return 0;
-    return 1;
+        if (chars[i] > '9' || chars[i] < '0') return false;
+    return true;
 }
-int getIntinStr(char* chars)
+int getIntinStr(const char* chars)
 {
     int result = 0;
     for (int i = 0; chars[i] != 0; i++)
@@ -73,8 +73,7 @@ int Function_Help(function* fn)
     printf("ㅁ 에 듣기\t\t\t화면에서 입력을 받아 변수 ㅁ에 전달합니다.\n");
     printf("ㅁ 을/를 [조용히] 말하기 \tㅁ을 개행문자와 함께 출력합니다. '조용히' 와 사용되면 개행문자 없이 출력합니다.\n");
     printf("ㅁ 을/를 [ㅇ 번] 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
-    printf("도움\t\t\t\t함수에 대한 도움말을 봅니다.");
-    printf("\n");
+    printf("도움\t\t\t\t함수에 대한 도움말을 봅니다.\n");
     return 0;
 }
 int Function_Loop(function* fn)
@@ -183,7 +182,7 @@ int Function_condition(function* fn)
 }
 int Function_fun_end(function* fn)
 {
-    if (fn->returnTo != 0) { //왜 돌아갈 곳이 있는거지, 어째서 반복문 안에서 조건문 안에서 함수 안에서 함수를 선언하는거냐
+    if (fn->returnTo != 0) { //Todo : 기존 함수 삭제하고 새로운 함수 생성 가능하게?
         freeFunction(fn);
         return 0;
     }
@@ -347,7 +346,7 @@ int Function_Cutstr(function* fn) // ~에서 ~로 [N글자만큼] 잘라내기
     int fds = stringLength(oldV.vValue->sValue, 0);
     char* newStr = (char *) malloc(fds);
 
-    int bts = getitsbyte(oldV.vValue->sValue[0]);
+    size_t bts = getitsbyte(oldV.vValue->sValue[0]);
     char* dropStr = (char *) malloc(bts + 1);
     int i;
     for (i = 0; i < bts; i++) {
