@@ -22,40 +22,40 @@ printf("%d %d %d %d %d %d %d %d",
 }
 bool isSolByte(unsigned char byte)
 {
-	if (byte | 0b01111111 == 0b01111111)  //negative 
+	if ((byte | 0b01111111) == 0b01111111)  //negative 
 		return true;
 	return false;
 }
 bool isDuoByte(unsigned char byte)
 {
-	if (byte | 0b11011111 == 0b11011111  //negative
-	 && byte & 0b11000000 == 0b11000000) //positive
+	if ((byte | 0b11011111) == 0b11011111  //negative
+	 && (byte & 0b11000000) == 0b11000000) //positive
 		return true;
 	return false;
 }
 bool isTriByte(unsigned char byte)
 {
-	if (byte | 0b11101111 == 0b11101111  //negative
-	 && byte & 0b11100000 == 0b11100000) //positive
+	if ((byte | 0b11101111) == 0b11101111  //negative
+	 && (byte & 0b11100000) == 0b11100000) //positive
 		return true;
 	return false;
 }
 bool isQuaByte(unsigned char byte)
 {
-	if (byte | 0b11110111 == 0b11110111  //negative
-	 && byte & 0b11110000 == 0b11110000) //positive
+	if ((byte | 0b11110111) == 0b11110111  //negative
+	 && (byte & 0b11110000) == 0b11110000) //positive
 		return true;
 	return false;
 }
 int getitsbyte(unsigned char byte)
 {
-	if (isSolByte)
+	if (isSolByte(byte))
 		return 1;
-	if (isDuoByte)
+	if (isDuoByte(byte))
 		return 2;
-	if (isTriByte)
+	if (isTriByte(byte))
 		return 3;
-	if (isQuaByte)
+	if (isQuaByte(byte))
 		return 4;
 	return -1;
 }
