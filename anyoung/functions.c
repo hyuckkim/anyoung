@@ -71,8 +71,7 @@ int Function_Help(function* fn)
     printf("ㅁ 을/를 ㅇ 만큼 나누기\t\t변수 ㅁ의  값에 ㅇ를 나눕니다. ㅁ이 문자열이 아니어야 하고 없다면 새로 만듭니다.\n");
     printf("\n화면 입출력\n");
     printf("ㅁ 에 듣기\t\t\t화면에서 입력을 받아 변수 ㅁ에 전달합니다.\n");
-    printf("ㅁ 을/를 [조용히] 말하기 \tㅁ을 개행문자와 함께 출력합니다. '조용히' 와 사용되면 개행문자 없이 출력합니다.\n");
-    printf("ㅁ 을/를 [ㅇ 번] 표시하기 \tㅁ을 ㅇ번 출력합니다. ㅇ는 숫자여야 합니다.\n");
+    printf("ㅁ 을/를 [조용히] [ㅇ 번] 말하기ㅁ을 개행문자와 함께 출력합니다. '조용히' 와 사용되면 개행문자 없이 출력합니다.\n");
     printf("도움\t\t\t\t함수에 대한 도움말을 봅니다.\n");
     return 0;
 }
@@ -365,19 +364,18 @@ int Function_Cutstr(function* fn) // ~에서 ~로 [N글자만큼] 잘라내기
 int Function_Say(function* fn)
 {
     variable value = itisRValue(&fn->factors[0].value);
-    if (fn->options[0].isMatched)
+    variable value2 = itisRValue(&fn->factors[1].value);
+    bool loop = value2.isMatched;
+    for (int i = 0; i < (loop ? value2.iValue : 1); i++)
     {
         if (value.type == iV)
             printf("%d", value.iValue);
         else if (value.type == sV)
             printf("%s", value.sValue);
     }
-    else
+    if (!fn->options[0].isMatched)
     {
-        if (value.type == iV)
-            printf("%d\n", value.iValue);
-        else if (value.type == sV)
-            printf("%s\n", value.sValue);
+        printf("\n");
     }
     return 0;
 }
@@ -449,10 +447,11 @@ int Anyoung_Init()
     if (defs == NULL || vars == NULL) return -1;
     varNames = (char **) malloc(sizeof(char*));
 
-    SetData("말하기", 1, 1, 0, false);
+    SetData("말하기", 2, 1, 0, false);
     if (IS_CLEARED)
     {
         SetArgs(0, 2, "을", "를");
+        SetArgs(1, 1, "번");
         SetOptions(1, "조용히");
     }
     DEFNOW.fun = Function_Say;
@@ -464,15 +463,6 @@ int Anyoung_Init()
         SetArgs(0, 1, "에");
     }
     DEFNOW.fun = Function_Listen;
-    DefineInserted();
-
-    SetData("표시하기", 2, 0, 0, false);
-    if (IS_CLEARED)
-    {
-        SetArgs(0, 2, "을", "를");
-        SetArgs(1, 1, "번");
-    }
-    DEFNOW.fun = Function_Print;
     DefineInserted();
 
     SetData("도움", 0, 0, 0, false);
