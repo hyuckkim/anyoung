@@ -57,11 +57,11 @@ int Function_Help(function* fn)
     printf("\n흐름\n");
     printf("여기까지 \t\t\t흐름 함수를 어디까지 실행할지의 조건이 됩니다.\n\n");
     printf("[ㅁ 로/으로] ㅇ 번 되풀이 \t'여기까지' 까지의 함수를 ㅇ번 실행합니다. ㅁ에 동작 횟수를 0부터 기록합니다.\n");
-    printf("ㅁ 면/이면 조건\t\t\tㅁ가 숫자고 1이라면 '여기까지' 까지의 함수를 실행합니다.\n");
+    printf("ㅁ 면/이면 조건\t\t\tㅁ가 숫자고 0이 아니면 '여기까지' 까지의 함수를 실행합니다.\n");
     printf("아니면\t\t\t\t조건과 여기까지 사이에 넣어 함수를 실행할지를 반전합니다.\n\n");
     printf("ㅁ 이라는/라는 동작\t\tㅁ 라는 문자열로 함수를 정의합니다.\n");
     printf("ㅁ 을/를 [ㅇ 로/으로] 인수\t함수의 인수를 설정합니다. 'ㅂ 와/나' 로 여러 조사를 받게 할 수 있습니다.\n");
-    printf("ㅁ 이 있는지\t\t\t인수로 ㅁ이 있으면 1, 없으면 0을 출력합니다.\n");
+    printf("ㅁ 에 ㅇ 이 있는지\t\t\t인수로 ㅇ이 있으면 1, 없으면 0을 ㅁ에 출력합니다.\n");
     printf("ㅁ 을/를 읽어오기 \t\tㅁ이라는 이름의 안녕 파일을 읽어 실행합니다.\n");
     printf("\n데이터\n");
     printf("ㅁ 을/를 ㅇ으로/로 정하기\t변수 ㅁ의 값을 ㅇ로 지정합니다. ㅁ이 없다면 새로 만듭니다.\n");
@@ -157,23 +157,24 @@ int Function_fun(function* fn)
 int Function_condition(function* fn)
 {
     if (!isMatch(LastF->name, "동작")) return 0;
-    if (!LastF->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
+    if (!fn->factors[1].isMatched) // 조사가 없음 -> option으로 가야됨.
     {
-        defs[defC].options[defs[defC].optionsCount] = setString(LastF->factors[0].value.sValue);
+        defs[defC].options[defs[defC].optionsCount] = setString(fn->factors[0].value.sValue);
         defs[defC].optionsCount++;
     }
     else //인수 하나 추가
     {
         int c = defs[defC].argsCount;
         int argCount = 0;
-        defs[defC].argsName[c] = setString(LastF->factors[0].value.sValue);
+        defs[defC].argsName[c] = setString(fn->factors[0].value.sValue);
 
-        for (argCount = 0; LastF->factors[argCount + 1].isMatched; argCount++) {} // 인수 개수 구하기
+        for (argCount = 0; fn->factors[argCount + 1].isMatched; argCount++) 
+        {} // 인수의 명칭 개수 구하기
         defs[defC].args[c] = (char **) malloc(sizeof(char**) * argCount);
         defs[defC].argNameCount[c] = argCount;
 
         for (int i = 0; i < argCount; i++)
-            defs[defC].args[c][i] = setString(LastF->factors[i + 1].value.sValue);
+            defs[defC].args[c][i] = setString(fn->factors[i + 1].value.sValue);
 
         defs[defC].argsCount++;
     }
@@ -407,6 +408,7 @@ void SetData(const char* name, int args, int options, int useIndents, bool useco
 {
     DEFNOW.name = setString(name);
     DEFNOW.argsCount = args;
+    DEFNOW.argsName = (char**)malloc(sizeof (char*) * args);
     DEFNOW.args = (char ***) malloc(sizeof(char**) * args);
     DEFNOW.argNameCount = (int *) malloc(sizeof(int) * args);
 
