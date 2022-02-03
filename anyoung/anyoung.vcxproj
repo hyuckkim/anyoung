@@ -42,6 +42,7 @@
     <None Include="..\example\ninetyninebeer.any" />
     <None Include="..\example\oneton.any" />
     <None Include="..\example\triangle.any" />
+    <None Include="..\example\function.any" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
