@@ -3,11 +3,9 @@
 
 #define lineLength 240
 #define moonLength 40
-#define stackLength 20
 
 typedef struct struct_def def;
 typedef struct struct_variable variable;
-typedef struct struct_stack stack;
 typedef struct struct_factor factor;
 typedef struct struct_function function;
 typedef enum { //int, string, variable, operator, enum
@@ -52,17 +50,6 @@ struct struct_variable
     bool isMatched; //0이면 Null이라고 생각하면 될듯.
 };
 
-//긴 전체 문자열을 계산해 변수 하나가 되는 과정에서 만들어지는 스택.
-struct struct_stack
-{
-    union {
-        int iValue;
-        char* sValue;
-        char* vValue;
-        char oValue;
-    };
-    type type; //none, iV, sV, vV, oV, eV
-};
 //한 인수의 전체 문자열.
 struct struct_factor
 {
