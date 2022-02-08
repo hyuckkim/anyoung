@@ -33,7 +33,7 @@
     <ClCompile Include="usevariable.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="annyCore.c">
+    <ClCompile Include="stack.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,7 +50,7 @@
     <ClInclude Include="usefunction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="annyCore.h">
+    <ClInclude Include="stack.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="usevariable.h">

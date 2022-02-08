@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "operator.h"
-#include "annyCore.h"
+#include "stack.h"
 #include "usevariable.h"
 
 static variable* valueStack[stackLength] = { NULL };
@@ -10,7 +10,7 @@ static int varCount = 0;
 static char operatorStack[stackLength] = "\0";
 static int opCount = 0;
 
-stack* InitFactorSliceData(const char* startP, const char* endP, int* index)
+stack* sliceFactorData(const char* startP, const char* endP, int* index)
 {
     stack* result = (stack*)malloc(sizeof(stack) * stackLength);
     if (result == NULL) return NULL;
@@ -171,18 +171,14 @@ char popOperator()
     return c;
 }
 
-//(시작지점 startF와 종료지점 endF로 표현되는) 라인 문자열의 일부를 계산해 나타낸다.
-variable findArginFactor(const char* textStartF, const char* textEndF)
-{
-    int dataCount;
-    stack* SliceData = InitFactorSliceData(textStartF, textEndF, &dataCount);
-    
+variable calcStackToVariable(stack* SliceData, int dataLength)
+{   
     int prio;
     varCount = 0;
     opCount = 0;
-    //https://penglog.tistory.com/99 센세 감사합니다
+    //https://penglog.tistory.com/99 감사합니다
 
-    for (int q = 0; q < dataCount; q++) //각 스택에 대해 반복
+    for (int q = 0; q < dataLength; q++) //각 스택에 대해 반복
     {
         if (varCount >= stackLength) { // 스택에 값이 너무 많으면 
             printf("error except in getValueInFactor");

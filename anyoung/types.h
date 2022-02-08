@@ -80,7 +80,7 @@ struct struct_function
     factor* factors;
     factor* options;
     def* define;
-    char** moon;
+    char** line;
     function* returnTo;
-    int temp;
+    int linecount;
 };

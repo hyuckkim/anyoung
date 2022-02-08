@@ -7,17 +7,16 @@
 #include <stdarg.h>
 #include "types.h"
 #include "kinput.h"
-#include "annyCore.h"
 #include "usefunction.h"
 #include "operator.h"
 
 extern int Anyoung_Init();
 
-extern int ind;
+extern int indent;
 
 FILE* openSourceFile(int argc, char** argv) {
 	FILE* stream = NULL;
-	char argu[20] = "";
+	char argu[20] = ""; //디버깅 시 특정 소스 파일 입력
 	if (argu[0] != '\0') {
 		if (fopen_s(&stream, argu, "r") != 0 || stream == NULL) {
 			printf("파일을 여는 데 실패하였습니다.");
@@ -42,7 +41,7 @@ char* getLine(FILE* stream, char* buffer)
 {
 	if (stream == NULL)
 	{
-		if (ind == 0) return getSO(buffer, ">>> ");
+		if (indent == 0) return getSO(buffer, ">>> ");
 		else return getSO(buffer, "... ");
 	}
 	else

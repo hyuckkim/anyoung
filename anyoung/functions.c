@@ -13,7 +13,7 @@ int defM = 1;
 function* funLoopingNow = NULL;
 
 extern function* LastF;
-extern int ind;
+extern int indent;
 
 #define DEFNOW defs[defC]
 #define IS_CLEARED DEFNOW.args != NULL && DEFNOW.argNameCount != NULL
@@ -77,35 +77,35 @@ int Function_Help(function* fn)
 }
 int Function_Loop(function* fn)
 {
-    fn->moon = (char **) malloc(sizeof(char* ) * moonLength);
+    fn->line = (char **) malloc(sizeof(char* ) * moonLength);
     canInsert = 1;
-    fn->temp = 0;
+    fn->linecount = 0;
     return 1;
 }
 int Function_If(function* fn)
 {
-    fn->moon = (char**) malloc(sizeof(char*) * moonLength);
+    fn->line = (char**) malloc(sizeof(char*) * moonLength);
     fn->factors[0].value = itisRValue(&fn->factors[0].value);
     if (fn->factors[0].value.type == iV && fn->factors[0].value.iValue != 0) // 0이 아닌 int value : true.
         canInsert = 1;
     else
         canInsert = 0; //조건문 시작할 때 조건 비교해서 틀리면 아예 메모리에 저장 안함.
-    fn->temp = 0;
+    fn->linecount = 0;
     return 1;
 }
 int Function_Loop_end(function* fn)
 {
     fn->factors[0].value = itisLValue(&fn->factors[0].value);
     fn->factors[1].value = itisRValue(&fn->factors[1].value);
-    ind--; //함수들을 모두 실행해야 되니 임시로 === 
+    indent--; //함수들을 모두 실행해야 되니 임시로 === 
     if (fn->factors[0].value.isMatched)
     {
         variable* v = fn->factors[0].value.vValue;
         v->iValue = 0;
         for (int i = 0; i < fn->factors[1].value.iValue; i++) //v번
         {
-            for (int j = 0; j < fn->temp; j++) //각 함수 실행
-                anyFunction(fn->moon[j]);
+            for (int j = 0; j < fn->linecount; j++) //각 함수 실행
+                anyFunction(fn->line[j]);
             v->iValue++;
         }
     }
@@ -113,37 +113,37 @@ int Function_Loop_end(function* fn)
     {
         for (int i = 0; i < fn->factors[1].value.iValue; i++) //v번
         {
-            for (int j = 0; j < fn->temp; j++) //각 함수 실행
-                anyFunction(fn->moon[j]);
+            for (int j = 0; j < fn->linecount; j++) //각 함수 실행
+                anyFunction(fn->line[j]);
         }
     }   
-    for (int i = 0; i < fn->temp; i++) {
-        free(fn->moon[i]);
-        fn->moon[i] = NULL;
+    for (int i = 0; i < fn->linecount; i++) {
+        free(fn->line[i]);
+        fn->line[i] = NULL;
     }
-    ind++; // 임시로 함수 실행하는 거 끝났으니 === 
+    indent++; // 임시로 함수 실행하는 거 끝났으니 === 
     return -1;
 }
 int Function_If_end(function* fn)
 {
     variable* v = &fn->factors[0].value;
-    ind--; //함수들을 모두 실행해야 되니 임시로 === 
-    for (int j = 0; j < fn->temp; j++) //각 함수 실행
-        anyFunction(fn->moon[j]);
-    for (int i = 0; i < fn->temp; i++) {
-        free(fn->moon[i]);
-        fn->moon[i] = NULL;
+    indent--; //함수들을 모두 실행해야 되니 임시로 === 
+    for (int j = 0; j < fn->linecount; j++) //각 함수 실행
+        anyFunction(fn->line[j]);
+    for (int i = 0; i < fn->linecount; i++) {
+        free(fn->line[i]);
+        fn->line[i] = NULL;
     }
-    ind++; // 임시로 함수 실행하는 거 끝났으니 === 
+    indent++; // 임시로 함수 실행하는 거 끝났으니 === 
     return -1;
 }
 void SetData(const char* name, int args, int options, int useIndents, bool usecondits);
 void DefineInserted();
 int Function_fun(function* fn)
 {
-    fn->moon = (char **) malloc(sizeof(char*) * moonLength);
+    fn->line = (char **) malloc(sizeof(char*) * moonLength);
     canInsert = 1;
-    fn->temp = 0;
+    fn->linecount = 0;
     
     fn->factors[0].value = itisRValue(&fn->factors[0].value);
     SetData(fn->factors[0].value.sValue, 8, 8, false, false); //실제 인수 개수에 안맞추고 무조건 8개 8개 할당중임. 공간복잡도 이슈 생기면 여기 바꾸셈. 
@@ -186,9 +186,9 @@ int Function_fun_end(function* fn)
         freeFunction(fn);
         return 0;
     }
-    for (int i = 0; i < fn->temp; i++)
+    for (int i = 0; i < fn->linecount; i++)
     {
-        defs[defC].line[defs[defC].lineCount] = setString(fn->moon[i]);
+        defs[defC].line[defs[defC].lineCount] = setString(fn->line[i]);
         defs[defC].lineCount++;
     }
     DefineInserted();

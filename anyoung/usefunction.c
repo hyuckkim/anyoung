@@ -4,19 +4,19 @@
 #include "types.h"
 #include "operator.h"
 #include "kinput.h"
-#include "annyCore.h"
+#include "stack.h"
 
 #include "usefunction.h"
 
 int canInsert;
 function* LastF;
-int ind;
+int indent;
 
 void anyFunction(char* line)
 {
 	def* defNow = searchDefine(line);
 	if (defNow == NULL) return;
-	switch (ind)
+	switch (indent)
 	{
 	case 0:
 		useFunction(line, defNow);
@@ -48,11 +48,14 @@ int useFunction(const char* line, def* define)
 	for (int i = 0; i < define->argsCount; i++)
 	{
 		if (!NewF->factors[i].isMatched) continue;
-		NewF->factors[i].value = findArginFactor(NewF->factors[i].startF, NewF->factors[i].endF);
+		int argDataLength;
+		stack* argData = sliceFactorData(NewF->factors[i].startF, NewF->factors[i].endF, &argDataLength);
+		NewF->factors[i].value = calcStackToVariable(argData, argDataLength);
+
 		NewF->factors[i].value.isMatched = true;
 	}
-	ind += define->fun(NewF);
-	if (ind == 0 || define->usecondit) freeFunction(NewF); // 함수 사용이 종료되면 삭제
+	indent += define->fun(NewF);
+	if (indent == 0 || define->usecondit) freeFunction(NewF); // 함수 사용이 종료되면 삭제
 	else LastF = NewF; // if문이라면.
 
 	return 0;
@@ -79,11 +82,11 @@ void freeFunction(function* funNow)
 	free(funNow);
 	funNow = NULL;
 }
-int saveFunction(const char* line, int indent, function* saveTo)
+int saveFunction(const char* line, int currentIndent, function* saveTo)
 {
-	ind += indent;
-	saveTo->moon[saveTo->temp] = setString(line);
-	saveTo->temp++;
+	saveTo->line[saveTo->linecount] = setString(line);
+	saveTo->linecount++;
+	indent += currentIndent;
 	return 0;
 }
 function* initFunction(def* define, const char* str)
