@@ -14,7 +14,6 @@ typedef enum { //int, string, variable, operator, enum
     sV, //string Value. 문자열.
     vV, //Variable Value. 다른 변수를 참조하는 중.
     oV, //Operator Value. 연산자.
-    eV  //enum Value. def의 option과 연관있음.
 } type; 
 
 //함수의 정의.
@@ -33,7 +32,7 @@ struct struct_def
     char** line; //실행되면 실제로 작동하는 문자열들. 기본 함수에서는 무시됨.
     int lineCount; //
 
-    int useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1.
+    int useindent; //평범한 함수가 아니라 문 (if, for, while ...)이면 1. 문 끝내기에 -1이 있음.
     bool usecondit; //조건문인지. '인수', '아니면', '여기까지' 등등.
     int (*fun) (function*);
 };
@@ -46,7 +45,7 @@ struct struct_variable
         char* sValue;
         variable* vValue;
     };
-    type type; //none, iV, sV, vV, oV, eV
+    type type; //none, iV, sV, vV, oV
     bool isMatched; //0이면 Null이라고 생각하면 될듯.
 };
 
@@ -68,6 +67,6 @@ struct struct_function
     factor* options;
     def* define;
     char** line;
-    function* returnTo;
     int linecount;
+    function* returnTo;
 };
