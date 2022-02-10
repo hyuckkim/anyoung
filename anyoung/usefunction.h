@@ -8,7 +8,7 @@ void anyFunction(char* line);
 int useFunction(const char* line, def* define);
 
 //사용이 끝난 함수를 해제한다.
-void freeFunction(function* funNow);
+void freeFunction(function* fun);
 
 //새로 만든 함수의 구문을 저장한다.
 int saveFunction(const char* line, int indent, function* saveTo);
@@ -23,4 +23,4 @@ def* searchDefine(char* str);
 void splitFactors(function fun, const char* str);
 
 //선언 개수를 하나 추가하고 배열이 꽉 찼다면 배열 길이를 두배로 한다.
-void DefineInserted();
+void insertDefine();

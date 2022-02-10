@@ -7,19 +7,8 @@ variable* vars;
 char** varNames;
 int varC;
 int varM = 1;
-extern function* funLoopingNow;
-
-//name과 같은 이름의 변수가 있다면 반환한다.
-variable* getVariable(char* name)
-{
-	for (int i = 0; i < varC; i++)
-	{
-		if (isMatch(varNames[i], name)) return &vars[i];
-	}
-	return NULL;
-}
 //변수 개수를 하나 추가하고 배열이 꽉 찼다면 배열 길이를 두배로 한다.
-void VariableInserted()
+void insertVariable()
 {
 	varC++;
 	if (varC >= varM)
@@ -31,26 +20,38 @@ void VariableInserted()
 		if (nTemp != NULL) varNames = nTemp;
 	}
 }
+
+//name과 같은 이름의 변수가 있다면 반환한다.
+variable* getVariable(char* name)
+{
+	for (int i = 0; i < varC; i++)
+	{
+		if (isMatch(varNames[i], name)) return &vars[i];
+	}
+	return NULL;
+}
 //문자열에서 새로운 변수를 만들어 반환한다.
 variable* makeVariable(char* name)
 {
 	varNames[varC] = setString(name);
 	vars[varC].type = iV;
 	vars[varC].iValue = 0;
-	VariableInserted();
+	insertVariable();
 	return &vars[varC - 1];
 }
+
+extern function* funNow;
 //현재 함수의 인수 중 이름이 맞는 것이 있다면 반환한다.
 variable* GetArgument(char* name)
 {
 	//functions[funC]->factors[0].value.sValue
-	for (int i = 0; i < funLoopingNow->define->argsCount; i++)
+	for (int i = 0; i < funNow->define->argsCount; i++)
 	{
-		if (isMatch(funLoopingNow->define->argsName[i], name))
+		if (isMatch(funNow->define->argsName[i], name))
 		{
-			if (funLoopingNow->factors[i].value.type == vV)
-				return funLoopingNow->factors[i].value.vValue;
-			return &funLoopingNow->factors[i].value;
+			if (funNow->factors[i].value.type == vV)
+				return funNow->factors[i].value.vValue;
+			return &funNow->factors[i].value;
 		}
 	}
 	return NULL;
@@ -60,7 +61,7 @@ variable* getVar(char* name)
 {
 	variable* v = getVariable(name);
 	if (v != NULL) return v;
-	if (funLoopingNow != NULL) v = GetArgument(name);
+	if (funNow != NULL) v = GetArgument(name);
 	if (v != NULL) return v;
 	return makeVariable(name);
 }

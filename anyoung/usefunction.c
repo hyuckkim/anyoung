@@ -61,26 +61,25 @@ int useFunction(const char* line, def* define)
 	return 0;
 }
 
-void freeFunction(function* funNow)
+void freeFunction(function* fun)
 {
-	if (funNow->factors != NULL)
+	if (fun->factors != NULL)
 	{
-		for (int i = 0; i < funNow->define->argsCount; i++)
+		for (int i = 0; i < fun->define->argsCount; i++)
 		{
-			if (funNow->factors[i].isMatched && funNow->factors[i].value.type == sV)
+			if (fun->factors[i].isMatched && fun->factors[i].value.type == sV)
 			{
-				free(funNow->factors[i].value.sValue);
+				free(fun->factors[i].value.sValue);
 			}
 		}
-		free(funNow->factors);
+		free(fun->factors);
 	}
-	if (funNow->options != NULL)
+	if (fun->options != NULL)
 	{
-
-		free(funNow->options);
+		free(fun->options);
 	}
-	free(funNow);
-	funNow = NULL;
+	free(fun);
+	fun = NULL;
 }
 int saveFunction(const char* line, int currentIndent, function* saveTo)
 {
@@ -150,7 +149,7 @@ function* initFunction(def* define, const char* str)
 extern int defC, defM;
 extern def* defs;
 
-void DefineInserted()
+void insertDefine()
 {
 	defC++;
 	if (defC >= defM) {

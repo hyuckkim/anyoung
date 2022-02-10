@@ -10,7 +10,7 @@
 def* defs;
 int defC = 0;
 int defM = 1;
-function* funLoopingNow = NULL;
+function* funNow = NULL;
 
 extern function* LastF;
 extern int indent;
@@ -21,7 +21,6 @@ extern variable* vars;
 extern char** varNames;
 extern int varC;
 extern int varM;
-extern function* funLoopingNow;
 
 extern int canInsert;
 
@@ -44,12 +43,12 @@ int getIntinStr(const char* chars)
 
 int Function_User(function* fn)
 {
-    funLoopingNow = fn;
+    funNow = fn;
     for (int i = 0; i < fn->define->lineCount; i++)
     {
         anyFunction(fn->define->line[i]);
     }
-    funLoopingNow = 0;
+    funNow = NULL;
     return 0;
 }
 int Function_Help(function* fn)
@@ -138,7 +137,7 @@ int Function_If_end(function* fn)
     return -1;
 }
 void SetData(const char* name, int args, int options, int useIndents, bool usecondits);
-void DefineInserted();
+void insertDefine();
 int Function_fun(function* fn)
 {
     fn->line = (char **) malloc(sizeof(char*) * moonLength);
@@ -191,7 +190,7 @@ int Function_fun_end(function* fn)
         defs[defC].line[defs[defC].lineCount] = setString(fn->line[i]);
         defs[defC].lineCount++;
     }
-    DefineInserted();
+    insertDefine();
     return -1;
 }
 int Function_end(function* fn)
@@ -234,21 +233,21 @@ int Function_valid(function* fn)
 {
     variable value1 = itisLValue(&fn->factors[0].value);
     variable value2 = itisRValue(&fn->factors[1].value);
-    for (int i = 0; i < funLoopingNow->define->argsCount; i++)
+    for (int i = 0; i < funNow->define->argsCount; i++)
     {
-        if (isMatch(value2.sValue, funLoopingNow->define->argsName[i]))
+        if (isMatch(value2.sValue, funNow->define->argsName[i]))
         {
-            value1.vValue->iValue = funLoopingNow->factors[i].isMatched;
+            value1.vValue->iValue = funNow->factors[i].isMatched;
             value1.vValue->type = iV;
             return 0;
         }
     }
-    for (int i = 0; i < funLoopingNow->define->optionsCount; i++)
+    for (int i = 0; i < funNow->define->optionsCount; i++)
     {
-        if (isMatch(value2.sValue, funLoopingNow->define->options[i]))
+        if (isMatch(value2.sValue, funNow->define->options[i]))
         {
-            //printf("%d", funLoopingNow->options[i].isMatched);
-            value1.vValue->iValue = funLoopingNow->options[i].isMatched;
+            //printf("%d", funNow->options[i].isMatched);
+            value1.vValue->iValue = funNow->options[i].isMatched;
             value1.vValue->type = iV;
             return 0;
         }
@@ -457,7 +456,7 @@ int Anyoung_Init()
         SetOptions(1, "조용히");
     }
     DEFNOW.fun = Function_Say;
-    DefineInserted();
+    insertDefine();
 
     SetData("듣기", 1, 0, 0, false);
     if (IS_CLEARED)
@@ -465,11 +464,11 @@ int Anyoung_Init()
         SetArgs(0, 1, "에");
     }
     DEFNOW.fun = Function_Listen;
-    DefineInserted();
+    insertDefine();
 
     SetData("도움", 0, 0, 0, false);
     DEFNOW.fun = Function_Help;
-    DefineInserted();
+    insertDefine();
 
     SetData("정하기", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -478,7 +477,7 @@ int Anyoung_Init()
         SetArgs(1, 2, "로", "으로");
     }
     DEFNOW.fun = Function_Set;
-    DefineInserted();
+    insertDefine();
 
     SetData("더하기", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -487,7 +486,7 @@ int Anyoung_Init()
         SetArgs(1, 1, "만큼");
     }
     DEFNOW.fun = Function_Add;
-    DefineInserted();
+    insertDefine();
 
     SetData("빼기", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -496,7 +495,7 @@ int Anyoung_Init()
         SetArgs(1, 1, "만큼");
     }
     DEFNOW.fun = Function_Minus;
-    DefineInserted();
+    insertDefine();
 
     SetData("곱하기", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -505,7 +504,7 @@ int Anyoung_Init()
         SetArgs(1, 1, "만큼");
     }
     DEFNOW.fun = Function_Multi;
-    DefineInserted();
+    insertDefine();
 
     SetData("나누기", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -514,7 +513,7 @@ int Anyoung_Init()
         SetArgs(1, 1, "만큼");
     }
     DEFNOW.fun = Function_Devide;
-    DefineInserted();
+    insertDefine();
 
     SetData("되풀이", 2, 0, 1, false);
     if (IS_CLEARED)
@@ -523,7 +522,7 @@ int Anyoung_Init()
         SetArgs(1, 1, "번");
     }
     DEFNOW.fun = Function_Loop;
-    DefineInserted();
+    insertDefine();
 
     SetData("조건", 1, 0, 1, false);
     if (IS_CLEARED)
@@ -531,15 +530,15 @@ int Anyoung_Init()
         SetArgs(0, 2, "면", "이면");
     }
     DEFNOW.fun = Function_If;
-    DefineInserted();
+    insertDefine();
 
     SetData("여기까지", 0, 0, -1, true);
     DEFNOW.fun = Function_end;
-    DefineInserted();
+    insertDefine();
 
     SetData("아니면", 0, 0, 0, true);
     DEFNOW.fun = Function_not;
-    DefineInserted();
+    insertDefine();
 
     SetData("잘라내기", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -548,7 +547,7 @@ int Anyoung_Init()
         SetArgs(1, 2, "로", "으로");
     }
     DEFNOW.fun = Function_Cutstr;
-    DefineInserted();
+    insertDefine();
 
     SetData("동작", 1, 0, 1, false);
     if (IS_CLEARED)
@@ -556,7 +555,7 @@ int Anyoung_Init()
         SetArgs(0, 2, "이라는", "라는");
     }
     DEFNOW.fun = Function_fun;
-    DefineInserted();
+    insertDefine();
 
     SetData("인수", 5, 0, 0, true);
     if (IS_CLEARED)
@@ -568,7 +567,7 @@ int Anyoung_Init()
         SetArgs(4, 2, "와", "나");
     }
     DEFNOW.fun = Function_condition;
-    DefineInserted();
+    insertDefine();
 
     SetData("있는지", 2, 0, 0, false);
     if (IS_CLEARED)
@@ -577,7 +576,7 @@ int Anyoung_Init()
         SetArgs(1, 2, "이", "가");
     }
     DEFNOW.fun = Function_valid;
-    DefineInserted();
+    insertDefine();
 
     SetData("읽어오기", 1, 0, 0, false);
     if (IS_CLEARED)
@@ -585,6 +584,6 @@ int Anyoung_Init()
         SetArgs(0, 2, "을", "를");
     }
     DEFNOW.fun = Function_include;
-    DefineInserted();
+    insertDefine();
     return 0;
 }
