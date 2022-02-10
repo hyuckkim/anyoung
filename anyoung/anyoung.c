@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	if (stream == NULL)
 	{
 		anyFunction("말하기 \"어순에 상관없는 한글 스크립트 언어 안녕\"을");
-		anyFunction("말하기 \"v0.3 실행중\"을");
+		anyFunction("말하기 \"v0.3\" + \" 실행중\"을");
 		anyFunction("말하기 \"'도움'으로 명령어 확인\"을");
 	}
 
