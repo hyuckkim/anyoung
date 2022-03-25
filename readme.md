@@ -1,5 +1,6 @@
 # 안녕 : 약한 문법의 약한 프로그래밍 언어
-안녕은 어순에 구애받지 않고 문법을 쓸 수 있는 프로그래밍 언어입니다.
+안녕은 어순에 구애받지 않고 문법을 쓸 수 있는 프로그래밍 언어입니다.  
+[![MSBuild](https://github.com/hyuckkim/anyoung/actions/workflows/msbuild.yml/badge.svg)](https://github.com/hyuckkim/anyoung/actions/workflows/msbuild.yml)  
 
 ## 우리말
  * 철수가 밥을 먹는다.
