@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <windows.h>
 #include "types.h"
 #include "kinput.h"
 #include "usefunction.h"
@@ -53,6 +54,8 @@ int main(int argc, char** argv)
 {
 	function* LastF = NULL;
 	Anyoung_Init();
+	
+	SetConsoleOutputCP(CP_UTF8);
 	char chars[lineLength] = "default";
 	FILE* stream = openSourceFile(argc, argv);
 
