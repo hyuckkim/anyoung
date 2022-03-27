@@ -7,18 +7,17 @@
 #define SHUTDOWN 3
 typedef enum { sol, duo, tri, qua, funA, funB, LineBreak, BackSpace } textInfo;
 
-int iAge = 0;
 void printBit(unsigned char a)
 {
-printf("%d %d %d %d %d %d %d %d",
-	(a >> 7) % 2,
-	(a >> 6) % 2,
-	(a >> 5) % 2,
-	(a >> 4) % 2,
-	(a >> 3) % 2,
-	(a >> 2) % 2,
-	(a >> 1) % 2,
-	(a >> 0) % 2);
+	printf("%d %d %d %d %d %d %d %d",
+		(a >> 7) % 2,
+		(a >> 6) % 2,
+		(a >> 5) % 2,
+		(a >> 4) % 2,
+		(a >> 3) % 2,
+		(a >> 2) % 2,
+		(a >> 1) % 2,
+		(a >> 0) % 2);
 }
 bool isSolByte(unsigned char byte)
 {
@@ -29,21 +28,21 @@ bool isSolByte(unsigned char byte)
 bool isDuoByte(unsigned char byte)
 {
 	if ((byte | 0b11011111) == 0b11011111  //negative
-	 && (byte & 0b11000000) == 0b11000000) //positive
+		&& (byte & 0b11000000) == 0b11000000) //positive
 		return true;
 	return false;
 }
 bool isTriByte(unsigned char byte)
 {
 	if ((byte | 0b11101111) == 0b11101111  //negative
-	 && (byte & 0b11100000) == 0b11100000) //positive
+		&& (byte & 0b11100000) == 0b11100000) //positive
 		return true;
 	return false;
 }
 bool isQuaByte(unsigned char byte)
 {
 	if ((byte | 0b11110111) == 0b11110111  //negative
-	 && (byte & 0b11110000) == 0b11110000) //positive
+		&& (byte & 0b11110000) == 0b11110000) //positive
 		return true;
 	return false;
 }
@@ -59,9 +58,11 @@ int getitsbyte(unsigned char byte)
 		return 4;
 	return -1;
 }
-char* noo[240]; //each multibyte texts in line.
+char* conversation[240]; //each multibyte texts in line.
 
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow);
+int verifyKey(int key_value, textInfo* thisInfo);
+int setNextUTF8Text(textInfo thisInfo, char* nooNow, char* utf8);
 char* getSO(char* writeAt, const char* various)
 {
 	int key_value = 0; //get solo char data by _getch()
@@ -78,16 +79,8 @@ char* getSO(char* writeAt, const char* various)
 		if (stack == 0)
 		{
 			utf8[0] = key_value;
-			if (key_value == 0) { thisInfo = funA; stack = 1; }
-			else if (key_value == SHUTDOWN) return NULL;
-			else if (key_value == 224) { thisInfo = funB; stack = 1; }
-			else if (key_value == '\n' || key_value == '\r') { thisInfo = LineBreak; stack = 0; }
-			else if (key_value == '\b') { thisInfo = BackSpace; stack = 0; }
-			else if (isSolByte(key_value)) { thisInfo = sol; stack = 0; }
-			else if (isDuoByte(key_value)) { thisInfo = duo; stack = 1; }
-			else if (isTriByte(key_value)) { thisInfo = tri; stack = 2; }
-			else if (isQuaByte(key_value)) { thisInfo = qua; stack = 3; }
-			else printf("error : %d", key_value);
+			stack = verifyKey(key_value, &thisInfo);
+			if (stack == -1) return NULL;
 		}
 		else
 		{
@@ -98,60 +91,26 @@ char* getSO(char* writeAt, const char* various)
 		if (stack == 0)
 		{
 			printMultibyteChar(thisInfo, utf8, nooNow);
-			switch (thisInfo)
-			{
-			case funA:
-				break;
-			case funB:
-				break;
-			case LineBreak:
-				nooNow[0] = '\n';
-				nooNow[1] = '\0';
-				break;
-			case BackSpace:
-				if (iAge > 0)
-				{
-					nooNow = noo[iAge - 1];
-					noo[iAge - 1][0] = '\0';
-					iAge -= 1;
-				}
+			nooNow += setNextUTF8Text(thisInfo, nooNow, utf8);
+			if (thisInfo == BackSpace) {
 				printf("%s%s", various, writeAt);
-				break;
-			case sol:
-				nooNow[0] = utf8[0];
-				noo[iAge] = nooNow;
-				nooNow += 1;
-				iAge += 1;
-				break;
-			case duo:
-				nooNow[0] = utf8[0];
-				nooNow[1] = utf8[1];
-				noo[iAge] = nooNow;
-				nooNow += 2;
-				iAge += 1;
-				break;
-			case tri:
-				nooNow[0] = utf8[0];
-				nooNow[1] = utf8[1];
-				nooNow[2] = utf8[2];
-				noo[iAge] = nooNow;
-				nooNow += 3;
-				iAge += 1;
-				break;
-			case qua:
-				nooNow[0] = utf8[0];
-				nooNow[1] = utf8[1];
-				nooNow[2] = utf8[2];
-				nooNow[3] = utf8[3];
-				noo[iAge] = nooNow;
-				nooNow += 4;
-				iAge += 1;
-				break;
 			}
 			nextValue = 0;
 		}
 	}
 	return writeAt;
+}
+int verifyKey(int key_value, textInfo* thisInfo) {
+	if (key_value == 0) { *thisInfo = funA; return 1; }
+	if (key_value == SHUTDOWN) return -1;
+	if (key_value == 224) { *thisInfo = funB; return 1; }
+	if (key_value == '\n' || key_value == '\r') { *thisInfo = LineBreak; return 0; }
+	if (key_value == '\b') { *thisInfo = BackSpace; return 0; }
+	if (isSolByte(key_value)) { *thisInfo = sol; return 0; }
+	if (isDuoByte(key_value)) { *thisInfo = duo; return 1; }
+	if (isTriByte(key_value)) { *thisInfo = tri; return 2; }
+	if (isQuaByte(key_value)) { *thisInfo = qua; return 3; }
+	return -1;
 }
 void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
 {
@@ -168,6 +127,7 @@ void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
 \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\
                                                                                           \
 \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		//'\b' * 80 + ' ' * 80 + '\b' * 80
 		break;
 	case sol:
 		printf("%c", utf8[0]);
@@ -181,5 +141,55 @@ void printMultibyteChar(textInfo thisInfo, char* utf8, char* nooNow)
 	case qua:
 		printf("%c%c%c%c", utf8[0], utf8[1], utf8[2], utf8[3]);
 		break;
+	}
+}
+int setNextUTF8Text(textInfo thisInfo, char* writePos, char* utf8)
+{
+	static int iAge = 0;
+	switch (thisInfo)
+	{
+	case LineBreak:
+		writePos[0] = '\n';
+		writePos[1] = '\0';
+	case funA:
+	case funB:
+		return 0;
+	case BackSpace:
+		if (iAge > 0)
+		{
+			iAge -= 1;
+			conversation[iAge][0] = '\0';
+			return conversation[iAge] - writePos;
+		}
+		else
+		{
+			return 0;
+		}
+	case sol:
+		writePos[0] = utf8[0];
+		conversation[iAge] = writePos;
+		iAge += 1;
+		return 1;
+	case duo:
+		writePos[0] = utf8[0];
+		writePos[1] = utf8[1];
+		conversation[iAge] = writePos;
+		iAge += 1;
+		return 2;
+	case tri:
+		writePos[0] = utf8[0];
+		writePos[1] = utf8[1];
+		writePos[2] = utf8[2];
+		conversation[iAge] = writePos;
+		iAge += 1;
+		return 3;
+	case qua:
+		writePos[0] = utf8[0];
+		writePos[1] = utf8[1];
+		writePos[2] = utf8[2];
+		writePos[3] = utf8[3];
+		conversation[iAge] = writePos;
+		iAge += 1;
+		return 4;
 	}
 }
